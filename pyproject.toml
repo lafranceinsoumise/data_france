@@ -1,0 +1,27 @@
+[build-system]
+requires = ["flit"]
+backend-path = ["backend"]
+build-backend = "backend"
+
+[tool.flit.metadata]
+module = "data_france"
+author = "Arthur Cheysson"
+author-email = "arthur@cheysson.fr"
+description = "Une application Django comportant données administratives et géographiques sur la France"
+home-page = "https://github.com/aktiur/data-france"
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
+]
