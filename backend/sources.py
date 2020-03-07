@@ -1,7 +1,7 @@
 import datetime
 from dataclasses import dataclass
 from pathlib import PurePath
-from typing import List
+from typing import List, Union
 
 
 def parse_date(d):
@@ -27,49 +27,28 @@ class Date:
 
 
 @dataclass
-class SourceVersion:
+class Source:
+    path: PurePath
     url: str
     date: Date
     hash: str
+    preparation: str = None
+    targets: Union[str, List[str]] = None
 
     @property
     def filename(self):
         suffix = PurePath(self.url).suffix
-        if self.date:
-            return f"{str(self.date)}{suffix}"
-        return f"inconnue{suffix}"
+        return self.path.parent / (self.path.name + suffix)
 
-
-@dataclass
-class Source:
-    path: PurePath
-    versions: List[SourceVersion]
-
-    @property
-    def url(self):
-        return self.versions[0].url
-
-    @property
-    def filename(self):
-        return self.path / self.versions[0].filename
-
-    @property
-    def hash(self):
-        return self.versions[0].hash
+    def __getattr__(self, item):
+        return getattr(self.versions[0], item)
 
 
 def iterate_sources(sources):
     stack = [(PurePath(""), sources)]
     while stack:
         path, value = stack.pop()
-        if isinstance(value, dict):
-            stack.extend((path / str(p), s) for p, s in value.items())
-
+        if "url" in value:
+            yield Source(path, **value)
         else:
-            yield Source(
-                path,
-                [
-                    SourceVersion(s["url"], parse_date(s["date"]), s["hash"])
-                    for s in value
-                ],
-            )
+            stack.extend((path / str(p), s) for p, s in value.items())
