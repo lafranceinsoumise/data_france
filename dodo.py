@@ -63,14 +63,20 @@ def task_preparer():
             func = getattr(module, func)
 
             src = SOURCE_DIR / source.filename
-            targets = [PREPARE_DIR / t for t in source.targets]
+            base_filename = [PREPARE_DIR / t for t in source.targets]
+
+            targets = [
+                f.with_name(f.name + ext)
+                for f in base_filename
+                for ext in ["-pop.feather", "-votes.feather"]
+            ]
 
             yield {
                 "name": source.path,
                 "targets": targets,
                 "file_dep": [src],
                 "actions": [
-                    *[ensure_dir_exists(t) for t in targets],
-                    (func, [], {"src": src, "targets": targets}),
+                    *[ensure_dir_exists(t) for t in base_filename],
+                    (func, [], {"src": src, "targets": base_filename}),
                 ],
             }

@@ -12,7 +12,7 @@ fixed_headers = {
     "Code de la circonscription": "circonscription",
     "Libellé de la circonscription": None,
     "Code de la commune": "commune",
-    "Libellé de la commune": "commune_libelle",
+    "Libellé de la commune": None,
     "Code du b.vote": "bureau",
     "Inscrits": "inscrits",
     "Abstentions": None,
@@ -35,7 +35,7 @@ Comment renommer les entêtes ?
 
 repeated_headers = {
     "N°Panneau": "numero_panneau",
-    "N°Liste": "numero_liste",  # N°Liste
+    "N°Liste": "numero_panneau",  # N°Liste
     "Sexe": "sexe",
     "Nom": "nom",
     "Prénom": "prenom",
@@ -67,9 +67,21 @@ transforms = {
     "tete_liste": "category",
 }
 
+identifiants = ["departement", "commune", "bureau"]
+population = ["inscrits", "votants", "exprimes"]
+par_candidat = [
+    "numero_panneau",
+    "nuance",
+    "nom",
+    "prenom",
+    "liste_court",
+    "liste_long",
+    "voix",
+]
+
 
 def clean_results(src, targets):
-    targets = targets[0]
+    target = targets[0]
     with open(src, "r", encoding="latin1", newline="") as in_file:
         r = csv.reader(in_file, delimiter=";")
 
@@ -112,4 +124,17 @@ def clean_results(src, targets):
             if field in df.columns:
                 df[field] = df[field].astype(transform)
 
-        df.to_feather(targets)
+        df["code"] = (
+            df["departement"].str.zfill(2)
+            + df["commune"].str.zfill(3)
+            + "-"
+            + df["bureau"].str.zfill(4)
+        )
+
+        df.groupby(["code"]).agg(
+            {f: "first" for f in population}
+        ).reset_index().to_feather(f"{target}-pop.feather")
+
+        df[["code", *[c for c in par_candidat if c in df.columns]]].to_feather(
+            f"{target}-votes.feather"
+        )
