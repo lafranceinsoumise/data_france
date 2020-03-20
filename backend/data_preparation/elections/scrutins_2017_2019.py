@@ -14,6 +14,7 @@ fixed_headers = {
     "Code de la commune": "commune",
     "Libellé de la commune": None,
     "Code du b.vote": "bureau",
+    "Code B.Vote": "bureau",
     "Inscrits": "inscrits",
     "Abstentions": None,
     "% Abs/Ins": None,
@@ -35,13 +36,16 @@ Comment renommer les entêtes ?
 
 repeated_headers = {
     "N°Panneau": "numero_panneau",
+    "N.Pan.": "numero_panneau",
     "N°Liste": "numero_panneau",  # N°Liste
     "Sexe": "sexe",
     "Nom": "nom",
     "Prénom": "prenom",
     "Nuance": "nuance",
+    "Code Nuance": "nuance",
     "Libellé Abrégé Liste": "liste_court",  # Libellé Abrégé Liste
     "Libellé Etendu Liste": "liste_long",  # Libellé Etendu Liste
+    "Liste": "liste_long",
     "Nom Tête de Liste": "tete_liste",  # Nom Tête de Liste
     "Voix": "voix",
     "% Voix/Ins": None,
@@ -80,10 +84,10 @@ par_candidat = [
 ]
 
 
-def clean_results(src, targets):
-    target = targets[0]
-    with open(src, "r", encoding="latin1", newline="") as in_file:
-        r = csv.reader(in_file, delimiter=";")
+def clean_results(src, base_filenames, delimiter=";"):
+    base_filename = base_filenames[0]
+    with open(src, "r", encoding="latin1", newline="",) as in_file:
+        r = csv.reader(in_file, delimiter=delimiter)
 
         headers = next(r)
 
@@ -92,7 +96,12 @@ def clean_results(src, targets):
                 raise RuntimeError(f"Champ '{h}' inconnu dans {src}")
 
         global_fields = [h for h in headers if h in fixed_headers]
-        repeated_fields = [h for h in headers if h in repeated_headers]
+
+        # attention aux répétitions
+        repeated_fields = []
+        for h in headers:
+            if h in repeated_headers and h not in repeated_fields:
+                repeated_fields.append(h)
 
         fields = [
             fixed_headers[field]
@@ -116,13 +125,20 @@ def clean_results(src, targets):
                 global_values = [line[i] for i in global_indices]
                 for i in range(len(global_fields), len(line), len(repeated_fields)):
                     candidate_values = [line[i + j] for j in repeated_indices]
+                    if candidate_values[-1] == "":
+                        break
                     yield (global_values + candidate_values)
 
         df = pd.DataFrame(list(all_lines()), columns=fields)
 
         for field, transform in transforms.items():
-            if field in df.columns:
-                df[field] = df[field].astype(transform)
+            try:
+                if field in df.columns:
+                    df[field] = df[field].astype(transform)
+            except ValueError as e:
+                print(f"global_fields: {global_fields!r}")
+                print(f"repeated_fields: {repeated_fields!r}")
+                raise ValueError(f"Echec transformation {transform} sur {field}")
 
         df["code"] = (
             df["departement"].str.zfill(2)
@@ -133,8 +149,8 @@ def clean_results(src, targets):
 
         df.groupby(["code"]).agg(
             {f: "first" for f in population}
-        ).reset_index().to_feather(f"{target}-pop.feather")
+        ).reset_index().to_feather(f"{base_filename}-pop.feather")
 
         df[["code", *[c for c in par_candidat if c in df.columns]]].to_feather(
-            f"{target}-votes.feather"
+            f"{base_filename}-votes.feather"
         )

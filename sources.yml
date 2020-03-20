@@ -25,6 +25,11 @@ insee:
       date: 04/2019
       hash: e6bba1d2564b564a6a4bbf19f340425c916cd9c05b02905a9842be5f70728808
 
+  population:
+    url: https://www.insee.fr/fr/statistiques/fichier/4265429/ensemble.zip
+    date: 30/12/2019
+    hash: 7c12879f5812772c29ab32f40310ef20ee16082c96f34b64152bb83cb1359307
+
   intercommunalite:
     epci:
       url: https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite-Metropole_au_01-01-2019.zip
@@ -99,6 +104,14 @@ interieur:
         targets:
           - 2014-europeennes
     municipales:
+      2020:
+        url: https://static.data.gouv.fr/resources/elections-municipales-2020-resultats/20200317-180347/2020-03-16-resultats-par-bv.xlsx
+        date: 17/03/2020
+        hash: c28d22306caa55beff407b4daae884dc01f1d5c4ab5295053c716ab3269af3a2
+        preparation: data_preparation.elections.scrutins_2017_2019:clean_results
+        to_csv: True
+        targets:
+          - 2020-municipales-1
       2014:
         url: https://www.data.gouv.fr/s/resources/elections-municipales-2014-resultats-par-bureaux-de-vote/20150925-122128/MN14_Bvot_T1T2.txt
         date: 25/09/2015

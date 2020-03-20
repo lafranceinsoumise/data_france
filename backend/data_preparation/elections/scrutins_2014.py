@@ -40,9 +40,9 @@ types_par_colonne = {
 }
 
 
-def clean_results(src, targets):
-    if isinstance(targets, (str, Path)):
-        targets = [targets]
+def clean_results(src, base_filenames):
+    if isinstance(base_filenames, (str, Path)):
+        base_filenames = [base_filenames]
 
     # trouver la première ligne
     with open(src, "r", encoding="latin1") as f:
@@ -74,10 +74,10 @@ def clean_results(src, targets):
         + df["bureau"].str.zfill(4)
     )
 
-    for tour, dest in zip(sorted(df["numero_tour"].unique()), targets):
+    for tour, base_filename in zip(sorted(df["numero_tour"].unique()), base_filenames):
         df.loc[df["numero_tour"] == tour, ["code", *population]].groupby("code").agg(
             {f: "first" for f in population}
-        ).reset_index().to_feather(f"{dest}-pop.feather")
+        ).reset_index().to_feather(f"{base_filename}-pop.feather")
         df.loc[df["numero_tour"] == tour, ["code", *par_candidat]].reset_index(
             drop=True
-        ).to_feather(f"{dest}-votes.feather")
+        ).to_feather(f"{base_filename}-votes.feather")

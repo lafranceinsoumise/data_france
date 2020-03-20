@@ -3,7 +3,6 @@ from importlib import import_module
 from pathlib import Path, PurePath
 
 import yaml
-from doit.tools import config_changed
 
 BASE_PATH = Path(__file__).parent
 SOURCE_DIR = BASE_PATH / "build" / "sources"
@@ -42,17 +41,28 @@ def task_telecharger():
                     SOURCE_DIR / source.filename,
                     source.url,
                 ],
-                (
-                    check_hash,
-                    [],
-                    {
-                        "filename": SOURCE_DIR / source.filename,
-                        "hash_digest": source.hash,
-                    },
-                ),
             ],
-            "uptodate": [config_changed(source.hash)],
+            "uptodate": [check_hash(SOURCE_DIR / source.filename, source.hash)],
         }
+
+
+def task_convertir_en_csv():
+    for source in iterate_sources():
+        if source.to_csv:
+            yield {
+                "name": str(source.path),
+                "file_dep": [SOURCE_DIR / source.filename],
+                "targets": [(SOURCE_DIR / source.filename).with_suffix(".csv")],
+                "actions": [
+                    [
+                        "libreoffice",
+                        "--headless",
+                        "--convert-to",
+                        "csv",
+                        SOURCE_DIR / source.filename,
+                    ]
+                ],
+            }
 
 
 def task_preparer():
@@ -63,20 +73,33 @@ def task_preparer():
             func = getattr(module, func)
 
             src = SOURCE_DIR / source.filename
-            base_filename = [PREPARE_DIR / t for t in source.targets]
+            if source.to_csv:
+                src = src.with_suffix(".csv")
+
+            base_filenames = [PREPARE_DIR / t for t in source.targets]
 
             targets = [
                 f.with_name(f.name + ext)
-                for f in base_filename
+                for f in base_filenames
                 for ext in ["-pop.feather", "-votes.feather"]
             ]
+
+            print(f"{base_filenames!r}  / {targets!r}")
 
             yield {
                 "name": source.path,
                 "targets": targets,
                 "file_dep": [src],
                 "actions": [
-                    *[ensure_dir_exists(t) for t in base_filename],
-                    (func, [], {"src": src, "targets": base_filename}),
+                    *[ensure_dir_exists(t) for t in base_filenames],
+                    (
+                        func,
+                        [],
+                        {
+                            "src": src,
+                            "base_filenames": base_filenames,
+                            "delimiter": "," if source.to_csv else ";",
+                        },
+                    ),
                 ],
             }

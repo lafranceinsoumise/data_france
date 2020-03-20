@@ -34,11 +34,15 @@ class Source:
     hash: str
     preparation: str = None
     targets: Union[str, List[str]] = None
+    to_csv: bool = False
+
+    @property
+    def suffix(self):
+        return PurePath(self.url).suffix
 
     @property
     def filename(self):
-        suffix = PurePath(self.url).suffix
-        return self.path.parent / (self.path.name + suffix)
+        return self.path.parent / (self.path.name + self.suffix)
 
     def __getattr__(self, item):
         return getattr(self.versions[0], item)
