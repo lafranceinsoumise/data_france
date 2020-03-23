@@ -110,13 +110,14 @@ def traiter_communes(
     communes = (
         pd.read_csv(
             communes_path,
-            dtype={"com": str, "dep": str, "arr": str, "comparent": str},
+            dtype={"com": str, "dep": str, "comparent": str},
             usecols=["typecom", "com", "dep", "tncc", "nccenr", "comparent"],
         )
         .join(correspondances_epci, on=["com"])
         .rename(
             columns={
                 "com": "code",
+                "dep": "code_departement",
                 "typecom": "type",
                 "nccenr": "nom",
                 "tncc": "type_nom",
