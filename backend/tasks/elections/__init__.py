@@ -1,9 +1,9 @@
+from doit.tools import create_folder
+
 from backend import SOURCE_DIR, PREPARE_DIR
 from sources import iterate_sources
-from utils import ensure_dir_exists
-
-from .scrutins_2017_2019 import clean_results as clean_results_post_2017
 from .scrutins_2014 import clean_results as clean_results_2014
+from .scrutins_2017_2019 import clean_results as clean_results_post_2017
 
 __all__ = ["task_preparer"]
 
@@ -52,7 +52,7 @@ def task_preparer():
                 "targets": targets,
                 "file_dep": [src],
                 "actions": [
-                    *[ensure_dir_exists(t) for t in base_filenames],
+                    *[(create_folder, [t]) for t in base_filenames],
                     (
                         func,
                         [],

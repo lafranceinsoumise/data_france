@@ -1,9 +1,11 @@
 from doit import create_after
+from doit.tools import create_folder
 
 from backend import SOURCE_DIR, PREPARE_DIR
 from sources import iterate_sources
-from utils import check_hash, get_zip_targets, extract_zip_file, ensure_dir_exists
+from utils import check_hash, get_zip_targets, extract_zip_file
 from .elections import *
+from .cog import *
 
 
 def task_telecharger():
@@ -12,7 +14,7 @@ def task_telecharger():
             "name": str(source.path),
             "targets": [SOURCE_DIR / source.filename],
             "actions": [
-                ensure_dir_exists(SOURCE_DIR / source.filename),
+                (create_folder, [SOURCE_DIR / source.filename]),
                 [
                     "curl",
                     "--silent",

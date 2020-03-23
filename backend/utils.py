@@ -32,10 +32,6 @@ class check_hash:
         return self._check()
 
 
-def ensure_dir_exists(filename: Path):
-    return ["mkdir", "-p", filename.parent]
-
-
 def get_zip_targets(zip_path, dest_prefix):
     zip_file = ZipFile(zip_path)
     if len(zip_file.infolist()) == 1:
