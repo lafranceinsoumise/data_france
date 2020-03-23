@@ -62,61 +62,36 @@ interieur:
           url: https://www.data.gouv.fr/s/resources/election-presidentielle-des-23-avril-et-7-mai-2017-resultats-definitifs-du-1er-tour-par-bureaux-de-vote/20170427-100955/PR17_BVot_T1_FE.txt
           date: 04/2017
           hash: 1eb1e4358a8af59ebc86ff7e0e4a2ee175f6cf516e4598cd955193064fc91e6a
-          preparation: data_preparation.elections.scrutins_2017_2019:clean_results
-          targets:
-            - 2017-presidentielles-1
         tour2:
           url: https://www.data.gouv.fr/s/resources/election-presidentielle-des-23-avril-et-7-mai-2017-resultats-definitifs-du-2nd-tour-par-bureaux-de-vote/20170511-093541/PR17_BVot_T2_FE.txt
           date: 05/2017
           hash: 2b6137b64957b9bfff24436cf859aad15e8b155b837b182eebff71c21fc82798
-          preparation: data_preparation.elections.scrutins_2017_2019:clean_results
-          targets:
-            - 2017-presidentielles-2
     legislatives:
       2017:
         tour1:
           url: https://www.data.gouv.fr/s/resources/elections-legislatives-des-11-et-18-juin-2017-resultats-par-bureaux-de-vote-du-1er-tour/20170613-100441/Leg_2017_Resultats_BVT_T1_c.txt
           date: 06/2017
           hash: f0e0d5149af2a52b843712329889f607efd589dd4836f0ec1334eb8b164e5fdb
-          preparation: data_preparation.elections.scrutins_2017_2019:clean_results
-          targets:
-            - 2017-legislatives-1
         tour2:
           url: https://www.data.gouv.fr/s/resources/elections-legislatives-des-11-et-18-juin-2017-resultats-du-2nd-tour-par-bureaux-de-vote/20170620-094954/Leg_2017_Resultats_BVT_T2_c.txt
           date: 06/2017
           hash: 2d898b6bebcc401b79fe3ebbc0deb37d5dcc32c11ac3f5e8be0b0f006ee9eb8e
-          preparation: data_preparation.elections.scrutins_2017_2019:clean_results
-          targets:
-            - 2017-legislatives-2
     europeennes:
       2019:
         url: https://static.data.gouv.fr/resources/resultats-des-elections-europeennes-2019/20190531-144007/resultats-definitifs-par-bureau-de-vote.txt
         date: 31/05/2019
         hash: a54a77872089f893145b9bad4d3d8479220bf60efa0fc3d0a81f54ede4d12208
-        preparation: data_preparation.elections.scrutins_2017_2019:clean_results
-        targets:
-          - 2019-europeennes
       2014:
         url: https://www.data.gouv.fr/s/resources/elections-europeennes-2014-resultats-par-bureaux-de-vote/20150925-112120/ER14_BVOT.txt
         date: 25/09/2015
         hash: af1840b437db8a154f5b286c18a45d7534238ab8b9e73b7e843d8655d1b22e32
-        preparation: data_preparation.elections.scrutins_2014:clean_results
-        targets:
-          - 2014-europeennes
     municipales:
       2020:
         url: https://static.data.gouv.fr/resources/elections-municipales-2020-resultats/20200317-180347/2020-03-16-resultats-par-bv.xlsx
         date: 17/03/2020
         hash: c28d22306caa55beff407b4daae884dc01f1d5c4ab5295053c716ab3269af3a2
-        preparation: data_preparation.elections.scrutins_2017_2019:clean_results
         to_csv: True
-        targets:
-          - 2020-municipales-1
       2014:
         url: https://www.data.gouv.fr/s/resources/elections-municipales-2014-resultats-par-bureaux-de-vote/20150925-122128/MN14_Bvot_T1T2.txt
         date: 25/09/2015
         hash: fe8ae42befb8e006dce1d959bee237449c9f39506c940e68c9b49a20f4363570
-        preparation: data_preparation.elections.scrutins_2014:clean_results
-        targets:
-          - 2014-municipales-1
-          - 2014-municipales-2

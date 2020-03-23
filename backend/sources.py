@@ -3,6 +3,23 @@ from dataclasses import dataclass
 from pathlib import PurePath
 from typing import List, Union
 
+import yaml
+
+from backend import BASE_PATH
+
+with open(BASE_PATH / "sources.yml") as f:
+    _sources = yaml.load(f, yaml.BaseLoader)
+
+
+def iterate_sources():
+    stack = [(PurePath(""), _sources)]
+    while stack:
+        path, value = stack.pop()
+        if "url" in value:
+            yield Source(path, **value)
+        else:
+            stack.extend((path / str(p), s) for p, s in value.items())
+
 
 def parse_date(d):
     try:
@@ -46,13 +63,3 @@ class Source:
 
     def __getattr__(self, item):
         return getattr(self.versions[0], item)
-
-
-def iterate_sources(sources):
-    stack = [(PurePath(""), sources)]
-    while stack:
-        path, value = stack.pop()
-        if "url" in value:
-            yield Source(path, **value)
-        else:
-            stack.extend((path / str(p), s) for p, s in value.items())
