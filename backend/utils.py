@@ -1,5 +1,6 @@
 import hashlib
-from pathlib import Path
+from pathlib import Path, PurePath
+from zipfile import ZipFile
 
 BLOCKSIZE = 65536
 
@@ -33,3 +34,25 @@ class check_hash:
 
 def ensure_dir_exists(filename: Path):
     return ["mkdir", "-p", filename.parent]
+
+
+def get_zip_targets(zip_path, dest_prefix):
+    zip_file = ZipFile(zip_path)
+    if len(zip_file.infolist()) == 1:
+        return [
+            dest_prefix.with_suffix(PurePath(zip_file.infolist()[0].filename).suffix)
+        ]
+
+    else:
+        return [dest_prefix / info.filename for info in zip_file.infolist()]
+
+
+def extract_zip_file(zip_path, dest_prefix: Path):
+    zip_file = ZipFile(zip_path)
+    if len(zip_file.infolist()) == 1:
+        info = zip_file.infolist()[0]
+        info.filename = dest_prefix.with_suffix(PurePath(info.filename).suffix).name
+        zip_file.extract(info, path=dest_prefix.parent)
+    else:
+        dest_prefix.mkdir(parents=True, exist_ok=True)
+        zip_file.extractall(dest_prefix)

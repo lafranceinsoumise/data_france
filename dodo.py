@@ -3,6 +3,7 @@ from importlib import import_module
 from pathlib import Path, PurePath
 
 import yaml
+from doit import create_after
 
 BASE_PATH = Path(__file__).parent
 SOURCE_DIR = BASE_PATH / "build" / "sources"
@@ -10,7 +11,7 @@ PREPARE_DIR = BASE_PATH / "build" / "prepare"
 
 sys.path.insert(0, str(BASE_PATH / "backend"))
 from sources import iterate_sources as _iterate_sources
-from utils import check_hash, ensure_dir_exists
+from utils import check_hash, ensure_dir_exists, get_zip_targets, extract_zip_file
 
 with open(Path(__file__).parent / "sources.yml") as f:
     _sources = yaml.load(f, yaml.BaseLoader)
@@ -84,8 +85,6 @@ def task_preparer():
                 for ext in ["-pop.feather", "-votes.feather"]
             ]
 
-            print(f"{base_filenames!r}  / {targets!r}")
-
             yield {
                 "name": source.path,
                 "targets": targets,
@@ -102,4 +101,20 @@ def task_preparer():
                         },
                     ),
                 ],
+            }
+
+
+@create_after(executed="telecharger")
+def task_unzipper():
+    for source in iterate_sources():
+        if source.suffix == ".zip":
+            zip_path = SOURCE_DIR / source.filename
+            dest_prefix = PREPARE_DIR / source.path
+            targets = get_zip_targets(zip_path, dest_prefix)
+
+            yield {
+                "name": source.path,
+                "file_dep": [zip_path],
+                "targets": targets,
+                "actions": [(extract_zip_file, [zip_path, dest_prefix])],
             }
