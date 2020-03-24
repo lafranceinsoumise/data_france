@@ -34,7 +34,7 @@ def importer_communes(apps, schema):
     epci_ids = {e["code"]: e["id"] for e in EPCI.objects.values("code", "id")}
     communes_ids = {}
 
-    with lzma.open(DATA_DIR / "communes.csv", "rt", newline="") as f:
+    with lzma.open(DATA_DIR / "communes.csv.lzma", "rt", newline="") as f:
         r = enumerate(csv.DictReader(f))
         while True:
             communes = list(islice(r, 500))

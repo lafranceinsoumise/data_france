@@ -11,7 +11,7 @@ DATA_DIR = Path(__file__).parent.parent / "data"
 def importer_geometries(apps, schema):
     Commune = apps.get_model("data_france", "Commune")
 
-    with lzma.open(DATA_DIR / "communes-geometrie.csv", "rt", newline="") as f:
+    with lzma.open(DATA_DIR / "communes-geometrie.csv.lzma", "rt", newline="") as f:
         r = csv.DictReader(f)
 
         for commune in r:
