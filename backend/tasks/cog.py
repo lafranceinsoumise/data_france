@@ -1,3 +1,4 @@
+import lzma
 from pathlib import Path
 
 import pandas as pd
@@ -20,7 +21,7 @@ COMMUNES_AD_POPULATION = (
 
 
 def task_traiter_epci():
-    target = DEST_DIR / "epci.csv"
+    target = DEST_DIR / "epci.csv.lzma"
 
     return {
         "file_dep": [EPCI_XLS],
@@ -33,7 +34,7 @@ def task_traiter_epci():
 
 
 def task_traiter_communes():
-    target = DEST_DIR / "communes.csv"
+    target = DEST_DIR / "communes.csv.lzma"
     return {
         "file_dep": [
             COMMUNES_CSV,
@@ -71,7 +72,8 @@ def traiter_epci(epci_xls, dest):
         .iloc[:-1]  # éliminer le faux EPCI pas d'EPCI
     )
 
-    epci.to_csv(dest, index=False)
+    with lzma.open(dest, "wt") as f:
+        epci.to_csv(f, index=False)
 
 
 def traiter_communes(
@@ -125,12 +127,13 @@ def traiter_communes(
         }
     )
 
-    pd.concat(
-        [
-            communes.loc[communes.type == "COM"]
-            .join(correspondances_epci, on=["code"])
-            .join(communes_pop, on=["code"]),
-            communes.loc[communes.type != "COM"].join(communes_ad_pop, on=["code"]),
-        ],
-        ignore_index=True,
-    ).convert_dtypes().to_csv(dest, index=False)
+    with lzma.open(dest, "wt") as f:
+        pd.concat(
+            [
+                communes.loc[communes.type == "COM"]
+                .join(correspondances_epci, on=["code"])
+                .join(communes_pop, on=["code"]),
+                communes.loc[communes.type != "COM"].join(communes_ad_pop, on=["code"]),
+            ],
+            ignore_index=True,
+        ).convert_dtypes().to_csv(f, index=False)

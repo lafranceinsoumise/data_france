@@ -1,5 +1,6 @@
 import csv
 import json
+import lzma
 
 import fiona
 
@@ -7,7 +8,7 @@ __all__ = ["task_communes_vers_csv"]
 
 from backend import PREPARE_DIR, BASE_DIR
 
-COMMUNES_GEOMETRY = BASE_DIR / "data_france/data/communes-geometrie.csv"
+COMMUNES_GEOMETRY = BASE_DIR / "data_france/data/communes-geometrie.csv.lzma"
 
 
 def task_communes_vers_csv():
@@ -31,7 +32,7 @@ def to_multipolygon(geometry):
 
 
 def communes_to_csv(shp_path, csv_path):
-    with fiona.open(shp_path) as shp, open(csv_path, "w", newline="") as f:
+    with fiona.open(shp_path) as shp, lzma.open(csv_path, mode="wt", newline="") as f:
         w = csv.writer(f)
         w.writerow(["type", "code", "geometrie"])
         for com in iter(shp):

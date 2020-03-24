@@ -1,4 +1,5 @@
 import csv
+import lzma
 from itertools import islice
 from pathlib import Path
 
@@ -11,7 +12,7 @@ DATA_DIR = Path(__file__).parent.parent / "data"
 def importer_epci(apps, schema):
     EPCI = apps.get_model("data_france", "EPCI")
 
-    with (DATA_DIR / "epci.csv").open("r") as f:
+    with lzma.open(DATA_DIR / "epci.csv.lzma", "rt", newline="") as f:
         r = enumerate(csv.DictReader(f))
         while True:
             epcis = list(islice(r, 500))
@@ -33,7 +34,7 @@ def importer_communes(apps, schema):
     epci_ids = {e["code"]: e["id"] for e in EPCI.objects.values("code", "id")}
     communes_ids = {}
 
-    with (DATA_DIR / "communes.csv").open("r") as f:
+    with lzma.open(DATA_DIR / "communes.csv", "rt", newline="") as f:
         r = enumerate(csv.DictReader(f))
         while True:
             communes = list(islice(r, 500))
