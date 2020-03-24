@@ -1,13 +1,12 @@
 [build-system]
-requires = ["flit"]
-backend-path = ["backend"]
-build-backend = "backend"
+requires = ["flit_core >=2,<4"]
+build-backend = "flit_core.buildapi"
 
 [tool.flit.metadata]
 module = "data_france"
 author = "Arthur Cheysson"
 author-email = "arthur@cheysson.fr"
-description = "Une application Django comportant données administratives et géographiques sur la France"
+description-file = "README.rst"
 home-page = "https://github.com/aktiur/data-france"
 classifiers = [
     "Environment :: Web Environment",

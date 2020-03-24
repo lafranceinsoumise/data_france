@@ -13,6 +13,7 @@ xlrd = "==1.*"
 libarchive = "*"
 fiona = "*"
 ipython = "*"
+flit = "*"
 
 [packages]
 django = "==3.*"
