@@ -1,6 +1,8 @@
 [build-system]
 requires = ["flit_core >=2,<4"]
-build-backend = "flit_core.buildapi"
+backend-path = ["backend"]
+build-backend = "backend"
+
 
 [tool.flit.metadata]
 module = "data_france"
@@ -24,3 +26,17 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
 ]
+requires = ["django >= 3.0"]
+requires-python = ">=3.8"
+
+
+[tool.flit.sdist]
+include = [
+    "*.py",
+    "sources.yml",
+    "backend/*.py",
+    "backend/tasks",
+    "LICENSE",
+    "Pipfile",
+]
+exclude = ["data_france/data/"]

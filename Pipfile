@@ -14,6 +14,7 @@ libarchive = "*"
 fiona = "*"
 ipython = "*"
 flit = "*"
+pep517 = "*"
 
 [packages]
 django = "==3.*"
