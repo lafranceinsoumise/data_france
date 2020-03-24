@@ -5,9 +5,9 @@ from typing import List, Union
 
 import yaml
 
-from backend import BASE_PATH
+from backend import BASE_DIR
 
-with open(BASE_PATH / "sources.yml") as f:
+with open(BASE_DIR / "sources.yml") as f:
     _sources = yaml.load(f, yaml.BaseLoader)
 
 

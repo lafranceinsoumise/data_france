@@ -86,7 +86,7 @@ par_candidat = [
 
 def clean_results(src, base_filenames, delimiter=";"):
     base_filename = base_filenames[0]
-    with open(src, "r", encoding="latin1", newline="",) as in_file:
+    with open(src, "r", encoding="latin1", newline="") as in_file:
         r = csv.reader(in_file, delimiter=delimiter)
 
         headers = next(r)
