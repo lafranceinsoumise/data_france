@@ -1,3 +1,4 @@
+from django.contrib.gis.db.models import GeometryField, MultiPolygonField
 from django.db import models
 
 from data_france.type_noms import TYPE_NOM_ARTICLE
@@ -58,6 +59,8 @@ class Commune(models.Model):
         related_query_name="composant",
         null=True,
     )
+
+    geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
 
     @property
     def nom_complet(self):
