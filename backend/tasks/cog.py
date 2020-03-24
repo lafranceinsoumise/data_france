@@ -84,6 +84,8 @@ def traiter_communes(
         dtype={"CODGEO": str, "EPCI": str},
         usecols=["CODGEO", "EPCI"],
     ).set_index("CODGEO")["EPCI"]
+    # on élimine les "faux EPCI"
+    correspondances_epci = correspondances_epci[correspondances_epci != "ZZZZZZZZZ"]
 
     communes_pop = (
         pd.read_csv(
@@ -107,29 +109,27 @@ def traiter_communes(
         .set_index("DEPCOM")
     )
 
-    communes = (
-        pd.read_csv(
-            communes_path,
-            dtype={"com": str, "dep": str, "comparent": str},
-            usecols=["typecom", "com", "dep", "tncc", "nccenr", "comparent"],
-        )
-        .join(correspondances_epci, on=["com"])
-        .rename(
-            columns={
-                "com": "code",
-                "dep": "code_departement",
-                "typecom": "type",
-                "nccenr": "nom",
-                "tncc": "type_nom",
-                "comparent": "commune_parent",
-                "EPCI": "epci",
-            }
-        )
+    communes = pd.read_csv(
+        communes_path,
+        dtype={"com": str, "dep": str, "comparent": str},
+        usecols=["typecom", "com", "dep", "tncc", "nccenr", "comparent"],
+    ).rename(
+        columns={
+            "com": "code",
+            "dep": "code_departement",
+            "typecom": "type",
+            "nccenr": "nom",
+            "tncc": "type_nom",
+            "comparent": "commune_parent",
+            "EPCI": "epci",
+        }
     )
-    communes.loc[communes.epci == "ZZZZZZZZZ", "epci"] = ""
+
     pd.concat(
         [
-            communes.loc[communes.type == "COM"].join(communes_pop, on=["code"]),
+            communes.loc[communes.type == "COM"]
+            .join(correspondances_epci, on=["code"])
+            .join(communes_pop, on=["code"]),
             communes.loc[communes.type != "COM"].join(communes_ad_pop, on=["code"]),
         ],
         ignore_index=True,
