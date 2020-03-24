@@ -88,6 +88,7 @@ def traiter_communes(
     ).set_index("CODGEO")["EPCI"]
     # on élimine les "faux EPCI"
     correspondances_epci = correspondances_epci[correspondances_epci != "ZZZZZZZZZ"]
+    correspondances_epci.name = "epci"
 
     communes_pop = (
         pd.read_csv(
@@ -123,7 +124,6 @@ def traiter_communes(
             "nccenr": "nom",
             "tncc": "type_nom",
             "comparent": "commune_parent",
-            "EPCI": "epci",
         }
     )
 
