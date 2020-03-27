@@ -135,7 +135,11 @@ class Migration(migrations.Migration):
             model_name="commune",
             name="geometry",
             field=django.contrib.gis.db.models.fields.MultiPolygonField(
-                geography=True, null=True, srid=4326, verbose_name="Géométrie"
+                geography=True,
+                null=True,
+                editable=False,
+                srid=4326,
+                verbose_name="Géométrie",
             ),
         ),
         migrations.AddConstraint(

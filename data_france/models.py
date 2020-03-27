@@ -37,7 +37,9 @@ class Commune(models.Model):
         "Type de nom de la commune", blank=False, editable=False, null=False
     )
 
-    code_departement = models.CharField("Code du département", max_length=5)
+    code_departement = models.CharField(
+        "Code du département", max_length=5, editable=False
+    )
 
     epci = models.ForeignKey(
         "data_france.EPCI",
@@ -45,12 +47,15 @@ class Commune(models.Model):
         related_name="communes",
         related_query_name="commune",
         null=True,
+        editable=False,
     )
 
     population_municipale = models.PositiveIntegerField(
-        "Population municipale", null=True
+        "Population municipale", null=True, editable=False
     )
-    population_cap = models.PositiveIntegerField("Population comptée à part", null=True)
+    population_cap = models.PositiveIntegerField(
+        "Population comptée à part", null=True, editable=False
+    )
 
     commune_parent = models.ForeignKey(
         "Commune",
@@ -58,17 +63,25 @@ class Commune(models.Model):
         related_name="composants",
         related_query_name="composant",
         null=True,
+        editable=False,
     )
 
-    geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
+    geometry = MultiPolygonField(
+        "Géométrie", geography=True, srid=4326, null=True, editable=False
+    )
 
     @property
     def nom_complet(self):
-        return f"{TYPE_NOM_ARTICLE[self.type].title()}{self.nom}"
+        return f"{TYPE_NOM_ARTICLE[self.type_nom].title()}{self.nom}"
+
+    def __str__(self):
+        return f"{self.nom_complet} ({self.code})"
 
     class Meta:
         verbose_name = "Commune"
         verbose_name_plural = "Communes"
+
+        ordering = ("code", "nom", "type")
 
         constraints = (
             models.CheckConstraint(
@@ -104,3 +117,12 @@ class EPCI(models.Model):
     type = models.CharField("Type d'EPCI", max_length=2, choices=TYPE_CHOICES)
 
     nom = models.CharField("Nom de l'EPCI", max_length=300)
+
+    def __str__(self):
+        return f"{self.nom} ({self.code})"
+
+    class Meta:
+        verbose_name = "EPCI"
+        verbose_name_plural = "EPCIs"
+
+        ordering = ("code", "nom")
