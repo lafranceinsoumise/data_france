@@ -6,7 +6,15 @@ from django.utils.safestring import mark_safe
 from data_france.models import Commune, EPCI
 
 
-@admin.register(Commune)
+class ImmutableAdmin:
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request):
+        return False
+
+
+@admin.register(ImmutableAdmin, Commune)
 class CommuneAdmin(admin.ModelAdmin):
     readonly_fields = (
         "code",
@@ -52,7 +60,7 @@ class CommuneAdmin(admin.ModelAdmin):
 
 
 @admin.register(EPCI)
-class EPCIAdmin(admin.ModelAdmin):
+class EPCIAdmin(ImmutableAdmin, admin.ModelAdmin):
     readonly_fields = ("code", "type", "nom", "communes")
     fields = readonly_fields
     list_display = (
