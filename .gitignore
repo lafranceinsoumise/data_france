@@ -7,3 +7,4 @@
 /data_france/data/
 
 db.sqlite3
+.env

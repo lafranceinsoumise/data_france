@@ -1,3 +1,5 @@
+import dj_database_url
+
 DEBUG = True
 
 SECRET_KEY = "fake-key"
@@ -40,12 +42,7 @@ TEMPLATES = [
     }
 ]
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.contrib.gis.db.backends.spatialite",
-        "NAME": "db.sqlite3",
-    }
-}
+DATABASES = {"default": dj_database_url.config(default="spatialite:///db.sqlite3")}
 
 STATIC_URL = "/static/"
 
