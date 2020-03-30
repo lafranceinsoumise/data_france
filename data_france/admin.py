@@ -14,8 +14,8 @@ class ImmutableAdmin:
         return False
 
 
-@admin.register(ImmutableAdmin, Commune)
-class CommuneAdmin(admin.ModelAdmin):
+@admin.register(Commune)
+class CommuneAdmin(ImmutableAdmin, admin.ModelAdmin):
     readonly_fields = (
         "code",
         "type",
