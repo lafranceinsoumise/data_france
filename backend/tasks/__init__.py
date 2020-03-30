@@ -19,7 +19,7 @@ def task_telecharger():
             "name": str(source.path),
             "targets": [SOURCE_DIR / source.filename],
             "actions": [
-                (create_folder, [SOURCE_DIR / source.filename]),
+                (create_folder, [(SOURCE_DIR / source.filename).parent]),
                 [
                     "curl",
                     "--silent",

@@ -7,12 +7,15 @@ BLOCKSIZE = 65536
 
 
 class check_hash:
-    def __init__(self, filename, hash_digest):
+    def __init__(self, filename: Path, hash_digest):
         self.filename = filename
         self.hash_digest = hash_digest
 
     def _check(self):
         hasher = hashlib.new("sha256")
+
+        if not self.filename.exists():
+            return False
 
         with self.filename.open("rb") as f:
             buf = f.read(BLOCKSIZE)
