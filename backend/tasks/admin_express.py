@@ -49,8 +49,8 @@ def extraires_polygones_communes(shp_path, csv_path):
         for com in iter(shp):
             w.writerow(
                 [
-                    com["properties"]["TYPE"],
-                    com["properties"]["INSEE_COM"],
+                    com["properties"]["TYPE"].strip(),
+                    com["properties"]["INSEE_COM"].strip(),
                     to_multipolygon(com["geometry"]),
                 ]
             )

@@ -4,7 +4,6 @@ __all__ = ["task_traiter_epci", "task_traiter_communes"]
 
 from backend import PREPARE_DIR
 
-
 EPCI_XLS = PREPARE_DIR / "insee" / "intercommunalite" / "epci.xls"
 COMMUNES_COG = PREPARE_DIR / "insee" / "cog" / "communes.csv"
 
@@ -70,16 +69,21 @@ def traiter_epci(epci_xls, dest):
 def traiter_communes(
     communes_cog_path, epci_path, communes_pop_path, communes_ad_pop_path, dest
 ):
-    correspondances_epci = pd.read_excel(
-        epci_path,
-        sheet_name="Composition_communale",
-        skiprows=5,
-        dtype={"CODGEO": str, "EPCI": str},
-        usecols=["CODGEO", "EPCI"],
-    ).set_index("CODGEO")["EPCI"]
+    correspondances_epci = (
+        pd.read_excel(
+            epci_path,
+            sheet_name="Composition_communale",
+            skiprows=5,
+            dtype={"CODGEO": str, "EPCI": str},
+            usecols=["CODGEO", "EPCI"],
+        )
+        .set_index("CODGEO")["EPCI"]
+        .str.strip()
+    )
     # on élimine les "faux EPCI"
     correspondances_epci = correspondances_epci[correspondances_epci != "ZZZZZZZZZ"]
     correspondances_epci.name = "epci"
+    correspondances_epci.index = correspondances_epci.index.str.strip()
 
     communes_pop = (
         pd.read_csv(
@@ -91,6 +95,7 @@ def traiter_communes(
         .rename(columns={"PMUN": "population_municipale", "PCAP": "population_cap"})
         .set_index("DEPCOM")
     )
+    communes_pop.index = communes_pop.index.str.strip()
 
     communes_ad_pop = (
         pd.read_csv(
@@ -102,6 +107,7 @@ def traiter_communes(
         .rename(columns={"PMUN": "population_municipale", "PCAP": "population_cap"})
         .set_index("DEPCOM")
     )
+    communes_ad_pop.index = communes_ad_pop.index.str.strip()
 
     communes = pd.read_csv(
         communes_cog_path,
@@ -118,15 +124,32 @@ def traiter_communes(
         }
     )
 
-    pd.concat(
+    for c in ["type", "code", "code_departement", "nom", "commune_parent"]:
+        communes[c] = communes[c].str.strip()
+
+    res = pd.concat(
         [
-            communes.loc[communes.type == "COM"]
+            communes.loc[communes.type.isin(["COM", "ARM"])]
             .join(correspondances_epci, on=["code"])
             .join(communes_pop, on=["code"])
-            .sort_values(["type", "code"]),
-            communes.loc[communes.type != "COM"]
+            .sort_values(["type", "code"], ascending=[False, True]),
+            communes.loc[~communes.type.isin(["COM", "ARM"])]
             .join(communes_ad_pop, on=["code"])
             .sort_values(["type", "code"]),
         ],
         ignore_index=True,
-    ).convert_dtypes().to_csv(dest, index=False)
+    ).convert_dtypes()
+
+    villes_arms = [("13055", "132"), ("69123", "693"), ("75056", "751")]
+
+    for code_ville, prefix_arm in villes_arms:
+        res.loc[
+            res["code"] == code_ville, ["population_municipale", "population_cap"]
+        ] = list(
+            res.loc[
+                res["code"].str.startswith(prefix_arm),
+                ["population_municipale", "population_cap"],
+            ].sum(axis=0)
+        )
+
+    res.to_csv(dest, index=False)
