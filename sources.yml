@@ -48,10 +48,10 @@ ign:
       url: ftp://Admin_Express_ext:Dahnoh0eigheeFok@ftp3.ign.fr/ADMIN-EXPRESS-COG_2-0__SHP__FRA_WGS84G_2019-09-24.7z.001
       date: 01/2019
       hash: ed8be4045813f50deb5659e401ee3cd389bcad7cabcc2e7baddaf76f3a232e37
-    classique:
-      url: ftp://Admin_Express_ext:Dahnoh0eigheeFok@ftp3.ign.fr/ADMIN-EXPRESS_2-2__SHP__FRA_L93_2020-01-16.7z.001
-      date: 01/2020
-      hash: 635d5625ea0e4a311d8eb8af10c46fe081385e2840be2f558d457ef814038f20
+#    classique:
+#      url: ftp://Admin_Express_ext:Dahnoh0eigheeFok@ftp3.ign.fr/ADMIN-EXPRESS_2-2__SHP__FRA_L93_2020-01-16.7z.001
+#      date: 01/2020
+#      hash: 635d5625ea0e4a311d8eb8af10c46fe081385e2840be2f558d457ef814038f20
 
 
 interieur:

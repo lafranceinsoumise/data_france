@@ -1,40 +1,51 @@
 import csv
 import json
-import lzma
 
 import fiona
 
-__all__ = ["task_communes_vers_csv"]
+__all__ = ["task_extraire_polygones_communes"]
 
-from backend import PREPARE_DIR, BASE_DIR
+from backend import PREPARE_DIR
 
-COMMUNES_GEOMETRY = BASE_DIR / "data_france/data/communes-geometrie.csv.lzma"
+COMMUNES_GEOMETRY = PREPARE_DIR / "ign/admin-express/version-cog/communes-geometrie.csv"
 
 
-def task_communes_vers_csv():
+def task_extraire_polygones_communes():
     shp_file = (
         PREPARE_DIR
         / "ign/admin-express/version-cog/ADMIN-EXPRESS-COG_2-0__SHP__FRA_2019-09-24/ADMIN-EXPRESS-COG/1_DONNEES_LIVRAISON_2019-09-24/ADE-COG_2-0_SHP_WGS84_FR/COMMUNE_CARTO.shp"
     )
+    temp_file = COMMUNES_GEOMETRY.with_suffix(".temp")
+
     return {
         "file_dep": [shp_file],
         "task_dep": ["decompresser"],
         "targets": [COMMUNES_GEOMETRY],
-        "actions": [(communes_to_csv, [shp_file, COMMUNES_GEOMETRY])],
+        "actions": [
+            (extraires_polygones_communes, [shp_file, temp_file],),
+            f"( \
+                    head -n 1 {temp_file}; \
+                    tail -n +2  {temp_file} | grep ^COM, | sort -k1,2 -t, ;\
+                    tail -n +2  {temp_file} | grep -v ^COM, | sort -k1,2 -t, \
+              ) > {COMMUNES_GEOMETRY}",
+            f"rm {temp_file}",
+        ],
     }
 
 
 def to_multipolygon(geometry):
     if geometry["type"] == "Polygon":
-        geometry = {"type": "MultiPolygon", "coordinates": [geometry["coordinates"]]}
+        res = [geometry["coordinates"]]
+    else:
+        res = geometry["coordinates"]
 
-    return json.dumps(geometry, separators=(",", ":"))
+    return json.dumps(res, separators=(",", ":"))
 
 
-def communes_to_csv(shp_path, csv_path):
-    with fiona.open(shp_path) as shp, lzma.open(csv_path, mode="wt", newline="") as f:
+def extraires_polygones_communes(shp_path, csv_path):
+    with fiona.open(shp_path) as shp, open(csv_path, mode="w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["type", "code", "geometrie"])
+        w.writerow(["type", "code", "geometry"])
         for com in iter(shp):
             w.writerow(
                 [
