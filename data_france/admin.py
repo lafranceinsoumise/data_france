@@ -7,10 +7,10 @@ from data_france.models import Commune, EPCI
 
 
 class ImmutableAdmin:
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
-    def has_delete_permission(self, request):
+    def has_delete_permission(self, request, obj=None):
         return False
 
 
