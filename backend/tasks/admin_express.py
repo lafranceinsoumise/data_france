@@ -5,6 +5,8 @@ import fiona
 
 __all__ = ["task_extraire_polygones_communes"]
 
+from shapely.geometry import shape, Polygon, MultiPolygon
+
 from backend import PREPARE_DIR
 
 COMMUNES_GEOMETRY = PREPARE_DIR / "ign/admin-express/version-cog/communes-geometrie.csv"
@@ -34,12 +36,10 @@ def task_extraire_polygones_communes():
 
 
 def to_multipolygon(geometry):
-    if geometry["type"] == "Polygon":
-        res = [geometry["coordinates"]]
-    else:
-        res = geometry["coordinates"]
-
-    return json.dumps(res, separators=(",", ":"))
+    s = shape(geometry)
+    if isinstance(s, Polygon):
+        s = MultiPolygon([s])
+    return s.wkb_hex
 
 
 def extraires_polygones_communes(shp_path, csv_path):

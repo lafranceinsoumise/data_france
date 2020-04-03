@@ -17,6 +17,7 @@ flit = "*"
 pep517 = "*"
 dj-database-url = "*"
 psycopg2 = "*"
+shapely = "*"
 
 [packages]
 django = "==3.*"

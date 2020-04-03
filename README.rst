@@ -12,7 +12,7 @@ Pour le moment, j'ai inclus :
     * Inclut article + charnière
 * Les EPCI
     * CA, CC, CU et métropoles
-    * N'inclut pas encore les
+    * N'inclut pas encore les EPT du Grand Paris
 
 Paquets deb à installer pour le développement
 ---------------------------------------------
