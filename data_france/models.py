@@ -1,7 +1,27 @@
-from django.contrib.gis.db.models import GeometryField, MultiPolygonField
+from django.contrib.gis.db.models import MultiPolygonField
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.db import models
 
+from data_france.search import PrefixSearchQuery
 from data_france.type_noms import TYPE_NOM_ARTICLE
+
+
+class CommuneQueryset(models.QuerySet):
+    def search(self, search_terms):
+        vector = SearchVector(
+            models.F("nom"), config="data_france_search", weight="A"
+        ) + SearchVector(
+            models.F("code_departement"), config="data_france_search", weight="B"
+        )
+
+        query = PrefixSearchQuery(search_terms, config="data_france_search")
+
+        return (
+            self.annotate(search=vector)
+            .filter(search=query)
+            .annotate(rank=SearchRank(vector, query))
+            .order_by("-rank")
+        )
 
 
 class Commune(models.Model):
@@ -17,6 +37,8 @@ class Commune(models.Model):
         (TYPE_ARRONDISSEMENT_PLM, "Arrondissement de Paris/Lyon/Marseille"),
         (TYPE_SECTEUR_PLM, "Secteur électoral de Paris/Lyon/Marseille"),
     )
+
+    objects = CommuneQueryset.as_manager()
 
     code = models.CharField("Code de la commune", max_length=10, editable=False)
     type = models.CharField(
