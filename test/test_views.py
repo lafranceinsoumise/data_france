@@ -20,12 +20,24 @@ class CommuneSearchViewTestCase(TestCase):
         req = self.factory.get("/chercher")
         res = self.view(req)
 
-        self.assertEqual(res["Content-Type"], "application/json; charset=utf-8")
-        self.assertEqual(json.loads(res.content.decode("utf-8")), {"results": []})
+        self.assertEqual("application/json", res["Content-Type"])
+        self.assertEqual({"results": []}, json.loads(res.content.decode("utf-8")))
 
     def test_recherche_simple(self):
 
-        req = self.factory.get(f"/chercher?q={self.query_builder({'q': 'etalans'})}")
+        req = self.factory.get(f"/chercher?{self.query_builder({'q': 'etalans'})}")
         res = self.view(req)
 
-        self.assertEqual(json.loads(res.content.decode("utf-8")), {"results": []})
+        self.assertEqual(
+            {
+                "results": [
+                    {
+                        "code": "25222",
+                        "code_departement": "25",
+                        "nom": "Étalans",
+                        "type": "COM",
+                    }
+                ]
+            },
+            json.loads(res.content.decode("utf-8")),
+        )
