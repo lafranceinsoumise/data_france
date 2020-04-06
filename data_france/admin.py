@@ -39,7 +39,15 @@ class CommuneAdmin(ImmutableAdmin, admin.ModelAdmin):
 
     list_display = ("code", "type", "nom_complet", "lien_epci", "population_municipale")
 
-    search_fields = ("code", "nom")
+    search_fields = (
+        "code",
+        "nom",
+    )  # doit être "truthy" pour afficher le champ de recherche
+
+    def get_search_results(self, request, queryset, search_term):
+        if search_term:
+            return queryset.search(search_term)
+        return queryset
 
     def nom_complet(self, obj):
         return obj.nom_complet
