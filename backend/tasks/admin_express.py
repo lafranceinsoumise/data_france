@@ -15,7 +15,7 @@ COMMUNES_GEOMETRY = PREPARE_DIR / "ign/admin-express/version-cog/communes-geomet
 def task_extraire_polygones_communes():
     shp_file = (
         PREPARE_DIR
-        / "ign/admin-express/version-cog/ADMIN-EXPRESS-COG_2-0__SHP__FRA_2019-09-24/ADMIN-EXPRESS-COG/1_DONNEES_LIVRAISON_2019-09-24/ADE-COG_2-0_SHP_WGS84_FR/COMMUNE_CARTO.shp"
+        / "ign/admin-express/version-cog/ADMIN-EXPRESS-COG_2-0__SHP__FRA_2019-09-24/ADMIN-EXPRESS-COG/1_DONNEES_LIVRAISON_2019-09-24/ADE-COG_2-0_SHP_WGS84_FR/COMMUNE.shp"
     )
     temp_file = COMMUNES_GEOMETRY.with_suffix(".temp")
 

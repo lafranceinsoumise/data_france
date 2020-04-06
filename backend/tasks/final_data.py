@@ -72,6 +72,7 @@ COMMUNES_FIELDS = [
 
 
 def generer_fichier_communes(communes, communes_geo, epci, dest):
+    csv.field_size_limit(2 * 131072)  # double default limit
     with open(epci) as f:
         epci_ids = {e["code"]: i for i, e in enumerate(csv.DictReader(f))}
 
