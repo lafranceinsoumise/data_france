@@ -14,8 +14,5 @@ Pour le moment, j'ai inclus :
     * CA, CC, CU et métropoles
     * N'inclut pas encore les EPT du Grand Paris
 
-Paquets deb à installer pour le développement
----------------------------------------------
 
-- libarchive-dev
-- libsqlite3-mod-spatialite
+**ATTENTION** : Ce paquet ne fonctionne que sur **PostgreSQL / PostGIS.**
