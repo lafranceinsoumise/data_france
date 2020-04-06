@@ -8,7 +8,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("data_france", "0002_importer_communes_epci"),
+        ("data_france", "0001_initial"),
     ]
 
     operations = [

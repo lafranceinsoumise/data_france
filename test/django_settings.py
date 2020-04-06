@@ -47,3 +47,5 @@ DATABASES = {"default": dj_database_url.config(default="spatialite:///db.sqlite3
 STATIC_URL = "/static/"
 
 ROOT_URLCONF = "test.urls"
+
+TEST_RUNNER = "test.test_runner.TestRunner"
