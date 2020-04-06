@@ -4,6 +4,18 @@ DATA-FRANCE
 Un ensemble de données administratives et géographiques pour la France. Elle double comme application Django
 pour permettre l'intégration aisée de ces données.
 
+
+Importer les données
+--------------------
+
+Pour importer les données, appliquez les migrations et utilisez la commande de management::
+
+    ./manage.py update_data_france
+
+
+Modèles
+-------
+
 Pour le moment, j'ai inclus :
 
 * Les communes
@@ -14,5 +26,14 @@ Pour le moment, j'ai inclus :
     * CA, CC, CU et métropoles
     * N'inclut pas encore les EPT du Grand Paris
 
+Vues
+----
+
+Une vue de recherche renvoyant les résultats en JSON est disponible, par défaut
+à l'URL `chercher/communes/` (en utilisant le paramètre GET `q`).
+
+
+Autres remarques
+----------------
 
 **ATTENTION** : Ce paquet ne fonctionne que sur **PostgreSQL / PostGIS.**
