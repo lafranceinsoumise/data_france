@@ -40,3 +40,13 @@ TYPE_NOM_CHARNIERE = {
     TYPE_NOM_ARTICLE_LAS: "de las ",
     TYPE_NOM_ARTICLE_LOS: "de los ",
 }
+
+
+class TypeNomMixin:
+    @property
+    def nom_complet(self):
+        return f"{TYPE_NOM_ARTICLE[self.type_nom].title()}{self.nom}"
+
+    @property
+    def nom_avec_charniere(self):
+        return f"{TYPE_NOM_CHARNIERE[self.type_nom]}{self.nom}"

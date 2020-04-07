@@ -3,7 +3,7 @@ from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.db import models
 
 from data_france.search import PrefixSearchQuery
-from data_france.type_noms import TYPE_NOM_ARTICLE
+from data_france.type_noms import TypeNomMixin
 
 
 class CommuneQueryset(models.QuerySet):
@@ -22,7 +22,7 @@ class CommuneQueryset(models.QuerySet):
         )
 
 
-class Commune(models.Model):
+class Commune(TypeNomMixin, models.Model):
     TYPE_COMMUNE = "COM"
     TYPE_COMMUNE_DELEGUEE = "COMD"
     TYPE_COMMUNE_ASSOCIEE = "COMA"
@@ -57,12 +57,17 @@ class Commune(models.Model):
         "Type de nom de la commune", blank=False, editable=False, null=False
     )
 
-    code_departement = models.CharField(
-        "Code du département", max_length=5, editable=False
+    departement = models.ForeignKey(
+        "Departement",
+        on_delete=models.PROTECT,
+        related_name="communes",
+        related_query_name="commune",
+        null=True,
+        editable=False,
     )
 
     epci = models.ForeignKey(
-        "data_france.EPCI",
+        "EPCI",
         on_delete=models.SET_NULL,
         related_name="communes",
         related_query_name="commune",
@@ -89,10 +94,6 @@ class Commune(models.Model):
     geometry = MultiPolygonField(
         "Géométrie", geography=True, srid=4326, null=True, editable=False
     )
-
-    @property
-    def nom_complet(self):
-        return f"{TYPE_NOM_ARTICLE[self.type_nom].title()}{self.nom}"
 
     def __str__(self):
         return f"{self.nom_complet} ({self.code})"
@@ -138,6 +139,12 @@ class EPCI(models.Model):
 
     nom = models.CharField("Nom de l'EPCI", max_length=300)
 
+    population = models.PositiveIntegerField("Population", null=True)
+
+    geometry = MultiPolygonField(
+        "Géométrie", geography=True, srid=4326, null=True, editable=False
+    )
+
     def __str__(self):
         return f"{self.nom} ({self.code})"
 
@@ -146,3 +153,54 @@ class EPCI(models.Model):
         verbose_name_plural = "EPCIs"
 
         ordering = ("code", "nom")
+
+
+class Departement(TypeNomMixin, models.Model):
+    code = models.CharField("Code", max_length=3, editable=False, unique=True)
+    nom = models.CharField("Nom du département", max_length=200, editable=False)
+    type_nom = models.PositiveSmallIntegerField(
+        "Type de nom du département", blank=False, editable=False, null=False
+    )
+
+    chef_lieu = models.ForeignKey(
+        "Commune",
+        on_delete=models.PROTECT,
+        related_name="+",
+        related_query_name="chef_lieu_de",
+    )
+    region = models.ForeignKey(
+        "Region",
+        on_delete=models.PROTECT,
+        related_name="departements",
+        related_query_name="departement",
+    )
+
+    population = models.PositiveIntegerField("Population", null=True)
+
+    geometry = MultiPolygonField(
+        "Géométrie", geography=True, srid=4326, null=True, editable=False
+    )
+
+    def __str__(self):
+        return f"Département {self.nom_avec_charniere}"
+
+
+class Region(TypeNomMixin, models.Model):
+    code = models.CharField("Code", max_length=3, editable=False, unique=True)
+    nom = models.CharField("Nom de la région", max_length=200, editable=False)
+    type_nom = models.PositiveSmallIntegerField(
+        "Type de nom", blank=False, editable=False, null=False
+    )
+
+    chef_lieu = models.ForeignKey(
+        "Commune",
+        on_delete=models.PROTECT,
+        related_name="+",
+        related_query_name="chef_lieu_de",
+    )
+
+    population = models.PositiveIntegerField("Population", null=True)
+
+    geometry = MultiPolygonField(
+        "Géométrie", geography=True, srid=4326, null=True, editable=False
+    )

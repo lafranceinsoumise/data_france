@@ -20,7 +20,7 @@ class CommuneAdmin(ImmutableAdmin, admin.ModelAdmin):
         "code",
         "type",
         "nom_complet",
-        "code_departement",
+        "departement",
         "lien_epci",
         "population_municipale",
         "population_cap",
@@ -32,7 +32,7 @@ class CommuneAdmin(ImmutableAdmin, admin.ModelAdmin):
         (None, {"fields": ("code", "nom_complet")}),
         (
             "Relations avec d'autres entités",
-            {"fields": ("type", "code_departement", "commune_parent", "lien_epci")},
+            {"fields": ("type", "departement", "commune_parent", "lien_epci")},
         ),
         ("Population", {"fields": ("population_municipale", "population_cap")}),
     )

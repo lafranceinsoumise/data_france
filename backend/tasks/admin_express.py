@@ -1,5 +1,4 @@
 import csv
-import json
 
 import fiona
 
@@ -37,6 +36,11 @@ def task_extraire_polygones_communes():
 
 def to_multipolygon(geometry):
     s = shape(geometry)
+    if not s.is_valid:
+        # semble généralement corriger les géométries invalides
+        # je l'ai vérifié à la main pour les 4 communes problématiques :
+        #
+        s = s.buffer(0)
     if isinstance(s, Polygon):
         s = MultiPolygon([s])
     return s.wkb_hex

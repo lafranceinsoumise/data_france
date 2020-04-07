@@ -1,12 +1,11 @@
 from django.core.management import BaseCommand
 
-from data_france import data
+from data_france.data import importer_donnees
 
 
 class Command(BaseCommand):
-    def handle(self, *args, **options):
-        self.stderr.write("Chargement des EPCI")
-        data.importer_epci()
+    def add_arguments(self, parser):
+        parser.add_argument("-u", "--using")
 
-        self.stderr.write("Chargement des communes")
-        data.importer_communes()
+    def handle(self, *args, using, **options):
+        importer_donnees(using=using)

@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from data_france.models import Commune, EPCI
+from data_france.models import Commune, EPCI, Departement, Region
 
 
 class CommuneTestCase(TestCase):
@@ -27,7 +27,7 @@ class CommuneTestCase(TestCase):
             Commune.objects.filter(
                 type__in=["COM", "ARM"], population_municipale__isnull=True
             )
-            .exclude(code_departement="976")
+            .exclude(departement__code="976")
             .exists()
         )
 
@@ -61,3 +61,32 @@ class EPCITestCase(TestCase):
             .filter(epci__isnull=False)
             .exists()
         )
+
+    def test_polygones_disponibles(self):
+        self.assertFalse(EPCI.objects.filter(geometry__isnull=True).exists())
+
+
+class DepartementTestCase(TestCase):
+    def test_departements_correctement_importes(self):
+        self.assertEqual(Departement.objects.count(), 101)
+
+    def test_communes_attribuees(self):
+        self.assertFalse(
+            Commune.objects.filter(
+                type=Commune.TYPE_COMMUNE, departement__isnull=True
+            ).exists()
+        )
+
+    def test_polygones_disponibles(self):
+        self.assertFalse(Departement.objects.filter(geometry__isnull=True).exists())
+
+
+class RegionTestCase(TestCase):
+    def test_regions_correctement_importes(self):
+        self.assertEqual(Region.objects.count(), 18)
+
+    def test_departements_attribues(self):
+        self.assertFalse(Departement.objects.filter(region__isnull=True).exists())
+
+    def test_polygones_disponibles(self):
+        self.assertFalse(Region.objects.filter(geometry__isnull=True).exists())

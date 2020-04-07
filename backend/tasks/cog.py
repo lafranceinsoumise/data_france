@@ -4,16 +4,19 @@ __all__ = ["task_traiter_epci", "task_traiter_communes"]
 
 from backend import PREPARE_DIR
 
-EPCI_XLS = PREPARE_DIR / "insee" / "intercommunalite" / "epci.xls"
-COMMUNES_COG = PREPARE_DIR / "insee" / "cog" / "communes.csv"
+INSEE_DIR = PREPARE_DIR / "insee"
+COG_DIR = INSEE_DIR / "cog"
 
-EPCI_CSV = PREPARE_DIR / "insee" / "epci.csv"
+EPCI_XLS = INSEE_DIR / "intercommunalite" / "epci.xls"
+COMMUNES_COG = COG_DIR / "communes.csv"
 
-COMMUNES_CSV = PREPARE_DIR / "insee" / "communes.csv"
+EPCI_CSV = INSEE_DIR / "epci.csv"
 
-COMMUNES_POPULATION = PREPARE_DIR / "insee" / "population" / "Communes.csv"
+COMMUNES_CSV = INSEE_DIR / "communes.csv"
+
+COMMUNES_POPULATION = INSEE_DIR / "population" / "Communes.csv"
 COMMUNES_AD_POPULATION = (
-    PREPARE_DIR / "insee" / "population" / "Communes_associees_ou_deleguees.csv"
+    INSEE_DIR / "population" / "Communes_associees_ou_deleguees.csv"
 )
 
 
@@ -124,7 +127,16 @@ def traiter_communes(
         }
     )
 
-    for c in ["type", "code", "code_departement", "nom", "commune_parent"]:
+    communes["code_departement"] = (
+        communes["code"]
+        .str.slice(0, 3)
+        .where(
+            communes["code"].str.startswith("97") & (communes["type"] == "COM"),
+            communes["code"].str.slice(0, 2).where(communes["type"] == "COM"),
+        )
+    )
+
+    for c in ["type", "code", "nom", "commune_parent"]:
         communes[c] = communes[c].str.strip()
 
     res = pd.concat(
