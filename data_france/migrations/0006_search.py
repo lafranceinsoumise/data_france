@@ -13,7 +13,7 @@ delete_search_config = "DROP TEXT SEARCH CONFIGURATION data_france_search;"
 
 search_column = """
 setweight(to_tsvector('data_france_search', COALESCE("nom", '')), 'A')
-|| setweight(to_tsvector('data_france_search', COALESCE("code_departement", '')), 'B')
+|| setweight(to_tsvector('data_france_search', COALESCE("code", '')), 'B')
 """
 
 
@@ -21,7 +21,7 @@ add_search_index = f"""
 CREATE INDEX data_france_commune_search_index ON data_france_commune USING GIN (({search_column}));
 """
 
-drop_search_index = "DOP INDEX data_france_commune_search_index"
+drop_search_index = "DROP INDEX data_france_commune_search_index"
 
 
 class Migration(migrations.Migration):

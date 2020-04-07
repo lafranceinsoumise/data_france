@@ -10,9 +10,7 @@ class CommuneQueryset(models.QuerySet):
     def search(self, search_terms):
         vector = SearchVector(
             models.F("nom"), config="data_france_search", weight="A"
-        ) + SearchVector(
-            models.F("code_departement"), config="data_france_search", weight="B"
-        )
+        ) + SearchVector(models.F("code"), config="data_france_search", weight="B")
 
         query = PrefixSearchQuery(search_terms, config="data_france_search")
 
