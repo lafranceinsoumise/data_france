@@ -131,9 +131,9 @@ class CommuneAdmin(ImmutableModelAdmin):
     )  # doit être "truthy" pour afficher le champ de recherche
 
     def get_search_results(self, request, queryset, search_term):
-        if search_term:
-            return queryset.search(search_term)
         use_distinct = False
+        if search_term:
+            return queryset.search(search_term), use_distinct
         return queryset, use_distinct
 
     def nom_complet(self, obj):
