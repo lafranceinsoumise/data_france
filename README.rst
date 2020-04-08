@@ -19,12 +19,14 @@ Modèles
 Pour le moment, j'ai inclus :
 
 * Les communes
-    * Inclut les polygones correspondant à chaque commune
     * Inclut les communes délégués / communes associées / arrondissements PLM
-    * Inclut article + charnière
 * Les EPCI
     * CA, CC, CU et métropoles
     * N'inclut pas encore les EPT du Grand Paris
+* Les départements
+* Les régions
+
+Toutes ces entités viennent avec une géometrie et les articles + charnière.
 
 Vues
 ----
@@ -36,4 +38,4 @@ Une vue de recherche renvoyant les résultats en JSON est disponible, par défau
 Autres remarques
 ----------------
 
-**ATTENTION** : Ce paquet ne fonctionne que sur **PostgreSQL / PostGIS.**
+**ATTENTION** : Ce paquet ne fonctionne que si votre projet Django utilise **PostGIS.**
