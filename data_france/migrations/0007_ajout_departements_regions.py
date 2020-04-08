@@ -84,6 +84,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
+            options={"ordering": ("code",), "verbose_name": "Région"},
             bases=(data_france.type_noms.TypeNomMixin, models.Model),
         ),
         migrations.CreateModel(
@@ -151,6 +152,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
+            options={"ordering": ("code",), "verbose_name": "Département"},
             bases=(data_france.type_noms.TypeNomMixin, models.Model),
         ),
         migrations.AddField(

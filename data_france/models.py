@@ -59,6 +59,7 @@ class Commune(TypeNomMixin, models.Model):
 
     departement = models.ForeignKey(
         "Departement",
+        verbose_name="Département",
         on_delete=models.PROTECT,
         related_name="communes",
         related_query_name="commune",
@@ -68,6 +69,7 @@ class Commune(TypeNomMixin, models.Model):
 
     epci = models.ForeignKey(
         "EPCI",
+        verbose_name="EPCI",
         on_delete=models.SET_NULL,
         related_name="communes",
         related_query_name="commune",
@@ -91,9 +93,7 @@ class Commune(TypeNomMixin, models.Model):
         editable=False,
     )
 
-    geometry = MultiPolygonField(
-        "Géométrie", geography=True, srid=4326, null=True, editable=False
-    )
+    geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
 
     def __str__(self):
         return f"{self.nom_complet} ({self.code})"
@@ -141,16 +141,14 @@ class EPCI(models.Model):
 
     population = models.PositiveIntegerField("Population", null=True)
 
-    geometry = MultiPolygonField(
-        "Géométrie", geography=True, srid=4326, null=True, editable=False
-    )
+    geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
 
     def __str__(self):
         return f"{self.nom} ({self.code})"
 
     class Meta:
         verbose_name = "EPCI"
-        verbose_name_plural = "EPCIs"
+        verbose_name_plural = "EPCI"
 
         ordering = ("code", "nom")
 
@@ -164,12 +162,14 @@ class Departement(TypeNomMixin, models.Model):
 
     chef_lieu = models.ForeignKey(
         "Commune",
+        verbose_name="Chef-lieu",
         on_delete=models.PROTECT,
         related_name="+",
         related_query_name="chef_lieu_de",
     )
     region = models.ForeignKey(
         "Region",
+        verbose_name="Région",
         on_delete=models.PROTECT,
         related_name="departements",
         related_query_name="departement",
@@ -177,12 +177,14 @@ class Departement(TypeNomMixin, models.Model):
 
     population = models.PositiveIntegerField("Population", null=True)
 
-    geometry = MultiPolygonField(
-        "Géométrie", geography=True, srid=4326, null=True, editable=False
-    )
+    geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
 
     def __str__(self):
-        return f"Département {self.nom_avec_charniere}"
+        return f"{self.nom} ({self.code})"
+
+    class Meta:
+        verbose_name = "Département"
+        ordering = ("code",)
 
 
 class Region(TypeNomMixin, models.Model):
@@ -194,6 +196,7 @@ class Region(TypeNomMixin, models.Model):
 
     chef_lieu = models.ForeignKey(
         "Commune",
+        verbose_name="Chef-lieu",
         on_delete=models.PROTECT,
         related_name="+",
         related_query_name="chef_lieu_de",
@@ -201,6 +204,11 @@ class Region(TypeNomMixin, models.Model):
 
     population = models.PositiveIntegerField("Population", null=True)
 
-    geometry = MultiPolygonField(
-        "Géométrie", geography=True, srid=4326, null=True, editable=False
-    )
+    geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
+
+    def __str__(self):
+        return self.nom
+
+    class Meta:
+        verbose_name = "Région"
+        ordering = ("code",)

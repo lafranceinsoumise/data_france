@@ -42,7 +42,9 @@ TEMPLATES = [
     }
 ]
 
-DATABASES = {"default": dj_database_url.config(default="spatialite:///db.sqlite3")}
+DATABASES = {
+    "default": dj_database_url.config(default="postgis://user:password@host/db")
+}
 
 STATIC_URL = "/static/"
 
