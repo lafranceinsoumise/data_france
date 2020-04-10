@@ -67,6 +67,12 @@ class Commune(TypeNomMixin, models.Model):
         editable=False,
     )
 
+    @property
+    def code_departement(self):
+        if self.commune_parent_id:
+            return self.commune_parent.departement.code
+        return self.departement.code
+
     epci = models.ForeignKey(
         "EPCI",
         verbose_name="EPCI",

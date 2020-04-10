@@ -9,13 +9,15 @@ class CommuneSearchView(View):
         q = request.GET.get("q")
 
         if q:
-            qs = Commune.objects.search(q).select_related("departement")[:10]
+            qs = Commune.objects.search(q).select_related(
+                "departement", "commune_parent__departement"
+            )[:10]
             res = [
                 {
                     "code": c.code,
                     "type": c.type,
                     "nom": c.nom_complet,
-                    "code_departement": c.departement.code,
+                    "code_departement": c.code_departement,
                 }
                 for c in qs
             ]
