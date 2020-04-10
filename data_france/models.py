@@ -217,4 +217,4 @@ class Region(TypeNomMixin, models.Model):
 
     class Meta:
         verbose_name = "Région"
-        ordering = ("code",)
+        ordering = ("nom",)  # personne ne connait les codes de région
