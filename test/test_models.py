@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from data_france.models import Commune, EPCI, Departement, Region
+from data_france.models import Commune, EPCI, Departement, Region, CodePostal
 
 
 class CommuneTestCase(TestCase):
@@ -90,3 +90,29 @@ class RegionTestCase(TestCase):
 
     def test_polygones_disponibles(self):
         self.assertFalse(Region.objects.filter(geometry__isnull=True).exists())
+
+
+class CodePostalTestCase(TestCase):
+    def test_codes_postaux_correctement_importes(self):
+        self.assertEqual(CodePostal.objects.count(), 6328)
+        # il y a 141 codes postaux qui concernent des collectivités d'outremer qui ne sont
+        # pas encore intégrées. Tous sont en 98XXX sauf 3 qui concernent Saint-Pierre-et-Miquelon,
+        # Saint-Barthélémy et Saint-Martin
+        self.assertEqual(CodePostal.objects.filter(communes__isnull=True).count(), 141)
+        self.assertCountEqual(
+            CodePostal.objects.filter(communes__isnull=True)
+            .exclude(code__startswith="98")
+            .values_list("code", flat=True),
+            ["97133", "97150", "97500"],
+        )
+
+    def test_pas_de_commune_sans_code_postal(self):
+        # Les trois seules communes qui n'ont pas de code postal sont
+        # Paris, Lyon et Marseille, car les codes postaux sont à la place
+        # associés aux arrondissements municipaux.
+        self.assertCountEqual(
+            Commune.objects.filter(
+                type__in=["COM", "ARM"], codes_postaux__isnull=True
+            ).values_list("code", flat=True),
+            ["75056", "13055", "69123"],
+        )
