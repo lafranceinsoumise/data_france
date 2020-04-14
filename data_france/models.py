@@ -38,7 +38,7 @@ class Commune(TypeNomMixin, models.Model):
 
     objects = CommuneQueryset.as_manager()
 
-    code = models.CharField("Code de la commune", max_length=10, editable=False)
+    code = models.CharField("Code INSEE", max_length=10, editable=False)
     type = models.CharField(
         "Type de commune",
         max_length=4,
@@ -139,7 +139,7 @@ class EPCI(models.Model):
         (TYPE_METROPOLE, "Métropole"),
     )
 
-    code = models.CharField("Code", max_length=10, editable=False, unique=True,)
+    code = models.CharField("Code SIREN", max_length=10, editable=False, unique=True,)
 
     type = models.CharField("Type d'EPCI", max_length=2, choices=TYPE_CHOICES)
 
@@ -160,7 +160,7 @@ class EPCI(models.Model):
 
 
 class Departement(TypeNomMixin, models.Model):
-    code = models.CharField("Code", max_length=3, editable=False, unique=True)
+    code = models.CharField("Code INSEE", max_length=3, editable=False, unique=True)
     nom = models.CharField("Nom du département", max_length=200, editable=False)
     type_nom = models.PositiveSmallIntegerField(
         "Type de nom du département", blank=False, editable=False, null=False
@@ -194,7 +194,7 @@ class Departement(TypeNomMixin, models.Model):
 
 
 class Region(TypeNomMixin, models.Model):
-    code = models.CharField("Code", max_length=3, editable=False, unique=True)
+    code = models.CharField("Code INSEE", max_length=3, editable=False, unique=True)
     nom = models.CharField("Nom de la région", max_length=200, editable=False)
     type_nom = models.PositiveSmallIntegerField(
         "Type de nom", blank=False, editable=False, null=False
@@ -218,3 +218,22 @@ class Region(TypeNomMixin, models.Model):
     class Meta:
         verbose_name = "Région"
         ordering = ("nom",)  # personne ne connait les codes de région
+
+
+class CodePostal(models.Model):
+    code = models.CharField("Code postal", max_length=5, editable=False, unique=True)
+
+    communes = models.ManyToManyField(
+        to="Commune",
+        verbose_name="Communes dans ce code postal",
+        related_name="codes_postaux",
+        related_query_name="codes_postaux",
+    )
+
+    def __str__(self):
+        return self.code
+
+    class Meta:
+        verbose_name = "Code postal"
+        verbose_name_plural = "Codes postaux"
+        ordering = ("code",)

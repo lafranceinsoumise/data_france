@@ -1,7 +1,6 @@
 import datetime
 from dataclasses import dataclass
 from pathlib import PurePath
-from typing import List, Union
 
 import yaml
 
@@ -47,14 +46,15 @@ class Date:
 class Source:
     path: PurePath
     url: str
-    date: Date
     hash: str
-    preparation: str = None
-    targets: Union[str, List[str]] = None
+    date: Date = None
     to_csv: bool = False
+    extension: str = None
 
     @property
     def suffix(self):
+        if self.extension is not None:
+            return self.extension
         return PurePath(self.url).suffix
 
     @property

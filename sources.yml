@@ -95,3 +95,9 @@ interieur:
         url: https://www.data.gouv.fr/s/resources/elections-municipales-2014-resultats-par-bureaux-de-vote/20150925-122128/MN14_Bvot_T1T2.txt
         date: 25/09/2015
         hash: fe8ae42befb8e006dce1d959bee237449c9f39506c940e68c9b49a20f4363570
+
+laposte:
+  codes_postaux:
+    url: https://datanova.laposte.fr/explore/dataset/laposte_hexasmal/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%2C
+    extension: .csv
+    hash: b0e6e2e7f388196711b705f52ea8e6182f1246f3b48d5f7577bc9c989dc53ab0

@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 
-from data_france.models import Commune, EPCI, Departement, Region
+from data_france.models import Commune, EPCI, Departement, Region, CodePostal
 
 
 class AddRelatedLinkMixin:
@@ -117,6 +117,7 @@ class CommuneAdmin(ImmutableModelAdmin):
                     "departement_link",
                     "commune_parent_link",
                     "epci_link",
+                    "codes_postaux_list",
                 )
             },
         ),
@@ -163,7 +164,6 @@ class EPCIAdmin(ImmutableModelAdmin):
 
 @admin.register(Departement)
 class DepartementAdmin(ImmutableModelAdmin):
-    modifiable = False  # pour GeoModelAdmin
     readonly_fields = ("code", "nom", "population")
 
     list_display = ("code", "nom", "region_link", "chef_lieu_link")
@@ -172,8 +172,21 @@ class DepartementAdmin(ImmutableModelAdmin):
 
 @admin.register(Region)
 class RegionAdmin(ImmutableModelAdmin):
-    modifiable = False  # pour GeoModelAdmin
     readonly_fields = ("code", "nom", "population")
 
     list_display = ("code", "nom", "chef_lieu_link")
     fields = list_display + ("population", "geometry",)
+
+
+@admin.register(CodePostal)
+class CodePostal(ImmutableModelAdmin):
+    readonly_fields = ("code",)
+    list_display = ("code",)
+    fields = list_display + ("communes_list",)
+    search_fields = ("code",)
+
+    def get_search_results(self, request, queryset, search_term):
+        use_distinct = False
+        if search_term:
+            return queryset.filter(code__startswith=search_term), use_distinct
+        return queryset, use_distinct
