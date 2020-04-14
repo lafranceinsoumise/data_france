@@ -1,6 +1,12 @@
 data_france
 ===========
 
+Version 0.8.3
+-------------
+
+* Ajout des codes postaux
+* Import un peu plus rapide (en segmentant en plusieurs transactions)
+
 Version 0.8.2
 -------------
 

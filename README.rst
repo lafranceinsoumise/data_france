@@ -25,8 +25,9 @@ Pour le moment, j'ai inclus :
     * N'inclut pas encore les EPT du Grand Paris
 * Les départements
 * Les régions
+* Les codes postaux
 
-Toutes ces entités viennent avec une géometrie et les articles + charnière.
+Toutes ces entités (sauf les codes postaux) viennent avec une géometrie et les articles + charnière.
 
 Vues
 ----
