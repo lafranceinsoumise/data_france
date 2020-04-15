@@ -102,10 +102,11 @@ def importer_associations_communes_codes_postaux(using):
         stderr.write(f" OK !{os.linesep}")
 
 
-def ajouter_champs_agreges(connection):
-    stderr.write("Agrégation des données par département...")
-    stderr.flush()
-    with connection.cursor() as cursor:
+def agreger_geometries_et_populations(using):
+
+    with get_connection(using).cursor() as cursor:
+        stderr.write("Calcul des populations et géométries par département...")
+        stderr.flush()
         cursor.execute(
             """
             UPDATE "data_france_departement"
@@ -124,12 +125,10 @@ def ajouter_champs_agreges(connection):
             WHERE id = c.departement_id;
             """
         )
-    connection.commit()
-    stderr.write(f" OK !{os.linesep}")
+        stderr.write(f" OK !{os.linesep}")
 
-    stderr.write("Agrégation des données par région...")
-    stderr.flush()
-    with connection.cursor() as cursor:
+        stderr.write("Calcul des populations et géométries par région...")
+        stderr.flush()
         cursor.execute(
             """
             UPDATE "data_france_region"
@@ -147,12 +146,10 @@ def ajouter_champs_agreges(connection):
             WHERE id = d.region_id;
             """
         )
-    connection.commit()
-    stderr.write(f" OK !{os.linesep}")
+        stderr.write(f" OK !{os.linesep}")
 
-    stderr.write("Agrégation des données par EPCI...")
-    stderr.flush()
-    with connection.cursor() as cursor:
+        stderr.write("Calcul des populations et géométries par EPCI...")
+        stderr.flush()
         cursor.execute(
             """
             UPDATE "data_france_epci"
@@ -171,8 +168,56 @@ def ajouter_champs_agreges(connection):
             WHERE id = c.epci_id;
             """
         )
-    connection.commit()
-    stderr.write(f" OK !{os.linesep}")
+        stderr.write(f" OK !{os.linesep}")
+
+
+def cree_index_recherche(using):
+    with get_connection(using).cursor() as cursor:
+        stderr.write("Mise à jour de l'index de recherche...")
+        cursor.execute(
+            """
+            WITH cps AS (
+                SELECT data_france_tsvector_agg(code :: tsvector) AS codes_postaux, commune_id
+                FROM data_france_codepostal AS dfcp
+                INNER JOIN data_france_codepostal_communes AS dfcc
+                ON dfcp.id = dfcc.codepostal_id
+                GROUP BY commune_id
+                
+                UNION 
+                
+                SELECT NULL AS codes_postaux, dfc.id AS commune_id
+                FROM data_france_commune dfc
+                LEFT JOIN data_france_codepostal_communes dfcc 
+                ON dfc.id = dfcc.commune_id
+                WHERE dfcc.commune_id IS NULL
+            ),
+            deps AS (
+                SELECT dfc.id AS commune_id, dfd.nom AS nom, dfd.code AS code FROM data_france_commune dfc
+                LEFT JOIN data_france_departement dfd
+                ON dfc.departement_id = dfd.id
+                
+                UNION
+                
+                SELECT dfc.id AS commune_id, dfd.nom AS nom, dfd.code AS code FROM data_france_commune dfc
+                LEFT JOIN data_france_commune dfp
+                ON dfc.commune_parent_id = dfp.id
+                LEFT JOIN data_france_departement dfd
+                ON dfp.departement_id = dfd.id
+            )
+            
+            UPDATE data_france_commune AS dfc
+            SET search = 
+                setweight(to_tsvector('data_france_search' :: regconfig, dfc.nom), 'A') ||
+                setweight(to_tsvector('data_france_search' :: regconfig, dfc.code), 'C') ||
+                setweight(COALESCE(cps.codes_postaux, '' :: tsvector), 'B') ||
+                setweight(to_tsvector(deps.code), 'C') ||
+                setweight(to_tsvector('data_france_search', deps.nom), 'D')
+            FROM cps, deps
+            WHERE dfc.id = cps.commune_id
+            AND dfc.id = deps.commune_id;
+        """
+        )
+        stderr.write(f" OK !{os.linesep}")
 
 
 def import_with_temp_table(csv_file, table, using):
@@ -199,30 +244,30 @@ def import_with_temp_table(csv_file, table, using):
 
 def importer_donnees(using=None):
     auto_commit = transaction.get_autocommit(using=using)
-    transaction.set_autocommit(False, using=using)
-    connection = get_connection(using=using)
+    if not auto_commit:
+        transaction.set_autocommit(True, using=using)
+
     try:
+        # à importer avant les communes
         importer_epci(using)
-        connection.commit()
 
         # ces trois tables ont des foreign key croisées
         # Django crée les contraintes de clés étrangères
         # en mode "différable", ce qui permet d'importer
         # facilement ces tables en les groupant dans une
         # transaction
-        import_regions(using)
-        import_departements(using)
-        importer_communes(using)
-        connection.commit()
+        with transaction.atomic():
+            import_regions(using)
+            import_departements(using)
+            importer_communes(using)
 
         importer_codes_postaux(using)
-        connection.commit()
 
         importer_associations_communes_codes_postaux(using)
-        connection.commit()
 
-        ajouter_champs_agreges(connection)
+        agreger_geometries_et_populations(using)
 
+        cree_index_recherche(using)
     finally:
-        transaction.rollback(using=using)
-        transaction.set_autocommit(auto_commit, using)
+        if not auto_commit:
+            transaction.set_autocommit(False, using=using)

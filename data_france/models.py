@@ -1,5 +1,5 @@
 from django.contrib.gis.db.models import MultiPolygonField
-from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from django.contrib.postgres.search import SearchRank, SearchVectorField
 from django.db import models
 
 from data_france.search import PrefixSearchQuery
@@ -8,16 +8,11 @@ from data_france.type_noms import TypeNomMixin
 
 class CommuneQueryset(models.QuerySet):
     def search(self, search_terms):
-        vector = SearchVector(
-            models.F("nom"), config="data_france_search", weight="A"
-        ) + SearchVector(models.F("code"), config="data_france_search", weight="B")
-
         query = PrefixSearchQuery(search_terms, config="data_france_search")
 
         return (
-            self.annotate(search=vector)
-            .filter(search=query)
-            .annotate(rank=SearchRank(vector, query))
+            self.filter(search=query)
+            .annotate(rank=SearchRank(models.F("search"), query))
             .order_by("-rank")
         )
 
@@ -100,6 +95,8 @@ class Commune(TypeNomMixin, models.Model):
     )
 
     geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
+
+    search = SearchVectorField("Champ de recherche", null=True, editable=False)
 
     def __str__(self):
         return f"{self.nom_complet} ({self.code})"

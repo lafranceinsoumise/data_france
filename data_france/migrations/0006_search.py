@@ -11,14 +11,11 @@ ALTER TEXT SEARCH CONFIGURATION data_france_search
 
 delete_search_config = "DROP TEXT SEARCH CONFIGURATION data_france_search;"
 
-search_column = """
-setweight(to_tsvector('data_france_search', COALESCE("nom", '')), 'A')
-|| setweight(to_tsvector('data_france_search', COALESCE("code", '')), 'B')
-"""
-
-
-add_search_index = f"""
-CREATE INDEX data_france_commune_search_index ON data_france_commune USING GIN (({search_column}));
+add_search_index = """
+CREATE INDEX data_france_commune_search_index ON data_france_commune USING GIN ((
+    setweight(to_tsvector('data_france_search', COALESCE("nom", '')), 'A')
+    || setweight(to_tsvector('data_france_search', COALESCE("code", '')), 'B')
+));
 """
 
 drop_search_index = "DROP INDEX data_france_commune_search_index"
