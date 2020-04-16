@@ -3,6 +3,7 @@ import pandas as pd
 __all__ = ["task_traiter_epci", "task_traiter_communes"]
 
 from backend import PREPARE_DIR
+from data_france.data import VILLES_PLM
 
 INSEE_DIR = PREPARE_DIR / "insee"
 COG_DIR = INSEE_DIR / "cog"
@@ -115,11 +116,10 @@ def traiter_communes(
     communes = pd.read_csv(
         communes_cog_path,
         dtype={"com": str, "dep": str, "comparent": str},
-        usecols=["typecom", "com", "dep", "tncc", "nccenr", "comparent"],
+        usecols=["typecom", "com", "tncc", "nccenr", "comparent"],
     ).rename(
         columns={
             "com": "code",
-            "dep": "code_departement",
             "typecom": "type",
             "nccenr": "nom",
             "tncc": "type_nom",
@@ -139,27 +139,62 @@ def traiter_communes(
     for c in ["type", "code", "nom", "commune_parent"]:
         communes[c] = communes[c].str.strip()
 
-    res = pd.concat(
+    communes_et_arrs = (
+        communes.loc[communes.type.isin(["COM", "ARM"])]
+        .join(correspondances_epci, on=["code"])
+        .join(communes_pop, on=["code"])
+        .sort_values(["type", "code"], ascending=[False, True])
+    )
+
+    anciennes_communes = (
+        communes.loc[~communes.type.isin(["COM", "ARM"])]
+        .join(communes_ad_pop, on=["code"])
+        .sort_values(["type", "code"])
+    )
+
+    plms = communes_et_arrs.loc[
+        (communes_et_arrs.type == "COM")
+        & communes_et_arrs.code.isin([v["code"] for v in VILLES_PLM])
+    ].set_index("code")
+    arms = communes_et_arrs.loc[
+        (communes_et_arrs.type == "ARM")
+        & communes_et_arrs.code.str.match(
+            "|".join(v["prefixe_arm"] for v in VILLES_PLM)
+        )
+    ].set_index("code")
+
+    secteurs_municipaux = pd.DataFrame(
         [
-            communes.loc[communes.type.isin(["COM", "ARM"])]
-            .join(correspondances_epci, on=["code"])
-            .join(communes_pop, on=["code"])
-            .sort_values(["type", "code"], ascending=[False, True]),
-            communes.loc[~communes.type.isin(["COM", "ARM"])]
-            .join(communes_ad_pop, on=["code"])
-            .sort_values(["type", "code"]),
-        ],
-        ignore_index=True,
+            {
+                "code": f"{ville['code']}SR{sec:02d}",
+                "type": "SRM",
+                "nom": f"{plms.loc[ville['code'], 'nom']} {sec}{'er' if sec==1 else 'e'} secteur électoral",
+                "type_nom": plms.loc[ville["code"], "type_nom"],
+                "commune_parent": ville["code"],
+                "population_municipale": arms.loc[
+                    arms.index.isin([f"{ville['prefixe_arm']}{arr}" for arr in arrs]),
+                    "population_municipale",
+                ].sum(),
+                "population_cap": arms.loc[
+                    arms.index.isin([f"{ville['prefixe_arm']}{arr}" for arr in arrs]),
+                    "population_cap",
+                ].sum(),
+            }
+            for ville in VILLES_PLM
+            for sec, arrs in ville["secteurs"].items()
+        ]
+    )
+
+    res = pd.concat(
+        [communes_et_arrs, anciennes_communes, secteurs_municipaux], ignore_index=True,
     ).convert_dtypes()
 
-    villes_arms = [("13055", "132"), ("69123", "693"), ("75056", "751")]
-
-    for code_ville, prefix_arm in villes_arms:
+    for ville in VILLES_PLM:
         res.loc[
-            res["code"] == code_ville, ["population_municipale", "population_cap"]
+            res["code"] == ville["code"], ["population_municipale", "population_cap"]
         ] = list(
             res.loc[
-                res["code"].str.startswith(prefix_arm),
+                res["code"].str.startswith(ville["prefixe_arm"]),
                 ["population_municipale", "population_cap"],
             ].sum(axis=0)
         )

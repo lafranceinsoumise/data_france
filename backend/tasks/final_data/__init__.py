@@ -1,8 +1,9 @@
 import contextlib
 import csv
 import lzma
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 
 from backend import BASE_DIR, SOURCE_DIR
 from tasks.admin_express import COMMUNES_GEOMETRY
@@ -30,7 +31,7 @@ __all__ = [
 ]
 
 
-ORDERING = ["COM", "ARM", "COMA", "COMD", None]
+ORDERING = ["COM", "ARM", "COMA", "COMD", "SRM", None]
 
 
 def _key(t):

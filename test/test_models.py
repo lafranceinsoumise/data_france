@@ -6,26 +6,47 @@ from data_france.models import Commune, EPCI, Departement, Region, CodePostal
 class CommuneTestCase(TestCase):
     def test_communes_correctement_importees(self):
         """Le nombre de communes au sens large, et de communes au sens propre correspond à ce qui est attendu."""
-        self.assertEqual(Commune.objects.count(), 37932)
-        self.assertEqual(
-            Commune.objects.filter(type=Commune.TYPE_COMMUNE).count(), 34967
-        )
+        attendus = {
+            "COM": 34967,
+            "COMA": 550,
+            "COMD": 2370,
+            "ARM": 20 + 9 + 16,
+            "SRM": 17 + 9 + 8,
+        }
+
+        for type_commune, attendu in attendus.items():
+            reel = Commune.objects.filter(type=type_commune).count()
+            self.assertEqual(
+                reel,
+                attendu,
+                f"Il devrait y avoir f{attendu} entités de type {type_commune}, il y en a {reel}",
+            )
 
     def test_polygones_disponibles(self):
-        """Toutes les communes au sens propre ont une géométrie"""
+        """Toutes les communes au sens propre, départements et secteurs ont une géométrie"""
         self.assertFalse(
             Commune.objects.filter(
-                type=Commune.TYPE_COMMUNE, geometry__isnull=True
+                type__in=[
+                    Commune.TYPE_COMMUNE,
+                    Commune.TYPE_ARRONDISSEMENT_PLM,
+                    Commune.TYPE_SECTEUR_PLM,
+                ],
+                geometry__isnull=True,
             ).exists()
         )
 
     def test_avec_population(self):
         """Les communes ont leur population"""
 
-        # à part Mayotte, toutes les communes et arrondissement ont leur population
+        # à part Mayotte, toutes les communes et arrondissements ont leur population
         self.assertFalse(
             Commune.objects.filter(
-                type__in=["COM", "ARM"], population_municipale__isnull=True
+                type__in=[
+                    Commune.TYPE_COMMUNE,
+                    Commune.TYPE_ARRONDISSEMENT_PLM,
+                    Commune.TYPE_SECTEUR_PLM,
+                ],
+                population_municipale__isnull=True,
             )
             .exclude(departement__code="976")
             .exists()
@@ -75,6 +96,13 @@ class DepartementTestCase(TestCase):
             Commune.objects.filter(
                 type=Commune.TYPE_COMMUNE, departement__isnull=True
             ).exists()
+        )
+
+    def test_seules_les_communes_stricto_sensu_ont_departement(self):
+        self.assertFalse(
+            Commune.objects.exclude(type=Commune.TYPE_COMMUNE)
+            .filter(departement__isnull=False)
+            .exists()
         )
 
     def test_polygones_disponibles(self):

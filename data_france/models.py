@@ -22,7 +22,7 @@ class Commune(TypeNomMixin, models.Model):
     TYPE_COMMUNE_DELEGUEE = "COMD"
     TYPE_COMMUNE_ASSOCIEE = "COMA"
     TYPE_ARRONDISSEMENT_PLM = "ARM"
-    TYPE_SECTEUR_PLM = "SEC"
+    TYPE_SECTEUR_PLM = "SRM"
     TYPE_CHOICES = (
         (TYPE_COMMUNE, "Commune"),
         (TYPE_COMMUNE_DELEGUEE, "Commune déléguée"),
@@ -97,6 +97,10 @@ class Commune(TypeNomMixin, models.Model):
     geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
 
     search = SearchVectorField("Champ de recherche", null=True, editable=False)
+
+    @property
+    def avec_conseil(self):
+        return self.type in (self.TYPE_COMMUNE, self.TYPE_SECTEUR_PLM)
 
     def __str__(self):
         return f"{self.nom_complet} ({self.code})"
