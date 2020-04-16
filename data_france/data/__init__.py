@@ -6,19 +6,33 @@ from sys import stderr
 
 from django.db import transaction
 from django.db.transaction import get_connection
+from psycopg2.sql import SQL, Identifier
 
-COPY_SQL = (
-    """COPY "{table}" ({columns}) FROM STDIN WITH NULL AS '\\N' CSV QUOTE AS '"';"""
+COPY_SQL = SQL(
+    """COPY {table} ({columns}) FROM STDIN WITH NULL AS '\\N' CSV QUOTE AS '"';"""
 )
 
-CREATE_TEMP_TABLE_SQL = """
-    CREATE TEMPORARY TABLE "{temp_table}" AS
-    SELECT {columns} FROM "{reference_table}" LIMIT 0;
+CREATE_TEMP_TABLE_SQL = SQL(
+    """
+CREATE TEMPORARY TABLE {temp_table} AS
+SELECT {columns} FROM {reference_table} LIMIT 0;
 """
+)
 
-DROP_TEMPORARY_TABLE_SQL = """
-    DROP TABLE IF EXISTS "{temp_table}";
-"""
+DROP_TEMPORARY_TABLE_SQL = SQL(
+    """
+    DROP TABLE IF EXISTS {temp_table};
+    """
+)
+
+COPY_FROM_TEMP_TABLE = SQL(
+    """
+    INSERT INTO {table} ({all_columns})
+    SELECT {all_columns}
+    FROM {temp_table}
+    ON CONFLICT({id_column}) DO UPDATE SET {setters};
+    """
+)
 
 VILLES_PLM = [
     {
@@ -54,11 +68,14 @@ VILLES_PLM = [
 @contextlib.contextmanager
 def temporary_table(cursor, temp_table, reference_table, columns):
     """Context manager for creating and dropping temp tables"""
+
+    temp_table = Identifier(temp_table)
+    reference_table = Identifier(reference_table)
+    columns = SQL(",").join([Identifier(c) for c in columns])
+
     cursor.execute(
         CREATE_TEMP_TABLE_SQL.format(
-            temp_table=temp_table,
-            reference_table=reference_table,
-            columns=",".join(columns),
+            temp_table=temp_table, reference_table=reference_table, columns=columns,
         )
     )
 
@@ -124,34 +141,51 @@ def importer_associations_communes_codes_postaux(using):
     ) as _f, lzma.open(_f, "rt") as f:
         stderr.write("Chargement des associations Communes/Codes postaux...")
         stderr.flush()
-        columns = [f'"{c}"' for c in f.readline().strip().split(",")]
+        columns = f.readline().strip().split(",")
         table = "data_france_codepostal_communes"
         with get_connection(using).cursor() as cursor:
-            cursor.execute(f"TRUNCATE TABLE {table};")
+            cursor.execute(
+                SQL("TRUNCATE TABLE {table};").format(table=Identifier(table))
+            )
             cursor.copy_expert(
-                COPY_SQL.format(table=table, columns=",".join(columns)), f
+                COPY_SQL.format(
+                    table=Identifier(table),
+                    columns=SQL(",").join(Identifier(c) for c in columns),
+                ),
+                f,
             )
         stderr.write(f" OK !{os.linesep}")
 
 
 def agreger_geometries_et_populations(using):
     with get_connection(using).cursor() as cursor:
-        stderr.write("Calcul des géométries des secteurs électoraux")
+        stderr.write("Calcul des géométries des secteurs électoraux...")
         stderr.flush()
-        for ville in VILLES_PLM:
-            for secteur, arrondissements in ville["secteurs"].items():
-                cursor.execute(
-                    f"""
-                    UPDATE "data_france_commune"
-                    SET
-                        geometry = (
-                            SELECT ST_Multi(ST_Union(geometry :: geometry))
-                            FROM data_france_commune
-                            WHERE code IN ({','.join(f"'{ville['prefixe_arm']}{arr}'" for arr in arrondissements)})
-                        )
-                    WHERE code = '{ville["code"]}SR{secteur:02d}';
-                    """
+
+        param_list = [
+            {
+                "arrondissements": tuple(
+                    f"{ville['prefixe_arm']}{arr}" for arr in arrondissements
+                ),
+                "secteur": f"{ville['code']}SR{secteur:02d}",
+            }
+            for ville in VILLES_PLM
+            for secteur, arrondissements in ville["secteurs"].items()
+        ]
+
+        cursor.executemany(
+            """
+            UPDATE "data_france_commune"
+            SET
+                geometry = (
+                    SELECT ST_Multi(ST_Union(geometry :: geometry))
+                    FROM "data_france_commune"
+                    WHERE code IN %(arrondissements)s
                 )
+            WHERE code = %(secteur)s;
+            """,
+            param_list,
+        )
         stderr.write(f" OK !{os.linesep}")
 
         stderr.write("Calcul des populations et géométries par département...")
@@ -271,23 +305,31 @@ def cree_index_recherche(using):
 
 def import_with_temp_table(csv_file, table, using):
     temp_table = f"{table}_temp"
-    columns = [f'"{c}"' for c in csv_file.readline().strip().split(",")]
+    columns = csv_file.readline().strip().split(",")
 
     with get_connection(using).cursor() as cursor, temporary_table(
         cursor, temp_table, table, columns
     ):
+
         cursor.copy_expert(
-            COPY_SQL.format(table=temp_table, columns=",".join(columns)), csv_file
+            COPY_SQL.format(
+                table=Identifier(temp_table),
+                columns=SQL(",").join(Identifier(c) for c in columns),
+            ),
+            csv_file,
         )
 
         cursor.execute(
-            f"""
-                INSERT INTO {table} ({",".join(columns)})
-                SELECT {",".join(f't.{c}' for c in columns)}
-                FROM {temp_table} AS t
-                ON CONFLICT({columns[0]}) DO UPDATE SET
-                    {",".join(f'{c} = EXCLUDED.{c}' for c in columns[1:])};
-        """
+            COPY_FROM_TEMP_TABLE.format(
+                table=Identifier(table),
+                temp_table=Identifier(temp_table),
+                all_columns=SQL(",").join(Identifier(c) for c in columns),
+                id_column=Identifier(columns[0]),
+                setters=SQL(",").join(
+                    Identifier(c) + SQL(" = ") + Identifier("excluded", c)
+                    for c in columns[1:]
+                ),
+            ),
         )
 
 
