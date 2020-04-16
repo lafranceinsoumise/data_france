@@ -1,6 +1,14 @@
 from django.test import TestCase
 
-from data_france.models import Commune, EPCI, Departement, Region, CodePostal
+from data_france.models import (
+    Commune,
+    EPCI,
+    Departement,
+    Region,
+    CodePostal,
+    CollectiviteDepartementale,
+    CollectiviteRegionale,
+)
 
 
 class CommuneTestCase(TestCase):
@@ -144,3 +152,23 @@ class CodePostalTestCase(TestCase):
             ).values_list("code", flat=True),
             ["75056", "13055", "69123"],
         )
+
+
+class UpdateDataFranceTestCase(TestCase):
+    def test_update_data_france_idempotent(self):
+        pass
+
+
+class CollectiviteDepartementaleTest(TestCase):
+    def test_import_correct(self):
+        # 96 départements en métropole, dont 3 sans collectivité départementale (Corses et Paris)
+        # 2 départements d'Outremer ont un conseil départemental (Mayotte n'est pas compté malgré
+        # son nom parce qu'il s'agit d'une collectivité unique aux compétences régionales+départementales
+        # 1 métropole à compétences départementales (Lyon)
+        # Pour un total de 93 + 2 + 1 = 96
+        self.assertEqual(CollectiviteDepartementale.objects.count(), 96)
+
+
+class CollectiviteRegionaleTest(TestCase):
+    def test_import_correct(self):
+        self.assertEqual(CollectiviteRegionale.objects.count(), 18)

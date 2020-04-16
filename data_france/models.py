@@ -119,10 +119,15 @@ class Commune(TypeNomMixin, models.Model):
                 ),
                 name="commune_deleguees_associees_constraint",
             ),
+            models.CheckConstraint(
+                check=(
+                    models.Q(type="COM", departement_id__isnull=False)
+                    | (models.Q(departement__isnull=True) & ~models.Q(type="COM"))
+                ),
+                name="commune_departement_constraint",
+            ),
             models.UniqueConstraint(
-                fields=["code"],
-                name="commune_unique_code",
-                condition=models.Q(type="COM"),
+                fields=["type", "code"], name="commune_unique_code",
             ),
         )
 
@@ -238,3 +243,63 @@ class CodePostal(models.Model):
         verbose_name = "Code postal"
         verbose_name_plural = "Codes postaux"
         ordering = ("code",)
+
+
+class CollectiviteDepartementale(models.Model):
+    TYPE_CONSEIL_DEPARTEMENTAL = "D"
+    TYPE_CONSEIL_METROPOLE = "M"
+    TYPE_CHOICES = (
+        (TYPE_CONSEIL_DEPARTEMENTAL, "Conseil départemental"),
+        (TYPE_CONSEIL_METROPOLE, "Conseil de métropole"),
+    )
+
+    code = models.CharField("Code INSEE", max_length=4, unique=True)
+    type = models.CharField(
+        "Type de collectivité départementale", max_length=1, choices=TYPE_CHOICES
+    )
+    actif = models.BooleanField("En cours d'existence", default=True)
+
+    nom = models.CharField("Nom", max_length=200)
+    departement = models.ForeignKey(
+        "Departement",
+        on_delete=models.PROTECT,
+        verbose_name="Circonscription administrative correspondante",
+    )
+
+    population = models.PositiveIntegerField("Population", null=True)
+
+    geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
+
+    class Meta:
+        verbose_name = "Collectivité à compétences départementales"
+        verbose_name_plural = "Collectivités à compétences départementales"
+        ordering = ("code",)
+
+
+class CollectiviteRegionale(models.Model):
+    TYPE_CONSEIL_REGIONAL = "R"
+    TYPE_COLLECTIVITE_UNIQUE = "U"
+    TYPE_CHOICES = (
+        (TYPE_CONSEIL_REGIONAL, "Conseil régional"),
+        (TYPE_COLLECTIVITE_UNIQUE, "Collectivité territoriale unique"),
+    )
+
+    code = models.CharField("Code INSEE", max_length=4, unique=True)
+    type = models.CharField(
+        "Type de collectivité départementale", max_length=1, choices=TYPE_CHOICES
+    )
+
+    actif = models.BooleanField("En cours d'existence", default=True)
+
+    nom = models.CharField("Nom", max_length=200)
+    region = models.OneToOneField(
+        to="Region",
+        on_delete=models.PROTECT,
+        related_name="collectivite",
+        verbose_name="Circonscription administrative correspondante",
+    )
+
+    class Meta:
+        verbose_name = "Collectivité à compétences régionales"
+        verbose_name_plural = "Collectivités à compétences régionales"
+        ordering = ("nom",)

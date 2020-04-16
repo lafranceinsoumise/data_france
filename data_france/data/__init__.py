@@ -1,7 +1,8 @@
 import contextlib
+import csv
 import lzma
 import os
-from importlib.resources import open_binary
+from importlib.resources import open_binary, open_text
 from sys import stderr
 
 from django.db import transaction
@@ -14,9 +15,9 @@ COPY_SQL = SQL(
 
 CREATE_TEMP_TABLE_SQL = SQL(
     """
-CREATE TEMPORARY TABLE {temp_table} AS
-SELECT {columns} FROM {reference_table} LIMIT 0;
-"""
+    CREATE TEMPORARY TABLE {temp_table} AS
+    SELECT {columns} FROM {reference_table} LIMIT 0;
+    """
 )
 
 DROP_TEMPORARY_TABLE_SQL = SQL(
@@ -30,7 +31,7 @@ COPY_FROM_TEMP_TABLE = SQL(
     INSERT INTO {table} ({all_columns})
     SELECT {all_columns}
     FROM {temp_table}
-    ON CONFLICT({id_column}) DO UPDATE SET {setters};
+    ON CONFLICT({id_column}) DO UPDATE SET {setters}
     """
 )
 
@@ -254,7 +255,140 @@ def agreger_geometries_et_populations(using):
         stderr.write(f" OK !{os.linesep}")
 
 
-def cree_index_recherche(using):
+def creer_collectivites_departementales(using):
+    from data_france.models import Departement, CollectiviteDepartementale, EPCI
+
+    instances_departement = {d.code: d for d in Departement.objects.all()}
+    epci_metropole_lyon = EPCI.objects.get(code="200046977")
+
+    codes_avec_conseil_general = [
+        f"{d:02d}"
+        for d in range(1, 96)
+        if d not in {20, 75}  # pas de conseil général à Paris en ou Corse
+    ] + [
+        "971",
+        "974",
+    ]  # seul la Guadeloupe et la Réunion n'ont pas de collectivité unique
+
+    conseils_generaux = [
+        {
+            "code": f"{d}D",
+            "type": CollectiviteDepartementale.TYPE_CONSEIL_DEPARTEMENTAL,
+            "actif": True,
+            "nom": f"Conseil général {instances_departement[d].nom_avec_charniere}",
+            "departement_id": instances_departement[d].id,
+        }
+        for d in codes_avec_conseil_general
+    ]
+
+    metropole_lyon = {
+        "code": "69M",
+        "type": CollectiviteDepartementale.TYPE_CONSEIL_METROPOLE,
+        "actif": True,
+        "nom": "Conseil de la Métropole de Lyon",
+        "departement_id": instances_departement["69"].id,
+    }
+
+    with get_connection(using).cursor() as cursor:
+        stderr.write("Création des collectivités à compétences départementales...")
+        stderr.flush()
+        cursor.executemany(
+            """
+            INSERT INTO "data_france_collectivitedepartementale" ("code", "type", "actif", "departement_id", "nom")
+            VALUES (%(code)s, %(type)s, %(actif)s, %(departement_id)s, %(nom)s)
+            ON CONFLICT(code) DO UPDATE
+            SET 
+                type = excluded.type,
+                actif = excluded.actif,
+                departement_id = excluded.departement_id,
+                nom = excluded.nom;
+            """,
+            conseils_generaux + [metropole_lyon],
+        )
+
+        cursor.execute(
+            """
+            UPDATE "data_france_collectivitedepartementale"
+            SET 
+                population = m.population,
+                geometry = m.geometry
+            FROM (
+                SELECT ST_Multi(ST_Union(geometry :: geometry)) as geometry, SUM(population_municipale) AS population
+                FROM "data_france_commune"
+                WHERE type = 'COM' 
+                AND departement_id = %(id_departement_rhone)s
+                AND epci_id = %(id_epci_metropole)s
+            ) AS m
+            WHERE code = '69M';
+            
+            UPDATE "data_france_collectivitedepartementale"
+            SET 
+                population = m.population,
+                geometry = m.geometry
+            FROM (
+                SELECT ST_Multi(ST_Union(geometry :: geometry)) as geometry, SUM(population_municipale) AS population
+                FROM "data_france_commune"
+                WHERE type = 'COM' 
+                AND departement_id = %(id_departement_rhone)s
+                AND (epci_id IS NULL OR epci_id != %(id_epci_metropole)s)
+            ) AS m
+            WHERE code = '69D';
+            """,
+            {
+                "id_departement_rhone": instances_departement["69"].id,
+                "id_epci_metropole": epci_metropole_lyon.id,
+            },
+        )
+    stderr.write(f" OK !{os.linesep}")
+
+
+def creer_collectivites_regionales(using):
+    from data_france.models import Region, CollectiviteRegionale
+
+    with open_text("data_france.data", "ctu.csv") as f:
+        r = csv.DictReader(f)
+        ctu = list(r)
+
+    ctu = {c["code_region"]: c for c in ctu}
+
+    regions = [
+        (r.id, r.code, f"Conseil régional {r.nom_avec_charniere}")
+        for r in Region.objects.all()
+    ]
+
+    collectivites = [
+        {
+            "code": ctu[code]["code"] if code in ctu else f"{code}R",
+            "type": CollectiviteRegionale.TYPE_COLLECTIVITE_UNIQUE
+            if code in ctu
+            else CollectiviteRegionale.TYPE_CONSEIL_REGIONAL,
+            "actif": True,
+            "region_id": id,
+            "nom": ctu[code]["nom"] if code in ctu else nom,
+        }
+        for id, code, nom in regions
+    ]
+
+    with get_connection(using).cursor() as cursor:
+        stderr.write("Création des collectivités à compétences régionales...")
+        stderr.flush()
+        cursor.executemany(
+            """
+            INSERT INTO "data_france_collectiviteregionale" ("code", "type", "actif", "region_id", "nom")
+            VALUES (%(code)s, %(type)s, %(actif)s, %(region_id)s, %(nom)s)
+            ON CONFLICT(code) DO UPDATE
+            SET 
+                type = excluded.type,
+                actif = excluded.actif,
+                region_id = excluded.region_id,
+                nom = excluded.nom;
+            """,
+            collectivites,
+        )
+    stderr.write(f" OK !{os.linesep}")
+
+
+def creer_index_recherche(using):
     with get_connection(using).cursor() as cursor:
         stderr.write("Mise à jour de l'index de recherche...")
         cursor.execute(
@@ -358,7 +492,11 @@ def importer_donnees(using=None):
 
         agreger_geometries_et_populations(using)
 
-        cree_index_recherche(using)
+        creer_collectivites_departementales(using)
+
+        creer_collectivites_regionales(using)
+
+        creer_index_recherche(using)
     finally:
         if not auto_commit:
             transaction.set_autocommit(False, using=using)

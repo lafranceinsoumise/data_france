@@ -15,7 +15,15 @@ from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 
-from data_france.models import Commune, EPCI, Departement, Region, CodePostal
+from data_france.models import (
+    Commune,
+    EPCI,
+    Departement,
+    Region,
+    CodePostal,
+    CollectiviteDepartementale,
+    CollectiviteRegionale,
+)
 
 
 class AddRelatedLinkMixin:
@@ -56,6 +64,7 @@ class AddRelatedLinkMixin:
                     verbose_name = f.related_model._meta.verbose_name_plural
                 else:
                     attr_name = f.name
+                    verbose_name = f.verbose_name
 
                 view_name = "admin:%s_%s_change" % (
                     f.related_model._meta.app_label,
@@ -66,7 +75,7 @@ class AddRelatedLinkMixin:
                     get_link = partial(
                         self.get_link, attr_name=attr_name, view_name=view_name
                     )
-                    get_link.short_description = f.verbose_name
+                    get_link.short_description = verbose_name
                     get_link.admin_order_field = f.name
 
                     link_attr_name = f"{attr_name}_link"
@@ -77,9 +86,8 @@ class AddRelatedLinkMixin:
                     get_list = partial(
                         self.get_list, attr_name=attr_name, view_name=view_name
                     )
-                    get_list.short_description = (
-                        f.related_model._meta.verbose_name_plural
-                    )
+
+                    get_list.short_description = verbose_name
 
                     link_attr_name = f"{attr_name}_list"
 
@@ -170,12 +178,28 @@ class DepartementAdmin(ImmutableModelAdmin):
     fields = list_display + ("population", "geometry",)
 
 
+@admin.register(CollectiviteDepartementale)
+class CollectiviteDepartementaleAdmin(ImmutableModelAdmin):
+    readonly_fields = ("code", "nom", "population")
+
+    list_display = ("code", "nom", "departement_link")
+    fields = list_display + ("population", "geometry")
+
+
 @admin.register(Region)
 class RegionAdmin(ImmutableModelAdmin):
     readonly_fields = ("code", "nom", "population")
 
     list_display = ("code", "nom", "chef_lieu_link")
     fields = list_display + ("population", "geometry",)
+
+
+@admin.register(CollectiviteRegionale)
+class CollectiviteRegionaleAdmin(ImmutableModelAdmin):
+    readonly_fields = ("code", "nom")
+
+    list_display = ("code", "nom", "region_link")
+    fields = list_display + ("population", "geometry")
 
 
 @admin.register(CodePostal)
