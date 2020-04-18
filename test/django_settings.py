@@ -51,3 +51,5 @@ STATIC_URL = "/static/"
 ROOT_URLCONF = "test.urls"
 
 TEST_RUNNER = "test.test_runner.TestRunner"
+
+LANGUAGE_CODE = "fr"
