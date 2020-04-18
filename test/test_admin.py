@@ -2,7 +2,14 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from data_france.models import Commune, EPCI, Departement, Region
+from data_france.models import (
+    Commune,
+    EPCI,
+    Departement,
+    Region,
+    CollectiviteDepartementale,
+    CollectiviteRegionale,
+)
 
 
 class AdminTestCase(TestCase):
@@ -46,4 +53,30 @@ class AdminTestCase(TestCase):
         c = Region.objects.order_by("?").first()
 
         res = self.client.get(reverse("admin:data_france_region_change", args=(c.id,)))
+        self.assertEqual(200, res.status_code)
+
+    def test_admin_collectivite_departementale(self):
+        res = self.client.get(
+            reverse("admin:data_france_collectivitedepartementale_changelist")
+        )
+        self.assertEqual(200, res.status_code)
+
+        c = CollectiviteDepartementale.objects.order_by("?").first()
+
+        res = self.client.get(
+            reverse("admin:data_france_collectivitedepartementale_change", args=(c.id,))
+        )
+        self.assertEqual(200, res.status_code)
+
+    def test_admin_collectivite_regionale(self):
+        res = self.client.get(
+            reverse("admin:data_france_collectiviteregionale_changelist")
+        )
+        self.assertEqual(200, res.status_code)
+
+        c = CollectiviteRegionale.objects.order_by("?").first()
+
+        res = self.client.get(
+            reverse("admin:data_france_collectiviteregionale_change", args=(c.id,))
+        )
         self.assertEqual(200, res.status_code)
