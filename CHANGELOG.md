@@ -1,6 +1,13 @@
 data_france
 ===========
 
+Version 0.9.0
+-------------
+
+* Ajoute collectivités départementales, y compris la métropole de Lyon
+* Ajoute collectivités régionales, y compris les collectivités territoriales uniques comme la Corse ou la Martinique
+* Nettoyage de l'admin
+
 Version 0.8.3
 -------------
 
