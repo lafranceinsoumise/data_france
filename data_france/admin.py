@@ -1,4 +1,3 @@
-import traceback
 from functools import partial
 
 from django.contrib import admin
@@ -218,6 +217,7 @@ class EPCIAdmin(ImmutableModelAdmin):
 class DepartementAdmin(ImmutableModelAdmin):
     list_display = ("code", "nom", "region_link", "chef_lieu_link")
     fields = list_display + ("population", "geometry_as_widget",)
+    search_fields = ("code", "nom")
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("region", "chef_lieu")
@@ -227,6 +227,7 @@ class DepartementAdmin(ImmutableModelAdmin):
 class CollectiviteDepartementaleAdmin(ImmutableModelAdmin):
     list_display = ("code", "nom", "departement_link")
     fields = list_display + ("population", "geometry_as_widget")
+    search_fields = ("code", "nom")
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("departement")
@@ -236,6 +237,7 @@ class CollectiviteDepartementaleAdmin(ImmutableModelAdmin):
 class RegionAdmin(ImmutableModelAdmin):
     list_display = ("code", "nom", "chef_lieu_link")
     fields = list_display + ("departements_list", "population", "geometry_as_widget",)
+    search_fields = ("nom",)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request).select_related("chef_lieu")
@@ -248,6 +250,7 @@ class RegionAdmin(ImmutableModelAdmin):
 class CollectiviteRegionaleAdmin(ImmutableModelAdmin):
     list_display = ("code", "nom", "region_link")
     fields = list_display
+    search_fields = ("nom",)
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("region")
