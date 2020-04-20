@@ -275,6 +275,9 @@ class CollectiviteDepartementale(models.Model):
         verbose_name_plural = "Collectivités à compétences départementales"
         ordering = ("code",)
 
+    def __str__(self):
+        return f"{self.nom} ({self.code})"
+
 
 class CollectiviteRegionale(models.Model):
     TYPE_CONSEIL_REGIONAL = "R"
@@ -303,3 +306,6 @@ class CollectiviteRegionale(models.Model):
         verbose_name = "Collectivité à compétences régionales"
         verbose_name_plural = "Collectivités à compétences régionales"
         ordering = ("nom",)
+
+    def __str__(self):
+        return self.nom
