@@ -4,7 +4,7 @@ from data_france import views
 
 app_name = "data_france"
 urlpatterns = [
-    path(
-        "chercher/communes/", views.CommuneSearchView.as_view(), name="chercher_commune"
-    )
+    path("communes/", views.CommuneJSONView.as_view(), name="communes"),
+    path("departements/", views.DepartementJSONView.as_view(), name="departements"),
+    path("regions/", views.RegionJSONView.as_view(), name="regions"),
 ]
