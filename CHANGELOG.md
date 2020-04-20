@@ -1,6 +1,12 @@
 data_france
 ===========
 
+Version 0.9.1
+-------------
+
+* Rajoute `__str__` aux collectivités départementales et régionales.
+* Rajoute le champ de recherche à l'admin des régions et départements
+
 Version 0.9.0
 -------------
 
