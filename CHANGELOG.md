@@ -1,6 +1,12 @@
 data_france
 ===========
 
+Version 0.9.2
+-------------
+
+* Rajoute des vues JSON de récupération pour les régions et départements
+* Les trois vues JSON ont un mode GeoJSON pour récupérer les géométries.
+
 Version 0.9.1
 -------------
 
