@@ -46,6 +46,8 @@ def task_convertir_en_csv():
                         "--headless",
                         "--convert-to",
                         "csv",
+                        "--outdir",
+                        SOURCE_DIR / source.filename.parent,
                         SOURCE_DIR / source.filename,
                     ]
                 ],
