@@ -40,19 +40,19 @@ types_par_colonne = {
 }
 
 
-def clean_results(src, base_filenames):
+def clean_results(src, base_filenames, delimiter):
     if isinstance(base_filenames, (str, Path)):
         base_filenames = [base_filenames]
 
     # trouver la première ligne
     with open(src, "r", encoding="latin1") as f:
         for i, line in enumerate(f):
-            if ";" in line:
+            if delimiter in line:
                 break
 
     df = pd.read_csv(
         src,
-        sep=";",
+        sep=delimiter,
         skiprows=i,
         names=entetes,
         usecols=[e for e, b in entetes.items() if b],

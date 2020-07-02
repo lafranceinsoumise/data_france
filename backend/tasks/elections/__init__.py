@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from doit.tools import create_folder
 
 from backend import SOURCE_DIR, PREPARE_DIR
@@ -10,10 +12,12 @@ __all__ = ["task_preparer"]
 
 sans_deuxieme_tour = {"europeennes"}
 
+RESULTATS_DIR = PREPARE_DIR / "interieur" / "resultats_electoraux"
+
 
 def task_preparer():
     for source in iterate_sources():
-        if source.path.parts[:2] == ["interieur", "resultats_electoraux"]:
+        if source.path.parts[:2] == ("interieur", "resultats_electoraux"):
             election, annee = source.path.parts[2:4]
             tour = (
                 int(source.path.parts[4][-1]) if len(source.path.parts) == 5 else None
@@ -24,16 +28,12 @@ def task_preparer():
                 src = src.with_suffix(".csv")
 
             if tour:
-                base_filenames = [PREPARE_DIR / f"{annee}-{election}-{tour}"]
+                base_filenames = [RESULTATS_DIR / f"{annee}-{election}-{tour}"]
             elif election in sans_deuxieme_tour:
-                base_filenames = [PREPARE_DIR / f"{annee}-{election}"]
+                base_filenames = [RESULTATS_DIR / f"{annee}-{election}"]
             else:
                 base_filenames = [
-                    PREPARE_DIR
-                    / "interieur"
-                    / "resultats_electoraux"
-                    / f"{annee}-{election}-{tour}"
-                    for tour in [1, 2]
+                    RESULTATS_DIR / f"{annee}-{election}-{tour}" for tour in [1, 2]
                 ]
 
             targets = [
@@ -42,7 +42,7 @@ def task_preparer():
                 for ext in ["-pop.feather", "-votes.feather"]
             ]
 
-            if int(annee) <= 2017:
+            if int(annee) >= 2017:
                 func = clean_results_post_2017
             else:
                 func = clean_results_2014
@@ -52,7 +52,7 @@ def task_preparer():
                 "targets": targets,
                 "file_dep": [src],
                 "actions": [
-                    *[(create_folder, [t]) for t in base_filenames],
+                    *[(create_folder, [Path(t).parent]) for t in base_filenames],
                     (
                         func,
                         [],

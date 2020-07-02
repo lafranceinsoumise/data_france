@@ -50,6 +50,9 @@ repeated_headers = {
     "Voix": "voix",
     "% Voix/Ins": None,
     "% Voix/Exp": None,
+    "Sièges / Elu": None,
+    "Sièges Secteur": None,
+    "Sièges CC": None,
 }
 
 

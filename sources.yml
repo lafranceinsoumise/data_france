@@ -87,10 +87,15 @@ interieur:
         hash: af1840b437db8a154f5b286c18a45d7534238ab8b9e73b7e843d8655d1b22e32
     municipales:
       2020:
-        url: https://static.data.gouv.fr/resources/elections-municipales-2020-resultats/20200317-180347/2020-03-16-resultats-par-bv.xlsx
-        date: 17/03/2020
-        hash: c28d22306caa55beff407b4daae884dc01f1d5c4ab5295053c716ab3269af3a2
-        to_csv: True
+        tour1:
+          url: https://static.data.gouv.fr/resources/elections-municipales-2020-resultats/20200317-180347/2020-03-16-resultats-par-bv.xlsx
+          date: 17/03/2020
+          hash: c28d22306caa55beff407b4daae884dc01f1d5c4ab5295053c716ab3269af3a2
+          to_csv: True
+        tour2:
+          url: https://static.data.gouv.fr/resources/municipales-2020-resultats-2nd-tour/20200629-192438/resultats-par-niveau-burvot-t2-france-entiere.txt
+          date: 30/06/2020
+          hash: 07e1c3e1a547094e16250d3b659a2de19ea57e377ef0b586d6dbc6df27609c45
       2014:
         url: https://www.data.gouv.fr/s/resources/elections-municipales-2014-resultats-par-bureaux-de-vote/20150925-122128/MN14_Bvot_T1T2.txt
         date: 25/09/2015
