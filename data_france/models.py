@@ -105,6 +105,14 @@ class Commune(TypeNomMixin, models.Model):
     def __str__(self):
         return f"{self.nom_complet} ({self.code})"
 
+    def as_dict(self):
+        return {
+            "code": self.code,
+            "type": self.type,
+            "nom": self.nom_complet,
+            "code_departement": self.code_departement,
+        }
+
     class Meta:
         verbose_name = "Commune"
         verbose_name_plural = "Communes"
@@ -158,6 +166,15 @@ class EPCI(models.Model):
     def __str__(self):
         return f"{self.nom} ({self.code})"
 
+    def as_dict(self):
+        return {
+            "code": self.code,
+            "nom": self.nom,
+            "type": self.type,
+            "population": self.population,
+            "communes": {c.code: c.nom for c in self.communes.all()},
+        }
+
     class Meta:
         verbose_name = "EPCI"
         verbose_name_plural = "EPCI"
@@ -194,6 +211,17 @@ class Departement(TypeNomMixin, models.Model):
     def __str__(self):
         return f"{self.nom} ({self.code})"
 
+    def as_dict(self):
+        return {
+            "code": self.code,
+            "nom": self.nom,
+            "population": self.population,
+            "chefLieu": {
+                "nom": self.chef_lieu.nom_complet,
+                "code": self.chef_lieu.code,
+            },
+        }
+
     class Meta:
         verbose_name = "Département"
         ordering = ("code",)
@@ -221,6 +249,17 @@ class Region(TypeNomMixin, models.Model):
     def __str__(self):
         return self.nom
 
+    def get_props_from_instance(self):
+        return {
+            "code": self.code,
+            "nom": self.nom,
+            "population": self.population,
+            "chefLieu": {
+                "nom": self.chef_lieu.nom_complet,
+                "code": self.chef_lieu.code,
+            },
+        }
+
     class Meta:
         verbose_name = "Région"
         ordering = ("nom",)  # personne ne connait les codes de région
@@ -238,6 +277,12 @@ class CodePostal(models.Model):
 
     def __str__(self):
         return self.code
+
+    def as_dict(self):
+        return {
+            "code": self.code,
+            "communes": {c.code: c.nom_complet for c in self.communes.all()},
+        }
 
     class Meta:
         verbose_name = "Code postal"
