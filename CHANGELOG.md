@@ -1,6 +1,15 @@
 data_france
 ===========
 
+Version 0.10.0
+--------------
+
+Breaking changes :
+* Les URLs par défaut des vues ont changé
+
+Autres changements :
+* Ajout de vues d'affichage 
+
 Version 0.9.2
 -------------
 
