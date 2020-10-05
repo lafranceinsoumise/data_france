@@ -1,6 +1,6 @@
 import pandas as pd
 
-__all__ = ["task_traiter_epci", "task_traiter_communes"]
+__all__ = ["task_traiter_epci", "task_traiter_communes", "task_traiter_cantons"]
 
 from backend import PREPARE_DIR
 from data_france.data import VILLES_PLM
@@ -10,10 +10,12 @@ COG_DIR = INSEE_DIR / "cog"
 
 EPCI_XLS = INSEE_DIR / "intercommunalite" / "epci.xls"
 COMMUNES_COG = COG_DIR / "communes.csv"
+CANTONS_COG = COG_DIR / "cantons.csv"
 
 EPCI_CSV = INSEE_DIR / "epci.csv"
-
 COMMUNES_CSV = INSEE_DIR / "communes.csv"
+CANTONS_CSV = INSEE_DIR / "cantons.csv"
+
 
 COMMUNES_POPULATION = INSEE_DIR / "population" / "Communes.csv"
 COMMUNES_AD_POPULATION = (
@@ -50,6 +52,14 @@ def task_traiter_communes():
                 ],
             ),
         ],
+    }
+
+
+def task_traiter_cantons():
+    return {
+        "file_dep": [CANTONS_COG],
+        "targets": [CANTONS_CSV],
+        "actions": [(traiter_cantons, [CANTONS_COG, CANTONS_CSV])],
     }
 
 
@@ -200,3 +210,26 @@ def traiter_communes(
         )
 
     res.to_csv(dest, index=False)
+
+
+def traiter_cantons(cantons_cog_path, dest):
+    cantons = pd.read_csv(
+        cantons_cog_path,
+        dtype={"can": str, "dep": str, "burcentral": str, "compct": pd.UInt32Dtype()},
+        usecols=["can", "typect", "compct", "nccenr", "tncc", "dep", "burcentral",],
+    )
+
+    # La commune d'Azé (53014) est maintenant une commune déléguée de Château-Gontier-sur-Mayenne
+    cantons.loc[cantons["burcentral"] == "53014", "burcentral"] = "53062"
+
+    cantons.rename(
+        columns={
+            "can": "code",
+            "typect": "type",
+            "compct": "composition",
+            "nccenr": "nom",
+            "tncc": "type_nom",
+            "dep": "departement",
+            "burcentral": "bureau_centralisateur",
+        }
+    ).to_csv(dest, index=False)

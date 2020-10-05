@@ -7,7 +7,7 @@ import pandas as pd
 
 from backend import BASE_DIR, SOURCE_DIR
 from tasks.admin_express import COMMUNES_GEOMETRY
-from tasks.cog import COMMUNES_CSV, EPCI_CSV, COG_DIR
+from tasks.cog import COMMUNES_CSV, EPCI_CSV, COG_DIR, CANTONS_CSV
 
 CODES_POSTAUX = SOURCE_DIR / "laposte" / "codes_postaux.csv"
 
@@ -19,6 +19,7 @@ FINAL_EPCI = DATA_DIR / "epci.csv.lzma"
 FINAL_COMMUNES = DATA_DIR / "communes.csv.lzma"
 FINAL_CODES_POSTAUX = DATA_DIR / "codes_postaux.csv.lzma"
 FINAL_CORRESPONDANCES_CODE_POSTAUX = DATA_DIR / "codes_postaux_communes.csv.lzma"
+FINAL_CANTONS = DATA_DIR / "cantons.csv.lzma"
 
 NULL = r"\N"
 
@@ -28,6 +29,7 @@ __all__ = [
     "task_generer_fichier_epci",
     "task_generer_fichier_communes",
     "task_generer_fichier_codes_postaux",
+    "task_generer_fichier_cantons",
 ]
 
 
@@ -127,6 +129,14 @@ def task_generer_fichier_codes_postaux():
                 ],
             )
         ],
+    }
+
+
+def task_generer_fichier_cantons():
+    return {
+        "file_dep": [CANTONS_CSV, REFERENCES_DIR / "communes.csv"],
+        "targets": [FINAL_CANTONS],
+        "actions": [(generer_fichier_cantons, [CANTONS_CSV, FINAL_CANTONS],)],
     }
 
 
@@ -300,3 +310,46 @@ def generer_fichiers_codes_postaux(
                 for ligne in codes_postaux.itertuples()
                 if ligne.Code_commune_INSEE in communes.index
             )
+
+
+def generer_fichier_cantons(
+    cantons, final_cantons,
+):
+    with id_from_file("cantons.csv") as canton_id, id_from_file(
+        "communes.csv"
+    ) as commune_id, id_from_file("departements.csv") as departement_id, open(
+        cantons, "r"
+    ) as f_cantons, lzma.open(
+        final_cantons, "wt", newline=""
+    ) as fl:
+        r = csv.DictReader(f_cantons)
+        w = csv.DictWriter(
+            fl,
+            fieldnames=[
+                "id",
+                "code",
+                "type",
+                "composition",
+                "nom",
+                "type_nom",
+                "departement_id",
+                "bureau_centralisateur_id",
+            ],
+            extrasaction="ignore",
+        )
+        w.writeheader()
+
+        w.writerows(
+            {
+                **canton,
+                "id": canton_id(code=canton["code"]),
+                "bureau_centralisateur_id": commune_id(
+                    type="COM", code=canton["bureau_centralisateur"]
+                )
+                if canton["bureau_centralisateur"]
+                else r"\N",
+                "departement_id": departement_id(code=canton["departement"]),
+                "composition": canton["composition"] or r"\N",
+            }
+            for canton in r
+        )

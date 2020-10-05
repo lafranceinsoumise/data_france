@@ -354,3 +354,70 @@ class CollectiviteRegionale(models.Model):
 
     def __str__(self):
         return self.nom
+
+
+class Canton(models.Model):
+    TYPE_CANTON = "C"
+    TYPE_CANTON_VILLE = "V"
+    TYPE_CANTON_FICTIF = "N"
+    TYPE_CHOICES = (
+        (TYPE_CANTON, "Canton"),
+        (TYPE_CANTON_VILLE, "Canton-Ville (ou pseudo-canton)"),
+        (TYPE_CANTON_FICTIF, "Canton « fictif » pour communes nouvelles"),
+    )
+
+    COMPOSITION_COMMUNE_ENTIERE = 1
+    COMPOSITION_FRACTION_ET_COMMUNES = 2
+    COMPOSITION_FRACTIONS_ET_COMMUNES = 3
+    COMPOSITION_FRACTION = 4
+    COMPOSITION_FRACTIONS = 5
+    COMPOSITION_CHOICES = (
+        (COMPOSITION_COMMUNE_ENTIERE, "Canton composé de commune(s) entière(s)"),
+        (
+            COMPOSITION_FRACTION_ET_COMMUNES,
+            "Canton composé d'une fraction d'une commune et de commune(s) entière(s)",
+        ),
+        (
+            COMPOSITION_FRACTIONS_ET_COMMUNES,
+            "Canton composé de fractions de plusieurs communes et de commune(s) entière(s)",
+        ),
+        (COMPOSITION_FRACTION, "Canton composé d'une fraction de commune"),
+        (COMPOSITION_FRACTIONS, "Canton composé de fractions de plusieurs communes"),
+    )
+
+    code = models.CharField("Code INSEE", max_length=5, unique=True)
+    type = models.CharField(
+        "Type de canton",
+        max_length=1,
+        choices=TYPE_CHOICES,
+        blank=False,
+        editable=False,
+    )
+    composition = models.IntegerField(
+        "Composition du canton", choices=COMPOSITION_CHOICES, editable=False, null=True
+    )
+
+    nom = models.CharField(
+        "Nom du canton", max_length=200, blank=False, editable=False, null=False,
+    )
+
+    type_nom = models.PositiveSmallIntegerField(
+        "Type de nom du canton", blank=False, editable=False, null=False
+    )
+
+    departement = models.ForeignKey(
+        "Departement",
+        verbose_name="Département",
+        on_delete=models.PROTECT,
+        related_name="cantons",
+        related_query_name="canton",
+    )
+
+    bureau_centralisateur = models.ForeignKey(
+        "Commune",
+        verbose_name="Bureau centralisateur",
+        null=True,
+        on_delete=models.PROTECT,
+        related_name="+",
+        related_query_name="bureau_centralisateur_de",
+    )

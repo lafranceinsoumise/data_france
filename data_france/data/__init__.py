@@ -158,6 +158,16 @@ def importer_associations_communes_codes_postaux(using):
         stderr.write(f" OK !{os.linesep}")
 
 
+def importer_cantons(using):
+    with open_binary("data_france.data", "cantons.csv.lzma") as _f, lzma.open(
+        _f, "rt"
+    ) as f:
+        stderr.write("Chargement des cantons...")
+        stderr.flush()
+        import_with_temp_table(f, "data_france_canton", using)
+        stderr.write(f" OK !{os.linesep}")
+
+
 def agreger_geometries_et_populations(using):
     with get_connection(using).cursor() as cursor:
         stderr.write("Calcul des géométries des secteurs électoraux...")
@@ -489,6 +499,8 @@ def importer_donnees(using=None):
         importer_codes_postaux(using)
 
         importer_associations_communes_codes_postaux(using)
+
+        importer_cantons(using)
 
         agreger_geometries_et_populations(using)
 
