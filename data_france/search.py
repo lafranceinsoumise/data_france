@@ -11,18 +11,11 @@ RE_POSTGRES_ESCAPE_CHARS = re.compile(r"[&:(|)!><'-]", re.UNICODE)
 
 
 class PrefixSearchQuery(SearchQuery):
-    def as_sql(self, compiler, connection):
-        params = [self.parse_query_text(self.value)]
-        if self.config:
-            config_sql, config_params = compiler.compile(self.config)
-            template = "to_tsquery({}::regconfig, %s)".format(config_sql)
-            params = config_params + params
-        else:
-            template = "to_tsquery(%s)"
-        if self.invert:
-            template = f"!!({template})"
-
-        return template, params
+    def __init__(self, value, output_field=None, *, config=None, invert=False):
+        value = self.parse_query_text(value)
+        super().__init__(
+            value, output_field, config=config, invert=invert, search_type="raw"
+        )
 
     def parse_query_text(self, text):
         """
