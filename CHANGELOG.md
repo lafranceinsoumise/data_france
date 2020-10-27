@@ -1,6 +1,19 @@
 data_france
 ===========
 
+Version 0.10.2
+--------------
+
+* Version corrective de la précédente, avec les données.
+
+Version 0.10.1
+--------------
+
+* Compatibilité Django 3
+* Ajout de la liste des cantons (sans géométrie pour le moment)
+
+Ne pas utiliser : version publié par accident sans les fichiers de données.
+
 Version 0.10.0
 --------------
 
