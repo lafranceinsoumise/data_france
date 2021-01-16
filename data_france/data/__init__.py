@@ -274,7 +274,7 @@ def creer_collectivites_departementales(using):
     codes_avec_conseil_general = [
         f"{d:02d}"
         for d in range(1, 96)
-        if d not in {20, 75}  # pas de conseil général à Paris en ou Corse
+        if d not in {20, 75}  # pas de conseil départemental à Paris en ou Corse
     ] + [
         "971",
         "974",
@@ -285,7 +285,7 @@ def creer_collectivites_departementales(using):
             "code": f"{d}D",
             "type": CollectiviteDepartementale.TYPE_CONSEIL_DEPARTEMENTAL,
             "actif": True,
-            "nom": f"Conseil général {instances_departement[d].nom_avec_charniere}",
+            "nom": f"Conseil départemental {instances_departement[d].nom_avec_charniere}",
             "departement_id": instances_departement[d].id,
         }
         for d in codes_avec_conseil_general
