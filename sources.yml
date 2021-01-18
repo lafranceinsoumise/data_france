@@ -23,7 +23,7 @@ insee:
     evenements_communes:
       url: https://www.insee.fr/fr/statistiques/fichier/3720946/mvtcommune-01042019-csv.zip
       date: 04/2019
-      hash: e6bba1d2564b564a6a4bbf19f340425c916cd9c05b02905a9842be5f70728808
+      hash: bc87e177883733a57da0eff5409a8820b9a89133bd7d7d8680ff0aacc1d72fd3
 
   population:
     url: https://www.insee.fr/fr/statistiques/fichier/4265429/ensemble.zip
@@ -106,4 +106,4 @@ laposte:
   codes_postaux:
     url: https://datanova.laposte.fr/explore/dataset/laposte_hexasmal/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%2C
     extension: .csv
-    hash: b0e6e2e7f388196711b705f52ea8e6182f1246f3b48d5f7577bc9c989dc53ab0
+    hash: 5efee6567545417c7f109cb999c69383892803c58860644261e748b7cfe33d80
