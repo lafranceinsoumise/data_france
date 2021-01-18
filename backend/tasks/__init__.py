@@ -33,27 +33,6 @@ def task_telecharger():
         }
 
 
-def task_convertir_en_csv():
-    for source in iterate_sources():
-        if source.to_csv:
-            yield {
-                "name": str(source.path),
-                "file_dep": [SOURCE_DIR / source.filename],
-                "targets": [(SOURCE_DIR / source.filename).with_suffix(".csv")],
-                "actions": [
-                    [
-                        "libreoffice",
-                        "--headless",
-                        "--convert-to",
-                        "csv",
-                        "--outdir",
-                        SOURCE_DIR / source.filename.parent,
-                        SOURCE_DIR / source.filename,
-                    ]
-                ],
-            }
-
-
 @create_after(executed="telecharger")
 def task_decompresser():
     for source in iterate_sources():

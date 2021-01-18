@@ -88,10 +88,11 @@ interieur:
     municipales:
       2020:
         tour1:
-          url: https://static.data.gouv.fr/resources/elections-municipales-2020-resultats/20200317-180347/2020-03-16-resultats-par-bv.xlsx
-          date: 17/03/2020
-          hash: c28d22306caa55beff407b4daae884dc01f1d5c4ab5295053c716ab3269af3a2
-          to_csv: True
+          url: https://static.data.gouv.fr/resources/elections-municipales-2020-resultats/20200525-133745/2020-05-18-resultats-par-niveau-burvot-t1-france-entiere.txt
+          date: 18/05/2020
+          hash: ab2c17eccd3fc0358db8007a7faceb3697e51af847c2aada8018669a4e167071
+          delimiter: "\t"
+          corrected: ".csv"
         tour2:
           url: https://static.data.gouv.fr/resources/municipales-2020-resultats-2nd-tour/20200629-192438/resultats-par-niveau-burvot-t2-france-entiere.txt
           date: 30/06/2020

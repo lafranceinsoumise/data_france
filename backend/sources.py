@@ -48,8 +48,9 @@ class Source:
     url: str
     hash: str
     date: Date = None
-    to_csv: bool = False
     extension: str = None
+    delimiter: str = ";"
+    corrected: str = None
 
     @property
     def suffix(self):

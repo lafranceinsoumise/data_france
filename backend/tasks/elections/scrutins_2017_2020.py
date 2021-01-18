@@ -1,6 +1,5 @@
 """
 Ce fichier comprend la routine permettant de nettoyer les fichiers électoraux des scrutins de 2017 et 2019
-
 """
 
 import csv
@@ -98,49 +97,56 @@ def clean_results(src, base_filenames, delimiter=";"):
             if h not in fixed_headers and h not in repeated_headers:
                 raise RuntimeError(f"Champ '{h}' inconnu dans {src}")
 
-        global_fields = [h for h in headers if h in fixed_headers]
+        common_fields = [h for h in headers if h in fixed_headers]
 
         # attention aux répétitions
-        repeated_fields = []
+        candidate_specific_fields = []
         for h in headers:
-            if h in repeated_headers and h not in repeated_fields:
-                repeated_fields.append(h)
+            if h in repeated_headers and h not in candidate_specific_fields:
+                candidate_specific_fields.append(h)
 
         fields = [
             fixed_headers[field]
-            for field in global_fields
+            for field in common_fields
             if fixed_headers.get(field) is not None
         ] + [
             repeated_headers[field]
-            for field in repeated_fields
+            for field in candidate_specific_fields
             if repeated_headers.get(field) is not None
         ]
 
-        global_indices = [
-            i for i, f in enumerate(global_fields) if fixed_headers[f] is not None
+        common_indices = [
+            i for i, f in enumerate(common_fields) if fixed_headers[f] is not None
         ]
-        repeated_indices = [
-            i for i, f in enumerate(repeated_fields) if repeated_headers[f] is not None
+        candidate_specific_indices = [
+            i
+            for i, f in enumerate(candidate_specific_fields)
+            if repeated_headers[f] is not None
         ]
 
-        def all_lines():
-            for line in r:
-                global_values = [line[i] for i in global_indices]
-                for i in range(len(global_fields), len(line), len(repeated_fields)):
-                    candidate_values = [line[i + j] for j in repeated_indices]
-                    if candidate_values[-1] == "":
-                        break
-                    yield (global_values + candidate_values)
+        all_entries = []
 
-        df = pd.DataFrame(list(all_lines()), columns=fields)
+        for line in r:
+            common_values = [line[i] for i in common_indices]
+            for candidate_offset in range(
+                len(common_fields), len(line), len(candidate_specific_fields)
+            ):
+                candidate_specific_values = [
+                    line[candidate_offset + j] for j in candidate_specific_indices
+                ]
+                if candidate_specific_values[-1] == "":
+                    break
+                all_entries.append(common_values + candidate_specific_values)
+
+        df = pd.DataFrame(all_entries, columns=fields)
 
         for field, transform in transforms.items():
             try:
                 if field in df.columns:
                     df[field] = df[field].astype(transform)
             except ValueError as e:
-                print(f"global_fields: {global_fields!r}")
-                print(f"repeated_fields: {repeated_fields!r}")
+                print(f"global_fields: {common_fields!r}")
+                print(f"repeated_fields: {candidate_specific_fields!r}")
                 raise ValueError(f"Echec transformation {transform} sur {field}")
 
         df["code"] = (

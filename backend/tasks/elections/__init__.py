@@ -1,3 +1,4 @@
+from collections import defaultdict
 from pathlib import Path
 
 from doit.tools import create_folder
@@ -5,14 +6,37 @@ from doit.tools import create_folder
 from backend import SOURCE_DIR, PREPARE_DIR
 from sources import iterate_sources
 from .scrutins_2014 import clean_results as clean_results_2014
-from .scrutins_2017_2019 import clean_results as clean_results_post_2017
+from .scrutins_2017_2020 import clean_results as clean_results_post_2017
 
-__all__ = ["task_preparer"]
+__all__ = ["task_preparer", "task_corriger_municipales_2020_tour_1"]
 
 
 sans_deuxieme_tour = {"europeennes"}
 
 RESULTATS_DIR = PREPARE_DIR / "interieur" / "resultats_electoraux"
+
+
+def task_corriger_municipales_2020_tour_1():
+    """Le fichier du premier tour des municipales 2020 présente des erreurs de décalage de cellules
+
+    Cette tâche corrige ces erreurs en utilisant sed.
+    """
+    source_file = (
+        SOURCE_DIR
+        / "interieur"
+        / "resultats_electoraux"
+        / "municipales"
+        / "2020"
+        / "tour1.txt"
+    )
+
+    return {
+        "file_dep": [source_file],
+        "targets": [source_file.with_suffix(".csv")],
+        "actions": [
+            "sed '13751,13752s/ \t / / ; 16921s/ \t / /' < {dependencies} > {targets}"
+        ],
+    }
 
 
 def task_preparer():
@@ -24,8 +48,8 @@ def task_preparer():
             )
 
             src = SOURCE_DIR / source.filename
-            if source.to_csv:
-                src = src.with_suffix(".csv")
+            if source.corrected:
+                src = src.with_suffix(source.corrected)
 
             if tour:
                 base_filenames = [RESULTATS_DIR / f"{annee}-{election}-{tour}"]
@@ -59,7 +83,7 @@ def task_preparer():
                         {
                             "src": src,
                             "base_filenames": base_filenames,
-                            "delimiter": "," if source.to_csv else ";",
+                            "delimiter": source.delimiter,
                         },
                     ),
                 ],
