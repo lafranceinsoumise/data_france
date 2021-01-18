@@ -1,6 +1,12 @@
 data_france
 ===========
 
+Version 0.10.3
+--------------
+
+* Remplacement de la mention obsolète de « conseil général » par « conseil départemental »
+* Mise à jour des codes postaux
+
 Version 0.10.2
 --------------
 
