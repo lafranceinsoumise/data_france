@@ -1,6 +1,12 @@
 data_france
 ===========
 
+Version 0.10.4
+--------------
+
+* Mise à jour du référentiel COG vers la version de décembre 2020.
+* Ajout de l'ensemble des élus municipaux depuis le Répertoire National des Élus
+
 Version 0.10.3
 --------------
 
