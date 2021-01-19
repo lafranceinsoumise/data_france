@@ -168,6 +168,15 @@ def importer_cantons(using):
         stderr.write(f" OK !{os.linesep}")
 
 
+def importer_elus_municipaux(using):
+    with open_binary("data_france.data", "elus_municipaux.csv.lzma") as _f, lzma.open(
+        _f, "rt"
+    ) as f:
+        stderr.write("Chargement des élus municipaux...")
+        stderr.flush()
+        import_with_temp_table(f, "data_france_elumunicipal", using)
+
+
 def agreger_geometries_et_populations(using):
     with get_connection(using).cursor() as cursor:
         stderr.write("Calcul des géométries des secteurs électoraux...")
@@ -502,6 +511,8 @@ def importer_donnees(using=None):
 
         importer_cantons(using)
 
+        importer_elus_municipaux(using)
+
         agreger_geometries_et_populations(using)
 
         creer_collectivites_departementales(using)
@@ -509,6 +520,7 @@ def importer_donnees(using=None):
         creer_collectivites_regionales(using)
 
         creer_index_recherche(using)
+
     finally:
         if not auto_commit:
             transaction.set_autocommit(False, using=using)

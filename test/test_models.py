@@ -35,9 +35,9 @@ class CommuneTestCase(TestCase):
         self.assertFalse(
             Commune.objects.filter(
                 type__in=[
-                    Commune.TYPE_COMMUNE,
-                    Commune.TYPE_ARRONDISSEMENT_PLM,
-                    Commune.TYPE_SECTEUR_PLM,
+                    Commune.TypeCommune.COMMUNE,
+                    Commune.TypeCommune.ARRONDISSEMENT_PLM,
+                    Commune.TypeCommune.SECTEUR_PLM,
                 ],
                 geometry__isnull=True,
             ).exists()
@@ -50,9 +50,9 @@ class CommuneTestCase(TestCase):
         self.assertFalse(
             Commune.objects.filter(
                 type__in=[
-                    Commune.TYPE_COMMUNE,
-                    Commune.TYPE_ARRONDISSEMENT_PLM,
-                    Commune.TYPE_SECTEUR_PLM,
+                    Commune.TypeCommune.COMMUNE,
+                    Commune.TypeCommune.ARRONDISSEMENT_PLM,
+                    Commune.TypeCommune.SECTEUR_PLM,
                 ],
                 population_municipale__isnull=True,
             )
@@ -91,7 +91,7 @@ class EPCITestCase(TestCase):
         """Seules quatre communes insulaires ne font pas partie d'une intercommunalité"""
         self.assertCountEqual(
             Commune.objects.filter(
-                type=Commune.TYPE_COMMUNE, epci__isnull=True
+                type=Commune.TypeCommune.COMMUNE, epci__isnull=True
             ).values_list("nom", flat=True),
             ["Île-de-Bréhat", "Île-de-Sein", "Ouessant", "Île-d'Yeu", "Sannerville"],
         )
@@ -99,7 +99,7 @@ class EPCITestCase(TestCase):
     def test_seules_communes_ont_epci(self):
         """Seules les communes au sens propre doivent être associées à une intercommunalité"""
         self.assertFalse(
-            Commune.objects.exclude(type=Commune.TYPE_COMMUNE)
+            Commune.objects.exclude(type=Commune.TypeCommune.COMMUNE)
             .filter(epci__isnull=False)
             .exists()
         )
@@ -115,13 +115,13 @@ class DepartementTestCase(TestCase):
     def test_communes_attribuees(self):
         self.assertFalse(
             Commune.objects.filter(
-                type=Commune.TYPE_COMMUNE, departement__isnull=True
+                type=Commune.TypeCommune.COMMUNE, departement__isnull=True
             ).exists()
         )
 
     def test_seules_les_communes_stricto_sensu_ont_departement(self):
         self.assertFalse(
-            Commune.objects.exclude(type=Commune.TYPE_COMMUNE)
+            Commune.objects.exclude(type=Commune.TypeCommune.COMMUNE)
             .filter(departement__isnull=False)
             .exists()
         )

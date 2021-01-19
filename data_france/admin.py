@@ -25,6 +25,7 @@ from data_france.models import (
     CodePostal,
     CollectiviteDepartementale,
     CollectiviteRegionale,
+    EluMunicipal,
 )
 
 
@@ -257,7 +258,7 @@ class CollectiviteRegionaleAdmin(ImmutableModelAdmin):
 
 
 @admin.register(CodePostal)
-class CodePostal(ImmutableModelAdmin):
+class CodePostalAdmin(ImmutableModelAdmin):
     list_display = (
         "code",
         "communes_list",
@@ -276,3 +277,42 @@ class CodePostal(ImmutableModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request=request).prefetch_related("communes")
+
+
+@admin.register(EluMunicipal)
+class EluMunicipalAdmin(ImmutableModelAdmin):
+    search_fields = ("nom", "prenom")
+
+    list_display = ("nom_complet", "commune", "sexe", "fonction")
+    fieldsets = (
+        (
+            "Identité",
+            {
+                "fields": [
+                    "nom",
+                    "prenom",
+                    "sexe",
+                    "date_naissance",
+                    "nationalite",
+                    "profession",
+                ]
+            },
+        ),
+        (
+            "Mandat",
+            {
+                "fields": [
+                    "commune_link",
+                    "date_debut_mandat",
+                    "fonction",
+                    "date_debut_fonction",
+                ]
+            },
+        ),
+    )
+
+    def nom_complet(self, obj):
+        return f"{obj.nom}, {obj.prenom}"
+
+    nom_complet.short_description = "Nom complet"
+    nom_complet.admin_order_field = "nom"

@@ -47,6 +47,11 @@ ign:
 
 
 interieur:
+  rne:
+    municipaux:
+      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20201202-174800/1-rne-cm.txt
+      date: 02/12/2020
+      hash: e22e73267fb26597627f548ec10548554759f10070f3121e8deaec9001c95d25
   resultats_electoraux:
     presidentielles:
       2017:

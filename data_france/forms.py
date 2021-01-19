@@ -6,7 +6,9 @@ from data_france.models import Commune
 class CommuneParametresForm(forms.Form):
     q = forms.CharField(required=True)
     geojson = forms.BooleanField(required=False)
-    type = forms.MultipleChoiceField(choices=Commune.TYPE_CHOICES, required=False,)
+    type = forms.MultipleChoiceField(
+        choices=Commune.TypeCommune.choices, required=False,
+    )
 
 
 class ParCodeParametresForm(forms.Form):
@@ -15,4 +17,4 @@ class ParCodeParametresForm(forms.Form):
 
 
 class CommuneParCodeParametresForm(ParCodeParametresForm):
-    type = forms.ChoiceField(choices=Commune.TYPE_CHOICES, required=True)
+    type = forms.ChoiceField(choices=Commune.TypeCommune.choices, required=True)

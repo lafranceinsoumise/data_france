@@ -18,18 +18,18 @@ class CommuneQueryset(models.QuerySet):
 
 
 class Commune(TypeNomMixin, models.Model):
-    TYPE_COMMUNE = "COM"
-    TYPE_COMMUNE_DELEGUEE = "COMD"
-    TYPE_COMMUNE_ASSOCIEE = "COMA"
-    TYPE_ARRONDISSEMENT_PLM = "ARM"
-    TYPE_SECTEUR_PLM = "SRM"
-    TYPE_CHOICES = (
-        (TYPE_COMMUNE, "Commune"),
-        (TYPE_COMMUNE_DELEGUEE, "Commune déléguée"),
-        (TYPE_COMMUNE_ASSOCIEE, "Commune associée"),
-        (TYPE_ARRONDISSEMENT_PLM, "Arrondissement de Paris/Lyon/Marseille"),
-        (TYPE_SECTEUR_PLM, "Secteur électoral de Paris/Lyon/Marseille"),
-    )
+    class TypeCommune(models.TextChoices):
+        COMMUNE = "COM", "Commune"
+        COMMUNE_DELEGUEE = "COMD", "Commune déléguée"
+        COMMUNE_ASSOCIEE = "COMA", "Commune associée"
+        ARRONDISSEMENT_PLM = "ARM", "Arrondissement de Paris/Lyon/Marseille"
+        SECTEUR_PLM = "SRM", "Secteur électoral de Paris/Lyon/Marseille"
+
+    TYPE_COMMUNE = TypeCommune.COMMUNE
+    TYPE_COMMUNE_DELEGUEE = TypeCommune.COMMUNE_DELEGUEE
+    TYPE_COMMUNE_ASSOCIEE = TypeCommune.COMMUNE_ASSOCIEE
+    TYPE_ARRONDISSEMENT_PLM = TypeCommune.ARRONDISSEMENT_PLM
+    TYPE_SECTEUR_PLM = TypeCommune.SECTEUR_PLM
 
     objects = CommuneQueryset.as_manager()
 
@@ -41,7 +41,7 @@ class Commune(TypeNomMixin, models.Model):
         editable=False,
         null=False,
         default="COM",
-        choices=TYPE_CHOICES,
+        choices=TypeCommune.choices,
     )
 
     nom = models.CharField(
@@ -100,7 +100,7 @@ class Commune(TypeNomMixin, models.Model):
 
     @property
     def avec_conseil(self):
-        return self.type in (self.TYPE_COMMUNE, self.TYPE_SECTEUR_PLM)
+        return self.type in (self.TypeCommune.COMMUNE, self.TypeCommune.SECTEUR_PLM)
 
     def __str__(self):
         return f"{self.nom_complet} ({self.code})"
@@ -141,21 +141,20 @@ class Commune(TypeNomMixin, models.Model):
 
 
 class EPCI(models.Model):
+    class TypeEPCI(models.TextChoices):
+        CA = "CA", "Communauté d'agglomération"
+        CC = "CC", "Communauté de communes"
+        CU = "CU", "Communauté urbaine"
+        METROPOLE = "ME", "Métropole"
+
     TYPE_CA = "CA"
     TYPE_CC = "CC"
     TYPE_CU = "CU"
     TYPE_METROPOLE = "ME"
 
-    TYPE_CHOICES = (
-        (TYPE_CA, "Communauté d'agglomération"),
-        (TYPE_CC, "Communauté de communes",),
-        (TYPE_CU, "Communauté urbaine"),
-        (TYPE_METROPOLE, "Métropole"),
-    )
-
     code = models.CharField("Code SIREN", max_length=10, editable=False, unique=True,)
 
-    type = models.CharField("Type d'EPCI", max_length=2, choices=TYPE_CHOICES)
+    type = models.CharField("Type d'EPCI", max_length=2, choices=TypeEPCI.choices)
 
     nom = models.CharField("Nom de l'EPCI", max_length=300)
 
@@ -421,3 +420,54 @@ class Canton(models.Model):
         related_name="+",
         related_query_name="bureau_centralisateur_de",
     )
+
+
+class EluMunicipal(models.Model):
+    class CodeSexe(models.TextChoices):
+        MASCULIN = "M"
+        FEMININ = "F"
+
+    commune = models.ForeignKey(
+        to="Commune",
+        on_delete=models.PROTECT,
+        related_name="elus",
+        related_query_name="elu",
+        editable=False,
+    )
+
+    nom = models.CharField(
+        verbose_name="Nom de famille", editable=False, max_length=200
+    )
+    prenom = models.CharField(
+        verbose_name="Prénom", editable=False, blank=True, max_length=200
+    )
+    sexe = models.CharField(
+        verbose_name="Sexe à l'état civil",
+        choices=CodeSexe.choices,
+        max_length=1,
+        editable=True,
+    )
+    date_naissance = models.DateField(verbose_name="Date de naissance", editable=False)
+    profession = models.SmallIntegerField(
+        verbose_name="Profession", editable=False, null=True
+    )
+
+    date_debut_mandat = models.DateField(
+        verbose_name="Date de début du mandat", editable=False
+    )
+
+    fonction = models.CharField(
+        verbose_name="Fonction", editable=False, blank=True, max_length=50
+    )
+    date_debut_fonction = models.DateField(
+        verbose_name="Date de début de la fonction", editable=True, null=True
+    )
+
+    nationalite = models.CharField(
+        verbose_name="Nationalité", editable=False, max_length=30
+    )
+
+    class Meta:
+        verbose_name = "Élu⋅e municipal⋅e"
+        verbose_name_plural = "Élu⋅es municipaux⋅les"
+        ordering = ("commune", "nom", "prenom", "date_naissance")

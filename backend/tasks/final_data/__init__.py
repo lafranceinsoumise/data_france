@@ -1,6 +1,8 @@
 import contextlib
 import csv
 import lzma
+from collections import deque
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -20,6 +22,7 @@ FINAL_COMMUNES = DATA_DIR / "communes.csv.lzma"
 FINAL_CODES_POSTAUX = DATA_DIR / "codes_postaux.csv.lzma"
 FINAL_CORRESPONDANCES_CODE_POSTAUX = DATA_DIR / "codes_postaux_communes.csv.lzma"
 FINAL_CANTONS = DATA_DIR / "cantons.csv.lzma"
+FINAL_ELUS_MUNICIPAUX = DATA_DIR / "elus_municipaux.csv.lzma"
 
 NULL = r"\N"
 
@@ -30,6 +33,7 @@ __all__ = [
     "task_generer_fichier_communes",
     "task_generer_fichier_codes_postaux",
     "task_generer_fichier_cantons",
+    "task_generer_fichier_elus_municipaux",
 ]
 
 
@@ -137,6 +141,17 @@ def task_generer_fichier_cantons():
         "file_dep": [CANTONS_CSV, REFERENCES_DIR / "communes.csv"],
         "targets": [FINAL_CANTONS],
         "actions": [(generer_fichier_cantons, [CANTONS_CSV, FINAL_CANTONS],)],
+    }
+
+
+def task_generer_fichier_elus_municipaux():
+    source_file = SOURCE_DIR / "interieur" / "rne" / "municipaux.txt"
+    return {
+        "file_dep": [source_file, REFERENCES_DIR / "communes.csv"],
+        "targets": [FINAL_ELUS_MUNICIPAUX],
+        "actions": [
+            (generer_fichier_elus_municipaux, [source_file, FINAL_ELUS_MUNICIPAUX],)
+        ],
     }
 
 
@@ -353,3 +368,128 @@ def generer_fichier_cantons(
             }
             for canton in r
         )
+
+
+def remove_last(it, n=1):
+    try:
+        value = deque((next(it) for _ in range(n)), maxlen=n)
+    except StopIteration:
+        return
+
+    for n in it:
+        yield value[0]
+        value.append(n)
+
+
+def normaliser_date(d):
+    """Normalise une date au format ISO"""
+    return datetime.strptime(d, "%d/%m/%Y").strftime("%Y-%m-%d")
+
+
+def generer_fichier_elus_municipaux(brut_elus, final_elus):
+    with id_from_file("communes.csv") as id_commune, id_from_file(
+        "elus_municipaux.csv"
+    ) as id_elu, open(brut_elus, newline="", encoding="latin1") as f, lzma.open(
+        final_elus, "wt", newline=""
+    ) as fl:
+        # la première ligne ne correspond pas à des données tabulaires
+        # la deuxième comprend des libellés qu'on souhaite ignorer
+        f.readline()
+        f.readline()
+
+        # La dernière ligne indique juste le nombre total de lignes
+        r = remove_last(
+            csv.DictReader(
+                f,
+                delimiter="\t",
+                fieldnames=[
+                    "code_dep",
+                    "_lib_dep",
+                    "code_commune",
+                    "_lib_commune",
+                    "nom",
+                    "prenom",
+                    "sexe",
+                    "date_naissance",
+                    "profession",
+                    "_lib_profession",
+                    "date_debut_mandat",
+                    "fonction",
+                    "date_debut_fonction",
+                    "nationalite",
+                ],
+            )
+        )
+
+        w = csv.DictWriter(
+            fl,
+            fieldnames=[
+                "id",
+                "commune_id",
+                "nom",
+                "prenom",
+                "sexe",
+                "date_naissance",
+                "profession",
+                "date_debut_mandat",
+                "fonction",
+                "date_debut_fonction",
+                "nationalite",
+            ],
+        )
+        w.writeheader()
+
+        corr_outremer = {
+            "ZA": "97",
+            "ZB": "97",
+            "ZC": "97",
+            "ZD": "97",
+            "ZM": "97",
+            "ZN": None,
+            "ZP": None,
+            "ZS": None,
+            "ZW": None,
+            "ZX": None,
+        }
+
+        # pour repérer les doublons éventuels (il y en a quelques uns)
+        # Il s'agit soit de double poste (adjoint + maire délégué par exemple) soit
+        # de cas spécifiques que je ne comprends pas
+        seen = set()
+
+        for l in r:
+            code_dep = corr_outremer.get(l["code_dep"], l.pop("code_dep"))
+            if code_dep is None:
+                # on ne gère malheureusement pas encore les collectivités d'outremer
+                continue
+
+            # Il y a une demie douzaine d'élus recensés avec des suffixes au code commune
+            # (CD01 ou SN01), je n'ai pas compris à quoi cela faisait référence.
+            code_commune = f'{code_dep}{l.pop("code_commune")[:3]}'
+            l["commune_id"] = id_commune(code=code_commune, type="COM")
+
+            # normaliser les dates
+            l["date_naissance"] = normaliser_date(l["date_naissance"])
+            l["date_debut_mandat"] = normaliser_date(l["date_debut_mandat"])
+            if l["date_debut_fonction"]:
+                l["date_debut_fonction"] = normaliser_date(l["date_debut_fonction"])
+            else:
+                l["date_debut_fonction"] = "\\N"
+
+            # attention: utiliser la date de naissance normalisée et l'id commune
+            l["id"] = id_elu(
+                commune_id=l["commune_id"],
+                nom=l["nom"],
+                prenom=l["prenom"],
+                sexe=l["sexe"],
+                date_naissance=l["date_naissance"],
+            )
+
+            if l["id"] in seen:
+                continue
+            seen.add(l["id"])
+
+            if not l["profession"]:
+                l["profession"] = "\\N"
+
+            w.writerow({k: v for k, v in l.items() if not k[0] == "_"})
