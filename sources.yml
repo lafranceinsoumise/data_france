@@ -1,29 +1,21 @@
 insee:
   cog:
     communes:
-      url: https://www.insee.fr/fr/statistiques/fichier/3720946/communes-01042019-csv.zip
+      url: https://www.insee.fr/fr/statistiques/fichier/4316069/communes2020-csv.zip
       date: 04/2019
-      hash: d28deef5a8e402044984366acbcd308c90d1982f283991a747c6643922a20310
+      hash: a690f63bdcac9c65e1d1e8816f024ca02b9f20df5fd30b93bbcb58bda563d181
     cantons:
-      url: https://www.insee.fr/fr/statistiques/fichier/3720946/canton2019-csv.zip
+      url: https://www.insee.fr/fr/statistiques/fichier/4316069/canton2020-csv.zip
       date: 01/2019
-      hash: 2b8056f5988448c947f9cdbf701941a5bfcf93f41ca21c11c46c4659cf49c059
-    arrondissements:
-      url: https://www.insee.fr/fr/statistiques/fichier/3720946/arrondissement2019-csv.zip
-      date: 01/2019
-      hash: bd451a13a3984d2d13ac1907b7e78cbf6405b166bc710db71b64c7a93f6d859e
+      hash: c683a13901ff447a3748fa4662b0b35951d2210e0b5b8b0f9db0f1346a88a338
     departements:
-      url: https://www.insee.fr/fr/statistiques/fichier/3720946/departement2019-csv.zip
+      url: https://www.insee.fr/fr/statistiques/fichier/4316069/departement2020-csv.zip
       date: 01/2019
-      hash: ffda417ca7a5e1dad1810e5952ee205e73adefa9a0503d77aeb69499aca15eba
+      hash: b89413321f30118756c9f4502e756279cbcaf089b3a0e5980c32bc14981d86c1
     regions:
-      url: https://www.insee.fr/fr/statistiques/fichier/3720946/region2019-csv.zip
+      url: https://www.insee.fr/fr/statistiques/fichier/4316069/region2020-csv.zip
       date: 01/2019
-      hash: 023f23a778fb16023c3f2fcfc2d62056a3594bf1f6219fed1283cd33820d69ee
-    evenements_communes:
-      url: https://www.insee.fr/fr/statistiques/fichier/3720946/mvtcommune-01042019-csv.zip
-      date: 04/2019
-      hash: bc87e177883733a57da0eff5409a8820b9a89133bd7d7d8680ff0aacc1d72fd3
+      hash: 029877a27e283ec7de824a398eb443ef5e34dbd16fc5ba8a41659a2bebca48af
 
   population:
     url: https://www.insee.fr/fr/statistiques/fichier/4265429/ensemble.zip
@@ -45,9 +37,9 @@ insee:
 ign:
   admin-express:
     version-cog:
-      url: ftp://Admin_Express_ext:Dahnoh0eigheeFok@ftp3.ign.fr/ADMIN-EXPRESS-COG_2-0__SHP__FRA_WGS84G_2019-09-24.7z.001
-      date: 01/2019
-      hash: ed8be4045813f50deb5659e401ee3cd389bcad7cabcc2e7baddaf76f3a232e37
+      url: ftp://Admin_Express_ext:Dahnoh0eigheeFok@ftp3.ign.fr/ADMIN-EXPRESS-COG_2-1__SHP__FRA_WGS84G_2020-11-20.7z
+      date: 20/11/2020
+      hash: 1b80affb74f93b0fd9fd89612c4dfbbde6d0b3f7c1562822c8ef1461bb7cf42a
 #    classique:
 #      url: ftp://Admin_Express_ext:Dahnoh0eigheeFok@ftp3.ign.fr/ADMIN-EXPRESS_2-2__SHP__FRA_L93_2020-01-16.7z.001
 #      date: 01/2020

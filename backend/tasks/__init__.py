@@ -36,7 +36,7 @@ def task_telecharger():
 @create_after(executed="telecharger")
 def task_decompresser():
     for source in iterate_sources():
-        if source.suffix in [".zip", ".001"]:
+        if source.suffix in [".zip", ".7z"]:
             archive_path = SOURCE_DIR / source.filename
             dest_prefix = PREPARE_DIR / source.path
             targets = get_archive_targets(archive_path, dest_prefix)

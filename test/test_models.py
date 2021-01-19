@@ -15,9 +15,9 @@ class CommuneTestCase(TestCase):
     def test_communes_correctement_importees(self):
         """Le nombre de communes au sens large, et de communes au sens propre correspond à ce qui est attendu."""
         attendus = {
-            "COM": 34967,
-            "COMA": 550,
-            "COMD": 2370,
+            "COM": 34968,
+            "COMA": 546,
+            "COMD": 2342,
             "ARM": 20 + 9 + 16,
             "SRM": 17 + 9 + 8,
         }
@@ -57,6 +57,9 @@ class CommuneTestCase(TestCase):
                 population_municipale__isnull=True,
             )
             .exclude(departement__code="976")
+            .exclude(
+                code="14666"
+            )  # la commune de Sannerville rétablie par un jugement du TA
             .exists()
         )
 
@@ -65,7 +68,17 @@ class CommuneTestCase(TestCase):
             Commune.objects.filter(
                 type__in=["COMD", "COMA"], population_municipale__isnull=True
             ).values_list("code", flat=True),
-            ["21183", "21213", "21452", "21507", "44225", "45287", "50649"],
+            [
+                "14114",
+                "21183",
+                "21213",
+                "21452",
+                "21507",
+                "44225",
+                "45287",
+                "50649",
+                "52224",
+            ],
         )
 
 
@@ -80,7 +93,7 @@ class EPCITestCase(TestCase):
             Commune.objects.filter(
                 type=Commune.TYPE_COMMUNE, epci__isnull=True
             ).values_list("nom", flat=True),
-            ["Île-de-Bréhat", "Île-de-Sein", "Ouessant", "Île-d'Yeu"],
+            ["Île-de-Bréhat", "Île-de-Sein", "Ouessant", "Île-d'Yeu", "Sannerville"],
         )
 
     def test_seules_communes_ont_epci(self):

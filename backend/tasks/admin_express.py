@@ -12,25 +12,28 @@ COMMUNES_GEOMETRY = PREPARE_DIR / "ign/admin-express/version-cog/communes-geomet
 
 
 def task_extraire_polygones_communes():
-    shp_file = (
+    shp_dir = (
         PREPARE_DIR
-        / "ign/admin-express/version-cog/ADMIN-EXPRESS-COG_2-0__SHP__FRA_2019-09-24/ADMIN-EXPRESS-COG/1_DONNEES_LIVRAISON_2019-09-24/ADE-COG_2-0_SHP_WGS84_FR/COMMUNE_CARTO.shp"
+        / "ign"
+        / "admin-express"
+        / "version-cog"
+        / "ADMIN-EXPRESS-COG_2-1__SHP__FRA_2020-11-20"
+        / "ADMIN-EXPRESS-COG"
+        / "1_DONNEES_LIVRAISON_2020-11-20"
+        / "ADE-COG_2-1_SHP_WGS84G_FRA"
     )
-    temp_file = COMMUNES_GEOMETRY.with_suffix(".temp")
+
+    # attention, l'ordre des fichiers est important, les COM doivent être avant les autres types
+    shp_files = [
+        shp_dir / "COMMUNE_CARTO.shp",
+        shp_dir / "ARRONDISSEMENT_MUNICIPAL.shp",
+    ]
 
     return {
-        "file_dep": [shp_file],
+        "file_dep": shp_files,
         "task_dep": ["decompresser"],
         "targets": [COMMUNES_GEOMETRY],
-        "actions": [
-            (extraires_polygones_communes, [shp_file, temp_file],),
-            f"( \
-                    head -n 1 {temp_file}; \
-                    tail -n +2  {temp_file} | grep ^COM, | sort -k1,2 -t, ;\
-                    tail -n +2  {temp_file} | grep -v ^COM, | sort -k1,2 -t, \
-              ) > {COMMUNES_GEOMETRY}",
-            f"rm {temp_file}",
-        ],
+        "actions": [(extraires_polygones_communes, [shp_files, COMMUNES_GEOMETRY],),],
     }
 
 
@@ -45,15 +48,18 @@ def to_multipolygon(geometry):
     return s.wkb_hex
 
 
-def extraires_polygones_communes(shp_path, csv_path):
-    with fiona.open(shp_path) as shp, open(csv_path, mode="w", newline="") as f:
+def extraires_polygones_communes(shp_files, csv_path):
+    with open(csv_path, mode="w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["type", "code", "geometry"])
-        for com in iter(shp):
-            w.writerow(
-                [
-                    com["properties"]["TYPE"].strip(),
-                    com["properties"]["INSEE_COM"].strip(),
-                    to_multipolygon(com["geometry"]),
-                ]
-            )
+
+        for shp_path in shp_files:
+            with fiona.open(shp_path) as shp:
+                for com in iter(shp):
+                    w.writerow(
+                        [
+                            com["properties"]["TYPE"].strip(),
+                            com["properties"]["INSEE_COM"].strip(),
+                            to_multipolygon(com["geometry"]),
+                        ]
+                    )
