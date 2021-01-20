@@ -1,6 +1,11 @@
 data_france
 ===========
 
+Version 0.10.5
+--------------
+
+* Ajout de la recherche plein texte sur les élus municipaux
+
 Version 0.10.4
 --------------
 

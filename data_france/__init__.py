@@ -1,3 +1,3 @@
 """Données administratives et géographiques sur la France"""
 
-__version__ = "0.10.4"
+__version__ = "0.10.5"
