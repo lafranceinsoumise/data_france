@@ -316,3 +316,13 @@ class EluMunicipalAdmin(ImmutableModelAdmin):
 
     nom_complet.short_description = "Nom complet"
     nom_complet.admin_order_field = "nom"
+
+    def get_queryset(self, request):
+        qs = super(EluMunicipalAdmin, self).get_queryset(request)
+        return qs.select_related("commune")
+
+    def get_search_results(self, request, queryset, search_term):
+        use_distinct = False
+        if search_term:
+            return queryset.search(search_term), use_distinct
+        return queryset, use_distinct

@@ -453,6 +453,42 @@ def creer_index_recherche(using):
             AND dfc.id = deps.commune_id;
         """
         )
+
+        cursor.execute(
+            """
+            WITH cps AS (
+                SELECT data_france_tsvector_agg(code :: tsvector) AS codes_postaux, commune_id
+                FROM data_france_codepostal AS dfcp
+                INNER JOIN data_france_codepostal_communes AS dfcc
+                ON dfcp.id = dfcc.codepostal_id
+                GROUP BY commune_id
+                
+                UNION 
+                
+                SELECT NULL AS codes_postaux, dfc.id AS commune_id
+                FROM data_france_commune dfc
+                LEFT JOIN data_france_codepostal_communes dfcc 
+                ON dfc.id = dfcc.commune_id
+                WHERE dfcc.commune_id IS NULL
+            ),
+            deps AS (
+                SELECT dfc.id AS commune_id, dfd.nom AS nom, dfd.code AS code FROM data_france_commune dfc
+                LEFT JOIN data_france_departement dfd
+                ON dfc.departement_id = dfd.id
+            )
+            
+            UPDATE data_france_elumunicipal em
+            SET search =
+                   setweight(to_tsvector('data_france_search', COALESCE(em."nom", '')), 'A')
+                || setweight(to_tsvector('data_france_search', COALESCE(em."prenom", '')), 'A')
+                || setweight(to_tsvector('data_france_search', COALESCE(c."nom", '')), 'B')
+                || setweight(COALESCE(cps.codes_postaux, '' :: tsvector), 'C')
+                || setweight(to_tsvector(deps.code), 'C')
+                || setweight(to_tsvector('data_france_search', deps.nom), 'D')
+            FROM data_france_commune c, cps, deps
+            WHERE c.id = em.commune_id AND c.id = cps.commune_id AND c.id = deps.commune_id;"""
+        )
+
         stderr.write(f" OK !{os.linesep}")
 
 

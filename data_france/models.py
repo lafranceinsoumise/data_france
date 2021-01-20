@@ -6,7 +6,7 @@ from data_france.search import PrefixSearchQuery
 from data_france.type_noms import TypeNomMixin
 
 
-class CommuneQueryset(models.QuerySet):
+class SearchQueryset(models.QuerySet):
     def search(self, search_terms):
         query = PrefixSearchQuery(search_terms, config="data_france_search")
 
@@ -31,7 +31,7 @@ class Commune(TypeNomMixin, models.Model):
     TYPE_ARRONDISSEMENT_PLM = TypeCommune.ARRONDISSEMENT_PLM
     TYPE_SECTEUR_PLM = TypeCommune.SECTEUR_PLM
 
-    objects = CommuneQueryset.as_manager()
+    objects = SearchQueryset.as_manager()
 
     code = models.CharField("Code INSEE", max_length=10, editable=False)
     type = models.CharField(
@@ -423,6 +423,8 @@ class Canton(models.Model):
 
 
 class EluMunicipal(models.Model):
+    objects = SearchQueryset.as_manager()
+
     class CodeSexe(models.TextChoices):
         MASCULIN = "M"
         FEMININ = "F"
@@ -466,6 +468,11 @@ class EluMunicipal(models.Model):
     nationalite = models.CharField(
         verbose_name="Nationalité", editable=False, max_length=30
     )
+
+    search = SearchVectorField(verbose_name="Champ de recherche", null=True)
+
+    def __str__(self):
+        return f"{self.nom}, {self.prenom} ({self.commune.nom_complet})"
 
     class Meta:
         verbose_name = "Élu⋅e municipal⋅e"
