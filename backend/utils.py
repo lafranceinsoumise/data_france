@@ -1,4 +1,5 @@
 import hashlib
+from collections import deque
 from pathlib import Path, PurePath
 from zipfile import ZipFile
 from libarchive.public import file_reader as archive_reader
@@ -89,3 +90,14 @@ def extract_archive(archive_path, dest_prefix: Path):
                 with dest.open("wb") as f:
                     for block in entry.get_blocks():
                         f.write(block)
+
+
+def remove_last(it, n=1):
+    try:
+        value = deque((next(it) for _ in range(n)), maxlen=n)
+    except StopIteration:
+        return
+
+    for n in it:
+        yield value[0]
+        value.append(n)

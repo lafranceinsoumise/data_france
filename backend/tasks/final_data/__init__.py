@@ -1,7 +1,6 @@
 import contextlib
 import csv
 import lzma
-from collections import deque
 from datetime import datetime
 from pathlib import Path
 
@@ -10,6 +9,7 @@ import pandas as pd
 from backend import BASE_DIR, SOURCE_DIR
 from tasks.admin_express import COMMUNES_GEOMETRY
 from tasks.cog import COMMUNES_CSV, EPCI_CSV, COG_DIR, CANTONS_CSV
+from utils import remove_last
 
 CODES_POSTAUX = SOURCE_DIR / "laposte" / "codes_postaux.csv"
 
@@ -370,17 +370,6 @@ def generer_fichier_cantons(
         )
 
 
-def remove_last(it, n=1):
-    try:
-        value = deque((next(it) for _ in range(n)), maxlen=n)
-    except StopIteration:
-        return
-
-    for n in it:
-        yield value[0]
-        value.append(n)
-
-
 def normaliser_date(d):
     """Normalise une date au format ISO"""
     d = datetime.strptime(d, "%d/%m/%Y")
@@ -481,7 +470,9 @@ def generer_fichier_elus_municipaux(brut_elus, final_elus):
 
             # attention: utiliser la date de naissance normalisée et l'id commune
             l["id"] = id_elu(
-                commune_id=l["commune_id"],
+                commune_id=str(
+                    l["commune_id"]
+                ),  # attention l'id est interprétée comme str
                 nom=l["nom"],
                 prenom=l["prenom"],
                 sexe=l["sexe"],
