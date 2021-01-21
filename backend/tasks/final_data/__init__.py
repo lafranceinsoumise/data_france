@@ -383,7 +383,10 @@ def remove_last(it, n=1):
 
 def normaliser_date(d):
     """Normalise une date au format ISO"""
-    return datetime.strptime(d, "%d/%m/%Y").strftime("%Y-%m-%d")
+    d = datetime.strptime(d, "%d/%m/%Y")
+    if d.year < 100:
+        d = d.replace(year=2000 + d.year)
+    return d.strftime("%Y-%m-%d")
 
 
 def generer_fichier_elus_municipaux(brut_elus, final_elus):
