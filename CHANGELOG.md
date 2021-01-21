@@ -1,6 +1,14 @@
 data_france
 ===========
 
+Version 0.10.6
+--------------
+
+* Interprétation correcte des dates saisies dans un format non standard dans le
+  répertoire national des élus (par exemple 03/07/20 au lieu de 03/07/2020)
+* Correction d'un bug dans le backend, sans aucune conséquence sur les versions
+  publiées
+
 Version 0.10.5
 --------------
 
