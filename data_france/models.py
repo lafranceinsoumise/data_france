@@ -3,7 +3,24 @@ from django.contrib.postgres.search import SearchRank, SearchVectorField
 from django.db import models
 
 from data_france.search import PrefixSearchQuery
-from data_france.type_noms import TypeNomMixin
+from data_france.type_noms import TypeNom
+
+
+class TypeNomMixin(models.Model):
+    type_nom = models.PositiveSmallIntegerField(
+        "Type de nom", blank=False, editable=False, null=False, choices=TypeNom.choices,
+    )
+
+    @property
+    def nom_complet(self):
+        return f"{TypeNom(self.type_nom).article}{self.nom}"
+
+    @property
+    def nom_avec_charniere(self):
+        return f"{TypeNom(self.type_nom).charniere}{self.nom}"
+
+    class Meta:
+        abstract = True
 
 
 class SearchQueryset(models.QuerySet):
@@ -46,10 +63,6 @@ class Commune(TypeNomMixin, models.Model):
 
     nom = models.CharField(
         "Nom de la commune", max_length=200, blank=False, editable=False, null=False,
-    )
-
-    type_nom = models.PositiveSmallIntegerField(
-        "Type de nom de la commune", blank=False, editable=False, null=False
     )
 
     departement = models.ForeignKey(
@@ -184,9 +197,6 @@ class EPCI(models.Model):
 class Departement(TypeNomMixin, models.Model):
     code = models.CharField("Code INSEE", max_length=3, editable=False, unique=True)
     nom = models.CharField("Nom du département", max_length=200, editable=False)
-    type_nom = models.PositiveSmallIntegerField(
-        "Type de nom du département", blank=False, editable=False, null=False
-    )
 
     chef_lieu = models.ForeignKey(
         "Commune",
@@ -229,9 +239,6 @@ class Departement(TypeNomMixin, models.Model):
 class Region(TypeNomMixin, models.Model):
     code = models.CharField("Code INSEE", max_length=3, editable=False, unique=True)
     nom = models.CharField("Nom de la région", max_length=200, editable=False)
-    type_nom = models.PositiveSmallIntegerField(
-        "Type de nom", blank=False, editable=False, null=False
-    )
 
     chef_lieu = models.ForeignKey(
         "Commune",
@@ -289,7 +296,7 @@ class CodePostal(models.Model):
         ordering = ("code",)
 
 
-class CollectiviteDepartementale(models.Model):
+class CollectiviteDepartementale(TypeNomMixin, models.Model):
     TYPE_CONSEIL_DEPARTEMENTAL = "D"
     TYPE_CONSEIL_METROPOLE = "M"
     TYPE_CHOICES = (
@@ -304,6 +311,7 @@ class CollectiviteDepartementale(models.Model):
     actif = models.BooleanField("En cours d'existence", default=True)
 
     nom = models.CharField("Nom", max_length=200)
+
     departement = models.ForeignKey(
         "Departement",
         on_delete=models.PROTECT,
@@ -323,7 +331,7 @@ class CollectiviteDepartementale(models.Model):
         return f"{self.nom} ({self.code})"
 
 
-class CollectiviteRegionale(models.Model):
+class CollectiviteRegionale(TypeNomMixin, models.Model):
     TYPE_CONSEIL_REGIONAL = "R"
     TYPE_COLLECTIVITE_UNIQUE = "U"
     TYPE_CHOICES = (
@@ -355,7 +363,7 @@ class CollectiviteRegionale(models.Model):
         return self.nom
 
 
-class Canton(models.Model):
+class Canton(TypeNomMixin, models.Model):
     TYPE_CANTON = "C"
     TYPE_CANTON_VILLE = "V"
     TYPE_CANTON_FICTIF = "N"
@@ -398,10 +406,6 @@ class Canton(models.Model):
 
     nom = models.CharField(
         "Nom du canton", max_length=200, blank=False, editable=False, null=False,
-    )
-
-    type_nom = models.PositiveSmallIntegerField(
-        "Type de nom du canton", blank=False, editable=False, null=False
     )
 
     departement = models.ForeignKey(

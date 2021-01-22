@@ -9,6 +9,8 @@ from django.db import transaction
 from django.db.transaction import get_connection
 from psycopg2.sql import SQL, Identifier
 
+from data_france.type_noms import TypeNom
+
 COPY_SQL = SQL(
     """COPY {table} ({columns}) FROM STDIN WITH NULL AS '\\N' CSV QUOTE AS '"';"""
 )
@@ -67,6 +69,15 @@ VILLES_PLM = [
 
 
 @contextlib.contextmanager
+def console_message(message):
+    stderr.write(f"{message}... ",)
+    stderr.flush()
+
+    yield
+    stderr.write(f"OK!{os.linesep}")
+
+
+@contextlib.contextmanager
 def temporary_table(cursor, temp_table, reference_table, columns):
     """Context manager for creating and dropping temp tables"""
 
@@ -86,62 +97,51 @@ def temporary_table(cursor, temp_table, reference_table, columns):
         cursor.execute(DROP_TEMPORARY_TABLE_SQL.format(temp_table=temp_table))
 
 
+@console_message("Chargement des régions")
 def import_regions(using):
     with open_binary("data_france.data", "regions.csv.lzma") as _f, lzma.open(
         _f, "rt"
     ) as f:
-        stderr.write("Chargement des régions...")
-        stderr.flush()
         import_with_temp_table(f, "data_france_region", using)
-        stderr.write(f" OK !{os.linesep}")
 
 
+@console_message("Chargements des départements")
 def import_departements(using):
     with open_binary("data_france.data", "departements.csv.lzma") as _f, lzma.open(
         _f, "rt"
     ) as f:
-        stderr.write("Chargement des départements...")
-        stderr.flush()
         import_with_temp_table(f, "data_france_departement", using)
-        stderr.write(f" OK !{os.linesep}")
 
 
+@console_message("Chargement des EPCI")
 def importer_epci(using):
     with open_binary("data_france.data", "epci.csv.lzma") as _f, lzma.open(
         _f, "rt"
     ) as f:
-        stderr.write("Chargement des EPCI...")
-        stderr.flush()
         import_with_temp_table(f, "data_france_epci", using)
-        stderr.write(f" OK !{os.linesep}")
 
 
+@console_message("Chargement des communes")
 def importer_communes(using):
     with open_binary("data_france.data", "communes.csv.lzma") as _f, lzma.open(
         _f, "rt"
     ) as f:
-        stderr.write("Chargement des communes...")
-        stderr.flush()
         import_with_temp_table(f, "data_france_commune", using)
-        stderr.write(f" OK !{os.linesep}")
 
 
+@console_message("Chargement des codes postaux")
 def importer_codes_postaux(using):
     with open_binary("data_france.data", "codes_postaux.csv.lzma") as _f, lzma.open(
         _f, "rt"
     ) as f:
-        stderr.write("Chargement des codes postaux...")
-        stderr.flush()
         import_with_temp_table(f, "data_france_codepostal", using)
-        stderr.write(f" OK !{os.linesep}")
 
 
+@console_message("Chargement des associations Communes/Codes postaux")
 def importer_associations_communes_codes_postaux(using):
     with open_binary(
         "data_france.data", "codes_postaux_communes.csv.lzma"
     ) as _f, lzma.open(_f, "rt") as f:
-        stderr.write("Chargement des associations Communes/Codes postaux...")
-        stderr.flush()
         columns = f.readline().strip().split(",")
         table = "data_france_codepostal_communes"
         with get_connection(using).cursor() as cursor:
@@ -155,32 +155,26 @@ def importer_associations_communes_codes_postaux(using):
                 ),
                 f,
             )
-        stderr.write(f" OK !{os.linesep}")
 
 
+@console_message("Chargement des cantons")
 def importer_cantons(using):
     with open_binary("data_france.data", "cantons.csv.lzma") as _f, lzma.open(
         _f, "rt"
     ) as f:
-        stderr.write("Chargement des cantons...")
-        stderr.flush()
         import_with_temp_table(f, "data_france_canton", using)
-        stderr.write(f" OK !{os.linesep}")
 
 
+@console_message("Chargement des élus municipaux")
 def importer_elus_municipaux(using):
     with open_binary("data_france.data", "elus_municipaux.csv.lzma") as _f, lzma.open(
         _f, "rt"
     ) as f:
-        stderr.write("Chargement des élus municipaux...")
-        stderr.flush()
         import_with_temp_table(f, "data_france_elumunicipal", using)
 
 
 def agreger_geometries_et_populations(using):
     with get_connection(using).cursor() as cursor:
-        stderr.write("Calcul des géométries des secteurs électoraux...")
-        stderr.flush()
 
         param_list = [
             {
@@ -193,87 +187,82 @@ def agreger_geometries_et_populations(using):
             for secteur, arrondissements in ville["secteurs"].items()
         ]
 
-        cursor.executemany(
-            """
-            UPDATE "data_france_commune"
-            SET
-                geometry = (
-                    SELECT ST_Multi(ST_Union(geometry :: geometry))
+        with console_message("Calcul des géométries des secteurs électoraux"):
+            cursor.executemany(
+                """
+                UPDATE "data_france_commune"
+                SET
+                    geometry = (
+                        SELECT ST_Multi(ST_Union(geometry :: geometry))
+                        FROM "data_france_commune"
+                        WHERE code IN %(arrondissements)s
+                    )
+                WHERE code = %(secteur)s;
+                """,
+                param_list,
+            )
+
+        with console_message("Calcul des populations et géométries par département"):
+            cursor.execute(
+                """
+                UPDATE "data_france_departement"
+                SET
+                    population = c.population,
+                    geometry = ST_Multi(c.geometry)
+                FROM (
+                    SELECT
+                        departement_id,
+                        SUM(population_municipale) AS population,
+                        ST_Union(geometry :: geometry) AS geometry
                     FROM "data_france_commune"
-                    WHERE code IN %(arrondissements)s
-                )
-            WHERE code = %(secteur)s;
-            """,
-            param_list,
-        )
-        stderr.write(f" OK !{os.linesep}")
+                    WHERE departement_id IS NOT NULL
+                    GROUP BY departement_id
+                ) AS c
+                WHERE id = c.departement_id;
+                """
+            )
 
-        stderr.write("Calcul des populations et géométries par département...")
-        stderr.flush()
-        cursor.execute(
-            """
-            UPDATE "data_france_departement"
-            SET
-                population = c.population,
-                geometry = ST_Multi(c.geometry)
-            FROM (
-                SELECT
-                    departement_id,
-                    SUM(population_municipale) AS population,
-                    ST_Union(geometry :: geometry) AS geometry
-                FROM "data_france_commune"
-                WHERE departement_id IS NOT NULL
-                GROUP BY departement_id
-            ) AS c
-            WHERE id = c.departement_id;
-            """
-        )
-        stderr.write(f" OK !{os.linesep}")
+        with console_message("Calcul des populations et géométries par région"):
+            cursor.execute(
+                """
+                UPDATE "data_france_region"
+                SET
+                    population = d.population,
+                    geometry = ST_Multi(d.geometry)
+                FROM (
+                    SELECT
+                        region_id,
+                        SUM(population) AS population,
+                        ST_Union(geometry :: geometry) AS geometry
+                    FROM "data_france_departement"
+                    GROUP BY region_id
+                ) AS d
+                WHERE id = d.region_id;
+                """
+            )
 
-        stderr.write("Calcul des populations et géométries par région...")
-        stderr.flush()
-        cursor.execute(
-            """
-            UPDATE "data_france_region"
-            SET
-                population = d.population,
-                geometry = ST_Multi(d.geometry)
-            FROM (
-                SELECT
-                    region_id,
-                    SUM(population) AS population,
-                    ST_Union(geometry :: geometry) AS geometry
-                FROM "data_france_departement"
-                GROUP BY region_id
-            ) AS d
-            WHERE id = d.region_id;
-            """
-        )
-        stderr.write(f" OK !{os.linesep}")
-
-        stderr.write("Calcul des populations et géométries par EPCI...")
-        stderr.flush()
-        cursor.execute(
-            """
-            UPDATE "data_france_epci"
-            SET 
-                population = c.population,
-                geometry = ST_Multi(c.geometry)
-            FROM (
-                SELECT
-                    epci_id,
-                    SUM(population_municipale) AS population,
-                    ST_Union(geometry :: geometry) AS geometry
-                FROM "data_france_commune"
-                WHERE epci_id IS NOT NULL
-                GROUP BY epci_id
-            ) AS c
-            WHERE id = c.epci_id;
-            """
-        )
-        stderr.write(f" OK !{os.linesep}")
+        with console_message("Calcul des populations et géométries par EPCI"):
+            cursor.execute(
+                """
+                UPDATE "data_france_epci"
+                SET 
+                    population = c.population,
+                    geometry = ST_Multi(c.geometry)
+                FROM (
+                    SELECT
+                        epci_id,
+                        SUM(population_municipale) AS population,
+                        ST_Union(geometry :: geometry) AS geometry
+                    FROM "data_france_commune"
+                    WHERE epci_id IS NOT NULL
+                    GROUP BY epci_id
+                ) AS c
+                WHERE id = c.epci_id;
+                """
+            )
 
 
+@console_message("Création des collectivités à compétences départementales")
 def creer_collectivites_departementales(using):
     from data_france.models import Departement, CollectiviteDepartementale, EPCI
 
@@ -289,12 +278,13 @@ def creer_collectivites_departementales(using):
         "974",
     ]  # seul la Guadeloupe et la Réunion n'ont pas de collectivité unique
 
-    conseils_generaux = [
+    conseils_departementaux = [
         {
             "code": f"{d}D",
             "type": CollectiviteDepartementale.TYPE_CONSEIL_DEPARTEMENTAL,
             "actif": True,
-            "nom": f"Conseil départemental {instances_departement[d].nom_avec_charniere}",
+            "nom": instances_departement[d].nom,
+            "type_nom": instances_departement[d].type_nom,
             "departement_id": instances_departement[d].id,
         }
         for d in codes_avec_conseil_general
@@ -304,25 +294,26 @@ def creer_collectivites_departementales(using):
         "code": "69M",
         "type": CollectiviteDepartementale.TYPE_CONSEIL_METROPOLE,
         "actif": True,
-        "nom": "Conseil de la Métropole de Lyon",
+        "nom": "Métropole de Lyon",
+        "type_nom": TypeNom.ARTICLE_LA,
         "departement_id": instances_departement["69"].id,
     }
 
     with get_connection(using).cursor() as cursor:
-        stderr.write("Création des collectivités à compétences départementales...")
-        stderr.flush()
         cursor.executemany(
             """
-            INSERT INTO "data_france_collectivitedepartementale" ("code", "type", "actif", "departement_id", "nom")
-            VALUES (%(code)s, %(type)s, %(actif)s, %(departement_id)s, %(nom)s)
+            INSERT INTO "data_france_collectivitedepartementale" 
+                ("code", "type", "actif", "departement_id", "nom", "type_nom")
+            VALUES (%(code)s, %(type)s, %(actif)s, %(departement_id)s, %(nom)s, %(type_nom)s)
             ON CONFLICT(code) DO UPDATE
             SET 
                 type = excluded.type,
                 actif = excluded.actif,
                 departement_id = excluded.departement_id,
-                nom = excluded.nom;
+                nom = excluded.nom,
+                type_nom = excluded.type_nom;
             """,
-            conseils_generaux + [metropole_lyon],
+            conseils_departementaux + [metropole_lyon],
         )
 
         cursor.execute(
@@ -358,9 +349,9 @@ def creer_collectivites_departementales(using):
                 "id_epci_metropole": epci_metropole_lyon.id,
             },
         )
-    stderr.write(f" OK !{os.linesep}")
 
 
+@console_message("Création des collectivités à compétences régionales")
 def creer_collectivites_regionales(using):
     from data_france.models import Region, CollectiviteRegionale
 
@@ -370,10 +361,7 @@ def creer_collectivites_regionales(using):
 
     ctu = {c["code_region"]: c for c in ctu}
 
-    regions = [
-        (r.id, r.code, f"Conseil régional {r.nom_avec_charniere}")
-        for r in Region.objects.all()
-    ]
+    regions = [(r.id, r.code, r.nom, r.type_nom) for r in Region.objects.all()]
 
     collectivites = [
         {
@@ -384,32 +372,31 @@ def creer_collectivites_regionales(using):
             "actif": True,
             "region_id": id,
             "nom": ctu[code]["nom"] if code in ctu else nom,
+            "type_nom": ctu[code]["type_nom"] if code in ctu else type_nom,
         }
-        for id, code, nom in regions
+        for id, code, nom, type_nom in regions
     ]
 
     with get_connection(using).cursor() as cursor:
-        stderr.write("Création des collectivités à compétences régionales...")
-        stderr.flush()
         cursor.executemany(
             """
-            INSERT INTO "data_france_collectiviteregionale" ("code", "type", "actif", "region_id", "nom")
-            VALUES (%(code)s, %(type)s, %(actif)s, %(region_id)s, %(nom)s)
+            INSERT INTO "data_france_collectiviteregionale" ("code", "type", "actif", "region_id", "nom", "type_nom")
+            VALUES (%(code)s, %(type)s, %(actif)s, %(region_id)s, %(nom)s, %(type_nom)s)
             ON CONFLICT(code) DO UPDATE
             SET 
                 type = excluded.type,
                 actif = excluded.actif,
                 region_id = excluded.region_id,
-                nom = excluded.nom;
+                nom = excluded.nom,
+                type_nom = excluded.type_nom;
             """,
             collectivites,
         )
-    stderr.write(f" OK !{os.linesep}")
 
 
+@console_message("Mise à jour de l'index de recherche")
 def creer_index_recherche(using):
     with get_connection(using).cursor() as cursor:
-        stderr.write("Mise à jour de l'index de recherche...")
         cursor.execute(
             """
             WITH cps AS (
@@ -488,8 +475,6 @@ def creer_index_recherche(using):
             FROM data_france_commune c, cps, deps
             WHERE c.id = em.commune_id AND c.id = cps.commune_id AND c.id = deps.commune_id;"""
         )
-
-        stderr.write(f" OK !{os.linesep}")
 
 
 def import_with_temp_table(csv_file, table, using):

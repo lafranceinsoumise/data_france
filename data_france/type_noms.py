@@ -1,52 +1,29 @@
-TYPE_NOM_CONSONNE = 0
-TYPE_NOM_VOYELLE = 1
-TYPE_NOM_ARTICLE_LE = 2
-TYPE_NOM_ARTICLE_LA = 3
-TYPE_NOM_ARTICLE_LES = 4
-TYPE_NOM_ARTICLE_L = 5
-TYPE_NOM_ARTICLE_AUX = 6
-TYPE_NOM_ARTICLE_LAS = 7
-TYPE_NOM_ARTICLE_LOS = 8
-TYPE_NOM_CHOICES = (
-    (TYPE_NOM_CONSONNE, "Pas d'article, commence par une consonne (sauf H muet)"),
-    (TYPE_NOM_VOYELLE, "Pas d'article, commence par une voyelle (ou H muet)"),
-    (TYPE_NOM_ARTICLE_LE, "Article = LE"),
-    (TYPE_NOM_ARTICLE_LA, "Article = LA"),
-    (TYPE_NOM_ARTICLE_LES, "Article = LES"),
-    (TYPE_NOM_ARTICLE_L, "Article = L'"),
-    (TYPE_NOM_ARTICLE_AUX, "Article = AUX"),
-    (TYPE_NOM_ARTICLE_LAS, "Article = LAS"),
-    (TYPE_NOM_ARTICLE_LOS, "Article = LOS"),
-)
-TYPE_NOM_ARTICLE = {
-    TYPE_NOM_CONSONNE: "",
-    TYPE_NOM_VOYELLE: "",
-    TYPE_NOM_ARTICLE_LE: "le ",
-    TYPE_NOM_ARTICLE_LA: "la ",
-    TYPE_NOM_ARTICLE_LES: "les ",
-    TYPE_NOM_ARTICLE_L: "l'",
-    TYPE_NOM_ARTICLE_AUX: "aux ",
-    TYPE_NOM_ARTICLE_LAS: "las ",
-    TYPE_NOM_ARTICLE_LOS: "los ",
-}
-TYPE_NOM_CHARNIERE = {
-    TYPE_NOM_CONSONNE: "de ",
-    TYPE_NOM_VOYELLE: "d'",
-    TYPE_NOM_ARTICLE_LE: "du ",
-    TYPE_NOM_ARTICLE_LA: "de la ",
-    TYPE_NOM_ARTICLE_LES: "des ",
-    TYPE_NOM_ARTICLE_L: "de l'",
-    TYPE_NOM_ARTICLE_AUX: "des ",
-    TYPE_NOM_ARTICLE_LAS: "de las ",
-    TYPE_NOM_ARTICLE_LOS: "de los ",
-}
+from django.db.models import IntegerChoices
 
 
-class TypeNomMixin:
-    @property
-    def nom_complet(self):
-        return f"{TYPE_NOM_ARTICLE[self.type_nom].title()}{self.nom}"
+class TypeNom(IntegerChoices):
+    """Nomenclature des noms propres utilisés par l'INSEE pour les noms de lieu
 
-    @property
-    def nom_avec_charniere(self):
-        return f"{TYPE_NOM_CHARNIERE[self.type_nom]}{self.nom}"
+    Cette nomenclature permet de savoir quels sont les articles et les charnières applicables
+    aux noms propres de communes, départements et régions.
+
+    Référence :
+    https://www.insee.fr/fr/information/2560684#tncc
+    """
+
+    def __new__(cls, value, article, charniere):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj.article = article
+        obj.charniere = charniere
+        return obj
+
+    CONSONNE = 0, "", "de ", "Pas d'article, commence par une consonne (sauf H muet)"
+    VOYELLE = 1, "", "d'", "Pas d'article, commence par une voyelle (ou H muet)"
+    ARTICLE_LE = 2, "le ", "du ", "Article = LE"
+    ARTICLE_LA = 3, "la ", "de la ", "Article = LA"
+    ARTICLE_LES = 4, "les ", "des ", "Article = LES"
+    ARTICLE_L = 5, "l'", "de l'", "Article = L'"
+    ARTICLE_AUX = 6, "aux", "des ", "Article = AUX"
+    ARTICLE_LAS = 7, "las ", "de las ", "Article = LAS"
+    ARTICLE_LOS = 8, "los ", "de los ", "Article = LOS"

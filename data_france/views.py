@@ -29,7 +29,7 @@ class RechercheCommuneView(CommuneMixin, View):
         if params.is_valid():
             q = params.cleaned_data["q"]
             types = params.cleaned_data.get("type") or [
-                t for t, _ in Commune.TYPE_CHOICES
+                t for t, _ in Commune.TypeCommune.choices
             ]
 
             geojson = params.cleaned_data["geojson"]
