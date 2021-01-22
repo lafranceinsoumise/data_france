@@ -1,6 +1,16 @@
 data_france
 ===========
 
+Version 0.10.7
+--------------
+
+* Les noms des collectivités de niveau départemental ne comportent plus la partie "Conseil département de",
+  mais reprennent juste le nom du département ; pour Lyon, le nom est "Métropole de Lyon"
+* Idem pour les régions, avec comme exceptions les assemblées uniques ou le nom entier est repris (par exemple
+  "Assemblée de Corse")
+* Les attributs `nom_complet` (avec l'article) et `nom_avec_charniere` sont maintenant présents sur tous
+  les modèles.
+
 Version 0.10.6
 --------------
 
