@@ -10,6 +10,33 @@ with open(BASE_DIR / "sources.yml") as f:
     _sources = yaml.load(f, yaml.BaseLoader)
 
 
+class SourceExplorer:
+    def __init__(self, d, p: PurePath):
+        self._d = d
+        self._p = p
+
+    def __getattr__(self, item):
+        if item not in self._d:
+            raise AttributeError(f"Attribut `{item}' manquant")
+
+        if "url" in self._d[item]:
+            return Source(self._p / item, **self._d[item])
+
+        return SourceExplorer(self._d[item], self._p / item)
+
+    def __iter__(self):
+        stack = [(self._p, self._d)]
+        while stack:
+            path, value = stack.pop()
+            if "url" in value:
+                yield Source(path, **value)
+            else:
+                stack.extend((path / str(p), s) for p, s in value.items())
+
+
+SOURCES = SourceExplorer(_sources, PurePath(""))
+
+
 def iterate_sources():
     stack = [(PurePath(""), _sources)]
     while stack:

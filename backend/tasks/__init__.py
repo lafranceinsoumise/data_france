@@ -2,20 +2,20 @@ from doit import create_after
 from doit.tools import create_folder
 
 from backend import SOURCE_DIR, PREPARE_DIR
-from sources import iterate_sources
+from sources import SOURCES
 from utils import (
     check_hash,
     get_archive_targets,
     extract_archive,
 )
+from .admin_express import *
 from .cog import *
 from .elections import *
-from .admin_express import *
 from .final_data import *
 
 
 def task_telecharger():
-    for source in iterate_sources():
+    for source in SOURCES:
         yield {
             "name": str(source.path),
             "targets": [SOURCE_DIR / source.filename],
@@ -35,7 +35,7 @@ def task_telecharger():
 
 @create_after(executed="telecharger")
 def task_decompresser():
-    for source in iterate_sources():
+    for source in SOURCES:
         if source.suffix in [".zip", ".7z"]:
             archive_path = SOURCE_DIR / source.filename
             dest_prefix = PREPARE_DIR / source.path
