@@ -88,6 +88,3 @@ class Source:
     @property
     def filename(self):
         return self.path.parent / (self.path.name + self.suffix)
-
-    def __getattr__(self, item):
-        return getattr(self.versions[0], item)

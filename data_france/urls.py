@@ -31,12 +31,11 @@ urlpatterns = [
     path(
         "collectivite-departementale/par-code/",
         views.CollectiviteDepartementaleParCodeView.as_view(),
-        name="collectivite-departementale-par-code"
+        name="collectivite-departementale-par-code",
     ),
     path(
         "collectivite-regionale/par-code/",
         views.CollectiviteRegionaleParCodeView.as_view(),
-        name="collectivite-regionale-par-code"
+        name="collectivite-regionale-par-code",
     ),
-
 ]

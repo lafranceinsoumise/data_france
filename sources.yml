@@ -104,3 +104,9 @@ laposte:
     url: https://datanova.laposte.fr/explore/dataset/laposte_hexasmal/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%2C
     extension: .csv
     hash: 5efee6567545417c7f109cb999c69383892803c58860644261e748b7cfe33d80
+
+premier_ministre:
+  annuaire_administration:
+    url: http://lecomarquage.service-public.fr/donnees_locales_v2/all_latest.tar.bz2
+    extension: .tar.bz2
+    hash: 0ff7121606c81b572cbd6cf12a500b7caa90dad27d83ca9fd6d7ef3deed196f6

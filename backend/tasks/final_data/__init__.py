@@ -8,7 +8,14 @@ import pandas as pd
 
 from backend import BASE_DIR, SOURCE_DIR
 from tasks.admin_express import COMMUNES_GEOMETRY
-from tasks.cog import COMMUNES_CSV, EPCI_CSV, COG_DIR, CANTONS_CSV
+from tasks.annuaire_administratif import MAIRIES_TRAITEES
+from tasks.cog import (
+    COMMUNES_CSV,
+    EPCI_CSV,
+    COG_DIR,
+    CANTONS_CSV,
+    COMMUNE_TYPE_ORDERING,
+)
 from utils import remove_last
 
 CODES_POSTAUX = SOURCE_DIR / "laposte" / "codes_postaux.csv"
@@ -37,11 +44,8 @@ __all__ = [
 ]
 
 
-ORDERING = ["COM", "ARM", "COMA", "COMD", "SRM", None]
-
-
 def _key(t):
-    return (ORDERING.index(t["type"]), t["code"])
+    return (COMMUNE_TYPE_ORDERING.index(t["type"]), t["code"])
 
 
 @contextlib.contextmanager
@@ -74,7 +78,7 @@ def id_from_file(path, read_only=False):
     yield get_id
 
     with open(full_path, "w") as f:
-        w = csv.writer(f,)
+        w = csv.writer(f)
         w.writerow(columns + ["id"])
         w.writerows([*t, id] for t, id in reference.items())
 
@@ -101,18 +105,18 @@ def task_generer_fichier_epci():
     return {
         "file_dep": [EPCI_CSV],
         "targets": [FINAL_EPCI],
-        "actions": [(generer_fichier_epci, [EPCI_CSV, FINAL_EPCI]),],
+        "actions": [(generer_fichier_epci, [EPCI_CSV, FINAL_EPCI])],
     }
 
 
 def task_generer_fichier_communes():
     return {
-        "file_dep": [COMMUNES_CSV, COMMUNES_GEOMETRY],
+        "file_dep": [COMMUNES_CSV, COMMUNES_GEOMETRY, MAIRIES_TRAITEES],
         "targets": [FINAL_COMMUNES],
         "actions": [
             (
                 generer_fichier_communes,
-                [COMMUNES_CSV, COMMUNES_GEOMETRY, FINAL_COMMUNES],
+                [COMMUNES_CSV, COMMUNES_GEOMETRY, MAIRIES_TRAITEES, FINAL_COMMUNES],
             ),
         ],
     }
@@ -223,15 +227,44 @@ COMMUNES_FIELDS = [
     "commune_parent_id",
     "epci_id",
     "geometry",
+    "mairie_adresse",
+    "mairie_accessibilite",
+    "mairie_accessibilite_details",
+    "mairie_localisation",
+    "mairie_horaires",
+    "mairie_email",
+    "mairie_telephone",
+    "mairie_site",
 ]
 
 
-def generer_fichier_communes(communes, communes_geo, dest):
+def _joiner_generator(r: csv.DictReader, key):
+    current_entry = next(r)
+    current_key = key(current_entry)
+    k = yield
+
+    try:
+        while True:
+            while current_key < k:
+                current_entry = next(r)
+                current_key = key(current_entry)
+            if k == current_key:
+                k = yield current_entry
+            else:
+                k = yield {}
+    except StopIteration:
+        while True:
+            yield {}
+
+
+def generer_fichier_communes(communes, communes_geo, mairies, dest):
     csv.field_size_limit(2 * 131072)  # double default limit
 
     with open(communes, "r", newline="") as fc, open(
         communes_geo, "r", newline=""
-    ) as fg, lzma.open(dest, "wt") as fl, id_from_file(
+    ) as fg, open(mairies, "r", newline="") as fm, lzma.open(
+        dest, "wt"
+    ) as fl, id_from_file(
         "communes.csv"
     ) as commune_id, id_from_file(
         "epci.csv", True
@@ -240,24 +273,20 @@ def generer_fichier_communes(communes, communes_geo, dest):
     ) as departement_id:
         rc = csv.DictReader(fc)
         rg = csv.DictReader(fg)
+        rm = csv.DictReader(fm)
+
+        geometry_cr = _joiner_generator(rg, _key)
+        mairie_cr = _joiner_generator(rm, _key)
+        next(geometry_cr)
+        next(mairie_cr)
 
         w = csv.DictWriter(fl, fieldnames=COMMUNES_FIELDS)
         w.writeheader()
 
-        geometry = next(rg)
-
         for commune in rc:
             k = _key(commune)
-            while k > _key(geometry):
-                try:
-                    geometry = next(rg)
-                except StopIteration:
-                    geometry = {"type": None, "code": ""}
-
-            if k == _key(geometry):
-                commune["geometry"] = geometry["geometry"]
-            else:
-                commune["geometry"] = NULL
+            geometry = geometry_cr.send(k)
+            mairie = mairie_cr.send(k)
 
             w.writerow(
                 {
@@ -279,7 +308,15 @@ def generer_fichier_communes(communes, communes_geo, dest):
                     "epci_id": epci_id(code=commune["epci"])
                     if commune["epci"]
                     else NULL,
-                    "geometry": commune["geometry"],
+                    "geometry": geometry.get("geometry", NULL),
+                    "mairie_adresse": mairie.get("adresse"),
+                    "mairie_accessibilite": mairie.get("accessibilite"),
+                    "mairie_accessibilite_details": mairie.get("accessibilite_details"),
+                    "mairie_localisation": mairie.get("localisation") or NULL,
+                    "mairie_horaires": mairie.get("horaires", "[]"),
+                    "mairie_email": mairie.get("email"),
+                    "mairie_telephone": mairie.get("telephone"),
+                    "mairie_site": mairie.get("site"),
                 }
             )
 

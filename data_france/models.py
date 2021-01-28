@@ -1,6 +1,7 @@
-from django.contrib.gis.db.models import MultiPolygonField
+from django.contrib.gis.db.models import MultiPolygonField, PointField
 from django.contrib.postgres.search import SearchRank, SearchVectorField
 from django.db import models
+from django.utils.html import format_html_join
 
 from data_france.search import PrefixSearchQuery
 from data_france.type_noms import TypeNom
@@ -18,6 +19,20 @@ __all__ = [
     "EluMunicipal",
 ]
 
+JOURS_SEMAINE = [
+    "lundi",
+    "mardi",
+    "mercredi",
+    "jeudi",
+    "vendredi",
+    "samedi",
+    "dimanche",
+]
+
+
+def _horaires_sort_key(j):
+    return (JOURS_SEMAINE.index(j[0]), JOURS_SEMAINE.index(j[1]), tuple(j[2]))
+
 
 class TypeNomMixin(models.Model):
     """Mixin de modèle pour ajouter les bons articles et charnières aux noms de lieux
@@ -25,6 +40,7 @@ class TypeNomMixin(models.Model):
     Ce mixin ajoute un champ de modèle :py:attr:`type_nom` pour sauvegarder le
     type de nom selon la nomenclature de l'INSEE
     """
+
     type_nom = models.PositiveSmallIntegerField(
         "Type de nom", blank=False, editable=False, null=False, choices=TypeNom.choices,
     )
@@ -146,6 +162,32 @@ class Commune(TypeNomMixin, models.Model):
 
     geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
 
+    ACCESSIBILITE_CHOICES = (
+        ("ACC", "Accessible"),
+        ("DEM", "Sur demande préalable"),
+        ("NAC", "Non accessible"),
+    )
+
+    mairie_adresse = models.TextField("Adresse de la mairie", blank=True)
+    mairie_accessibilite = models.CharField(
+        "Accessibilité de la mairie",
+        choices=ACCESSIBILITE_CHOICES,
+        max_length=3,
+        default="NAC",
+    )
+    mairie_accessibilite_details = models.TextField(
+        "Accessibilité de la mairie (détails)", blank=True
+    )
+    mairie_localisation = PointField(
+        "Localisation de la mairie", null=True, geography=True, srid=4326
+    )
+    mairie_horaires = models.JSONField("Horaires d'ouverture", default=list)
+    mairie_email = models.EmailField("Email de la mairie", blank=True)
+    mairie_telephone = models.CharField(
+        "Numéro de téléphone de la mairie", blank=True, max_length=20
+    )
+    mairie_site = models.URLField("Site web de la mairie", blank=True)
+
     search = SearchVectorField("Champ de recherche", null=True, editable=False)
 
     @property
@@ -170,6 +212,23 @@ class Commune(TypeNomMixin, models.Model):
             "nom": self.nom_complet,
             "code_departement": self.code_departement,
         }
+
+    def mairie_horaires_display(self):
+        return format_html_join(
+            "",
+            "<div style='margin-bottom: 10px;'><strong>{}</strong>{}</div>",
+            (
+                (
+                    j[0] if j[0] == j[1] else f"Du {j[0]} au {j[1]}",
+                    format_html_join(
+                        "", "<div>{}</div>", ((f"De {h[0]} à {h[1]}",) for h in j[2])
+                    ),
+                )
+                for j in sorted(self.mairie_horaires, key=_horaires_sort_key)
+            ),
+        )
+
+    mairie_horaires_display.short_description = "Horaires d'ouverture"
 
     class Meta:
         verbose_name = "Commune"
@@ -381,7 +440,7 @@ class CollectiviteDepartementale(TypeNomMixin, models.Model):
             "code": self.code,
             "nom": self.nom_complet,
             "population": self.population,
-            "type": self.type
+            "type": self.type,
         }
 
 
@@ -417,11 +476,7 @@ class CollectiviteRegionale(TypeNomMixin, models.Model):
         return self.nom
 
     def as_dict(self):
-        return {
-            "code": self.code,
-            "nom": self.nom_complet,
-            "type": self.type
-        }
+        return {"code": self.code, "nom": self.nom_complet, "type": self.type}
 
 
 class Canton(TypeNomMixin, models.Model):

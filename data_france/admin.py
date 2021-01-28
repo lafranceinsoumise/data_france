@@ -151,6 +151,21 @@ class CommuneAdmin(ImmutableModelAdmin):
     fieldsets = (
         (None, {"fields": ("code", "nom_complet", "geometry_as_widget")}),
         (
+            "Mairie",
+            {
+                "fields": (
+                    "mairie_adresse",
+                    "mairie_localisation_as_widget",
+                    "mairie_accessibilite",
+                    "mairie_accessibilite_details",
+                    "mairie_horaires_display",
+                    "mairie_telephone",
+                    "mairie_email",
+                    "mairie_site",
+                )
+            },
+        ),
+        (
             "Relations avec d'autres entités",
             {
                 "fields": (

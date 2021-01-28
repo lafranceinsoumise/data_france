@@ -1,4 +1,6 @@
 import hashlib
+import re
+import unicodedata
 from collections import deque
 from pathlib import Path, PurePath
 from zipfile import ZipFile
@@ -101,3 +103,29 @@ def remove_last(it, n=1):
     for n in it:
         yield value[0]
         value.append(n)
+
+
+def camelcase_to_snakecase(s):
+    s = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", s)
+    s = re.sub(r"([a-z\d])([A-Z])", r"\1_\2", s)
+    return s.lower()
+
+
+LETTER_RE = re.compile("\W+")
+SPACE_RE = re.compile("\s+")
+
+
+def normaliser_nom(s):
+    return (
+        SPACE_RE.sub(
+            " ",
+            LETTER_RE.sub(
+                " ",
+                unicodedata.normalize("NFKD", s)
+                .encode("ascii", errors="ignore")
+                .decode("ascii"),
+            ),
+        )
+        .strip()
+        .lower()
+    )

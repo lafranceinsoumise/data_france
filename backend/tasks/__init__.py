@@ -12,6 +12,7 @@ from .admin_express import *
 from .cog import *
 from .elections import *
 from .final_data import *
+from .annuaire_administratif import *
 
 
 def task_telecharger():

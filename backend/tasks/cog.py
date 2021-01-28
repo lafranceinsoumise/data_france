@@ -5,6 +5,10 @@ __all__ = ["task_traiter_epci", "task_traiter_communes", "task_traiter_cantons"]
 from backend import PREPARE_DIR
 from data_france.data import VILLES_PLM
 
+
+COMMUNE_TYPE_ORDERING = ["COM", "ARM", "COMA", "COMD", "SRM", None]
+
+
 INSEE_DIR = PREPARE_DIR / "insee"
 COG_DIR = INSEE_DIR / "cog"
 
@@ -15,6 +19,7 @@ CANTONS_COG = COG_DIR / "cantons.csv"
 EPCI_CSV = INSEE_DIR / "epci.csv"
 COMMUNES_CSV = INSEE_DIR / "communes.csv"
 CANTONS_CSV = INSEE_DIR / "cantons.csv"
+CORR_SOUS_COMMUNES = INSEE_DIR / "correspondances_sous_communes.csv"
 
 
 COMMUNES_POPULATION = INSEE_DIR / "population" / "Communes.csv"
@@ -39,7 +44,7 @@ def task_traiter_communes():
             COMMUNES_POPULATION,
             COMMUNES_AD_POPULATION,
         ],
-        "targets": [COMMUNES_CSV],
+        "targets": [COMMUNES_CSV, CORR_SOUS_COMMUNES],
         "actions": [
             (
                 traiter_communes,
@@ -49,6 +54,7 @@ def task_traiter_communes():
                     COMMUNES_POPULATION,
                     COMMUNES_AD_POPULATION,
                     COMMUNES_CSV,
+                    CORR_SOUS_COMMUNES,
                 ],
             ),
         ],
@@ -81,7 +87,12 @@ def traiter_epci(epci_xls, dest):
 
 
 def traiter_communes(
-    communes_cog_path, epci_path, communes_pop_path, communes_ad_pop_path, dest
+    communes_cog_path,
+    epci_path,
+    communes_pop_path,
+    communes_ad_pop_path,
+    dest,
+    corr_sous_communes,
 ):
     correspondances_epci = (
         pd.read_excel(
@@ -135,6 +146,11 @@ def traiter_communes(
             "tncc": "type_nom",
             "comparent": "commune_parent",
         }
+    )
+
+    # table de correspondances pour les communes déléguées et associées
+    communes[communes["commune_parent"].notnull()].to_csv(
+        corr_sous_communes, index=False
     )
 
     communes["code_departement"] = (
