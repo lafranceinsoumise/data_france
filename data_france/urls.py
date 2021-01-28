@@ -23,4 +23,20 @@ urlpatterns = [
     path(
         "regions/par-code/", views.RegionParCodeView.as_view(), name="regions-par-code"
     ),
+    path(
+        "code-postal/par-code/",
+        views.CodePostalParCodeView.as_view(),
+        name="code-postal-par-code",
+    ),
+    path(
+        "collectivite-departementale/par-code/",
+        views.CollectiviteDepartementaleParCodeView.as_view(),
+        name="collectivite-departementale-par-code"
+    ),
+    path(
+        "collectivite-regionale/par-code/",
+        views.CollectiviteRegionaleParCodeView.as_view(),
+        name="collectivite-regionale-par-code"
+    ),
+
 ]

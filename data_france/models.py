@@ -6,17 +6,43 @@ from data_france.search import PrefixSearchQuery
 from data_france.type_noms import TypeNom
 
 
+__all__ = [
+    "Commune",
+    "EPCI",
+    "Canton",
+    "Departement",
+    "Region",
+    "CodePostal",
+    "CollectiviteDepartementale",
+    "CollectiviteRegionale",
+    "EluMunicipal",
+]
+
+
 class TypeNomMixin(models.Model):
+    """Mixin de modèle pour ajouter les bons articles et charnières aux noms de lieux
+
+    Ce mixin ajoute un champ de modèle :py:attr:`type_nom` pour sauvegarder le
+    type de nom selon la nomenclature de l'INSEE
+    """
     type_nom = models.PositiveSmallIntegerField(
         "Type de nom", blank=False, editable=False, null=False, choices=TypeNom.choices,
     )
 
     @property
     def nom_complet(self):
+        """Retourne le nom complet de l'entité, avec l'article éventuel.
+
+        :return: Le nom complet de l'entité, avec l'article si approprié.
+        """
         return f"{TypeNom(self.type_nom).article}{self.nom}"
 
     @property
     def nom_avec_charniere(self):
+        """Retourne le nom de l'entité précédé de la charnière (forme possessive).
+
+        :return: le nom avec la charniere (par exemple "de la Charente")
+        """
         return f"{TypeNom(self.type_nom).charniere}{self.nom}"
 
     class Meta:
@@ -24,8 +50,13 @@ class TypeNomMixin(models.Model):
 
 
 class SearchQueryset(models.QuerySet):
-    def search(self, search_terms):
-        query = PrefixSearchQuery(search_terms, config="data_france_search")
+    def search(self, termes: str):
+        """Réalise une recherche plein texte dans le queryset
+
+        :param termes: Les termes à rechercher
+        :return: le queryset filtré et ordonné selon les termes à rechercher
+        """
+        query = PrefixSearchQuery(termes, config="data_france_search")
 
         return (
             self.filter(search=query)
@@ -36,6 +67,8 @@ class SearchQueryset(models.QuerySet):
 
 class Commune(TypeNomMixin, models.Model):
     class TypeCommune(models.TextChoices):
+        """Enum des différents types d'entité référencées comme communes"""
+
         COMMUNE = "COM", "Commune"
         COMMUNE_DELEGUEE = "COMD", "Commune déléguée"
         COMMUNE_ASSOCIEE = "COMA", "Commune associée"
@@ -76,7 +109,11 @@ class Commune(TypeNomMixin, models.Model):
     )
 
     @property
-    def code_departement(self):
+    def code_departement(self) -> str:
+        """Renvoie le code du département contenant cette commune
+
+        :return: le code à 2 ou 3 caractères du département
+        """
         if self.commune_parent_id:
             return self.commune_parent.departement.code
         return self.departement.code
@@ -112,13 +149,21 @@ class Commune(TypeNomMixin, models.Model):
     search = SearchVectorField("Champ de recherche", null=True, editable=False)
 
     @property
-    def avec_conseil(self):
+    def avec_conseil(self) -> bool:
+        """Indique si cette entité de type commune a un conseil municipal.
+
+        Cela concerne les communes à proprement parler, ainsi que les secteurs
+        électoraux de Paris, Lyon et Marseille
+
+        :return: Si cette entité a un conseil municipal
+        """
         return self.type in (self.TypeCommune.COMMUNE, self.TypeCommune.SECTEUR_PLM)
 
     def __str__(self):
         return f"{self.nom_complet} ({self.code})"
 
     def as_dict(self):
+        """Sérialise l'instance (compatible JSON)"""
         return {
             "code": self.code,
             "type": self.type,
@@ -165,7 +210,7 @@ class EPCI(models.Model):
     TYPE_CU = "CU"
     TYPE_METROPOLE = "ME"
 
-    code = models.CharField("Code SIREN", max_length=10, editable=False, unique=True,)
+    code = models.CharField("Code SIREN", max_length=10, editable=False, unique=True)
 
     type = models.CharField("Type d'EPCI", max_length=2, choices=TypeEPCI.choices)
 
@@ -179,6 +224,7 @@ class EPCI(models.Model):
         return f"{self.nom} ({self.code})"
 
     def as_dict(self):
+        """Sérialise l'instance (compatible JSON)"""
         return {
             "code": self.code,
             "nom": self.nom,
@@ -255,7 +301,7 @@ class Region(TypeNomMixin, models.Model):
     def __str__(self):
         return self.nom
 
-    def get_props_from_instance(self):
+    def as_dict(self):
         return {
             "code": self.code,
             "nom": self.nom,
@@ -330,6 +376,14 @@ class CollectiviteDepartementale(TypeNomMixin, models.Model):
     def __str__(self):
         return f"{self.nom} ({self.code})"
 
+    def as_dict(self):
+        return {
+            "code": self.code,
+            "nom": self.nom_complet,
+            "population": self.population,
+            "type": self.type
+        }
+
 
 class CollectiviteRegionale(TypeNomMixin, models.Model):
     TYPE_CONSEIL_REGIONAL = "R"
@@ -361,6 +415,13 @@ class CollectiviteRegionale(TypeNomMixin, models.Model):
 
     def __str__(self):
         return self.nom
+
+    def as_dict(self):
+        return {
+            "code": self.code,
+            "nom": self.nom_complet,
+            "type": self.type
+        }
 
 
 class Canton(TypeNomMixin, models.Model):

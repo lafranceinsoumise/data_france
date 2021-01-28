@@ -9,20 +9,18 @@ from data_france.forms import (
     ParCodeParametresForm,
     CommuneParCodeParametresForm,
 )
-from data_france.models import Commune, Departement, Region, EPCI
+from data_france.models import (
+    Commune,
+    EPCI,
+    Departement,
+    Region,
+    CodePostal,
+    CollectiviteDepartementale,
+    CollectiviteRegionale,
+)
 
 
-class CommuneMixin:
-    def get_props_from_instance(self, commune):
-        return {
-            "code": commune.code,
-            "type": commune.type,
-            "nom": commune.nom_complet,
-            "code_departement": commune.code_departement,
-        }
-
-
-class RechercheCommuneView(CommuneMixin, View):
+class RechercheCommuneView(View):
     def get(self, request, *args, **kwargs):
         params = CommuneParametresForm(data=request.GET)
 
@@ -40,7 +38,7 @@ class RechercheCommuneView(CommuneMixin, View):
                 .select_related("departement", "commune_parent__departement")[:10]
             )
 
-            res = [self.get_props_from_instance(c) for c in qs]
+            res = [c.as_dict() for c in qs]
 
             if geojson:
                 features = [
@@ -53,7 +51,7 @@ class RechercheCommuneView(CommuneMixin, View):
                 ]
                 return JsonResponse({"type": "FeatureCollection", "features": features})
             else:
-                return JsonResponse({"results": res},)
+                return JsonResponse({"results": res})
 
         return JsonResponse({"errors": params.errors}, status=400)
 
@@ -94,7 +92,7 @@ class BaseParCodeView(View):
             return JsonResponse(props)
 
 
-class CommuneParCodeView(CommuneMixin, BaseParCodeView):
+class CommuneParCodeView(BaseParCodeView):
     queryset = Commune.objects.select_related(
         "departement", "commune_parent__departement"
     )
@@ -102,12 +100,24 @@ class CommuneParCodeView(CommuneMixin, BaseParCodeView):
 
 
 class EPCIParCodeView(BaseParCodeView):
-    queryset = EPCI.objects.all()
+    queryset = EPCI.objects.prefetch_related("communes")
 
 
 class DepartementParCodeView(BaseParCodeView):
-    queryset = Departement.objects.select_related("chef_lieu")
+    queryset = Departement.objects.select_related("chef_1lieu")
 
 
 class RegionParCodeView(BaseParCodeView):
     queryset = Region.objects.select_related("chef_lieu")
+
+
+class CodePostalParCodeView(BaseParCodeView):
+    queryset = CodePostal.objects.prefetch_related("communes")
+
+
+class CollectiviteDepartementaleParCodeView(BaseParCodeView):
+    queryset = CollectiviteDepartementale.objects.all()
+
+
+class CollectiviteRegionaleParCodeView(BaseParCodeView):
+    queryset = CollectiviteRegionale.objects.all()
