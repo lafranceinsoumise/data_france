@@ -1,6 +1,12 @@
 data_france
 ===========
 
+Version 0.10.8
+--------------
+
+* Ajout des informations liées aux mairies pour chaque commune
+* Correction d'un bug sur la vue `DepartementParCodeView`
+
 Version 0.10.7
 --------------
 
