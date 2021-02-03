@@ -104,7 +104,7 @@ class EPCIParCodeView(BaseParCodeView):
 
 
 class DepartementParCodeView(BaseParCodeView):
-    queryset = Departement.objects.select_related("chef_1lieu")
+    queryset = Departement.objects.select_related("chef_lieu")
 
 
 class RegionParCodeView(BaseParCodeView):
