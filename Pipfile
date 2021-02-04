@@ -19,7 +19,7 @@ dj-database-url = "*"
 shapely = "*"
 
 [packages]
-django = "==3.*"
+django = "==3.1.*"
 psycopg2 = "==2.8.*"
 
 [requires]
