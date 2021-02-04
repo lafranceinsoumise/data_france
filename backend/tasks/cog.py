@@ -12,7 +12,7 @@ COMMUNE_TYPE_ORDERING = ["COM", "ARM", "COMA", "COMD", "SRM", None]
 INSEE_DIR = PREPARE_DIR / "insee"
 COG_DIR = INSEE_DIR / "cog"
 
-EPCI_XLS = INSEE_DIR / "intercommunalite" / "epci.xls"
+EPCI_XLS = INSEE_DIR / "intercommunalite" / "epci.xlsx"
 COMMUNES_COG = COG_DIR / "communes.csv"
 CANTONS_COG = COG_DIR / "cantons.csv"
 

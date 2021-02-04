@@ -85,7 +85,7 @@ class CommuneTestCase(TestCase):
 class EPCITestCase(TestCase):
     def test_epci_correctement_importes(self):
         """Le nombre d'EPCI en base correspond à ce qui est attendu"""
-        self.assertEqual(EPCI.objects.count(), 1259)
+        self.assertEqual(EPCI.objects.count(), 1255)
 
     def test_epci_associees_correctement(self):
         """Seules quatre communes insulaires ne font pas partie d'une intercommunalité"""
@@ -93,7 +93,7 @@ class EPCITestCase(TestCase):
             Commune.objects.filter(
                 type=Commune.TypeCommune.COMMUNE, epci__isnull=True
             ).values_list("nom", flat=True),
-            ["Île-de-Bréhat", "Île-de-Sein", "Ouessant", "Île-d'Yeu", "Sannerville"],
+            ["Île-de-Bréhat", "Île-de-Sein", "Ouessant", "Île-d'Yeu"],
         )
 
     def test_seules_communes_ont_epci(self):
