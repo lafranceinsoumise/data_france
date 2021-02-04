@@ -178,36 +178,28 @@ def traiter_communes(
         .sort_values(["type", "code"])
     )
 
-    plms = communes_et_arrs.loc[
-        (communes_et_arrs.type == "COM")
-        & communes_et_arrs.code.isin([v["code"] for v in VILLES_PLM])
-    ].set_index("code")
     arms = communes_et_arrs.loc[
         (communes_et_arrs.type == "ARM")
-        & communes_et_arrs.code.str.match(
-            "|".join(v["prefixe_arm"] for v in VILLES_PLM)
-        )
+        & communes_et_arrs.code.isin([v.arrondissements for v in VILLES_PLM])
     ].set_index("code")
 
     secteurs_municipaux = pd.DataFrame(
         [
             {
-                "code": f"{ville['code']}SR{sec:02d}",
+                "code": secteur.code,
                 "type": "SRM",
-                "nom": f"{plms.loc[ville['code'], 'nom']} {sec}{'er' if sec==1 else 'e'} secteur électoral",
-                "type_nom": plms.loc[ville["code"], "type_nom"],
-                "commune_parent": ville["code"],
+                "nom": secteur.nom,
+                "type_nom": ville.type_nom,
+                "commune_parent": ville.code,
                 "population_municipale": arms.loc[
-                    arms.index.isin([f"{ville['prefixe_arm']}{arr}" for arr in arrs]),
-                    "population_municipale",
+                    arms.index.isin(secteur.arrondissements), "population_municipale",
                 ].sum(),
                 "population_cap": arms.loc[
-                    arms.index.isin([f"{ville['prefixe_arm']}{arr}" for arr in arrs]),
-                    "population_cap",
+                    arms.index.isin(secteur.arrondissements), "population_cap",
                 ].sum(),
             }
             for ville in VILLES_PLM
-            for sec, arrs in ville["secteurs"].items()
+            for secteur in ville.secteurs
         ]
     )
 
@@ -217,10 +209,10 @@ def traiter_communes(
 
     for ville in VILLES_PLM:
         res.loc[
-            res["code"] == ville["code"], ["population_municipale", "population_cap"]
+            res["code"] == ville.code, ["population_municipale", "population_cap"]
         ] = list(
             res.loc[
-                res["code"].str.startswith(ville["prefixe_arm"]),
+                res["code"].isin(ville.arrondissements),
                 ["population_municipale", "population_cap"],
             ].sum(axis=0)
         )

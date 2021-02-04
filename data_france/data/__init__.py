@@ -2,8 +2,10 @@ import contextlib
 import csv
 import lzma
 import os
+from dataclasses import dataclass
 from importlib.resources import open_binary, open_text
 from sys import stderr
+from typing import List, Tuple
 
 from django.db import transaction
 from django.db.transaction import get_connection
@@ -37,34 +39,78 @@ COPY_FROM_TEMP_TABLE = SQL(
     """
 )
 
+
+@dataclass
+class SecteurPLM:
+    code: str
+    arrondissements: Tuple[str]
+    nom: str
+
+
+@dataclass
+class VillePLM:
+    code: str
+    nom: str
+    type_nom: int
+    arrondissements: Tuple[str]
+    secteurs: Tuple[SecteurPLM]
+
+    def __init__(self, code, nom, type_nom, prefixe_arm, secteurs):
+        self.code = code
+        self.nom = nom
+        self.type_nom = type_nom
+
+        self.secteurs = tuple(
+            SecteurPLM(
+                f"{code}SR{num:02d}",
+                tuple(f"{prefixe_arm}{arr}" for arr in arrs),
+                f"{self.nom} — {nom}",
+            )
+            for num, arrs, nom in secteurs
+        )
+
+        self.arrondissements = tuple(
+            sorted(arr for s in self.secteurs for arr in s.arrondissements)
+        )
+
+
 VILLES_PLM = [
-    {
-        "code": "13055",
-        "prefixe_arm": "132",
-        "secteurs": {
-            1: ["01", "07"],
-            2: ["02", "03"],
-            3: ["04", "05"],
-            4: ["06", "08"],
-            5: ["09", "10"],
-            6: ["11", "12"],
-            7: ["13", "14"],
-            8: ["15", "16"],
-        },
-    },
-    {
-        "code": "69123",
-        "prefixe_arm": "6938",
-        "secteurs": {i: [str(i)] for i in range(1, 10)},
-    },
-    {
-        "code": "75056",
-        "prefixe_arm": "751",
-        "secteurs": {
-            1: ["01", "02", "03", "04"],
-            **{i: [f"{i:02d}"] for i in range(5, 21)},
-        },
-    },
+    VillePLM(
+        "13055",
+        "Marseille",
+        TypeNom.CONSONNE,
+        "132",
+        [
+            (1, ["01", "07"], "1er secteur"),
+            (2, ["02", "03"], "2e secteur"),
+            (3, ["04", "05"], "3e secteur"),
+            (4, ["06", "08"], "4e secteur"),
+            (5, ["09", "10"], "5e secteur"),
+            (6, ["11", "12"], "6e secteur"),
+            (7, ["13", "14"], "7e secteur"),
+            (8, ["15", "16"], "8e secteur"),
+        ],
+    ),
+    VillePLM(
+        "69123",
+        "Lyon",
+        TypeNom.CONSONNE,
+        "6938",
+        [
+            (1, ["1"], "1er arrondissement"),
+            *((i, [str(i)], f"{i}e arrondissement") for i in range(2, 10)),
+        ],
+    ),
+    VillePLM(
+        "75056",
+        "Paris",
+        TypeNom.CONSONNE,
+        "751",
+        [
+            (1, ["01", "02", "03", "04"], "centre"),
+            *((i, [f"{i:02d}"], f"{i}e arrondissement") for i in range(5, 21)),
+        ],
+    ),
 ]
 
 
@@ -177,14 +223,9 @@ def agreger_geometries_et_populations(using):
     with get_connection(using).cursor() as cursor:
 
         param_list = [
-            {
-                "arrondissements": tuple(
-                    f"{ville['prefixe_arm']}{arr}" for arr in arrondissements
-                ),
-                "secteur": f"{ville['code']}SR{secteur:02d}",
-            }
+            {"arrondissements": secteur.arrondissements, "secteur": secteur.code,}
             for ville in VILLES_PLM
-            for secteur, arrondissements in ville["secteurs"].items()
+            for secteur in ville.secteurs
         ]
 
         with console_message("Calcul des géométries des secteurs électoraux"):

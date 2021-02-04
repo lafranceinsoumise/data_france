@@ -242,13 +242,10 @@ def obtenir_commune_matcher(corr_sous_communes):
     }
 
     corr_plm = {
-        f'{ville["prefixe_arm"]}{arr}': [
-            ("ARM", f'{ville["prefixe_arm"]}{arr}'),
-            ("SRM", f'{ville["code"]}SR{num_sec:02d}'),
-        ]
+        f"{code_arr}": [("ARM", code_arr), ("SRM", secteur.code),]
         for ville in VILLES_PLM
-        for num_sec, arrs in ville["secteurs"].items()
-        for arr in arrs
+        for secteur in ville.secteurs
+        for code_arr in secteur.arrondissements
     }
 
     # À Paris, c'est l'ancienne mairie du 3ème qui est maintenant mairie du 1er secteur
