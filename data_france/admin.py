@@ -324,6 +324,17 @@ class EluMunicipalAdmin(ImmutableModelAdmin):
                 ]
             },
         ),
+        (
+            "Mandat intercommunal",
+            {
+                "fields": [
+                    "epci_link",
+                    "date_debut_mandat_epci",
+                    "fonction_epci",
+                    "date_debut_fonction_epci",
+                ]
+            },
+        ),
     )
 
     def nom_complet(self, obj):
@@ -331,6 +342,14 @@ class EluMunicipalAdmin(ImmutableModelAdmin):
 
     nom_complet.short_description = "Nom complet"
     nom_complet.admin_order_field = "nom"
+
+    def epci_link(self, obj):
+        if obj.elu_epci and obj.commune.epci:
+            return format_html(
+                '<a href="{}">{}</a>',
+                reverse("admin:data_france_epci_change", args=(obj.commune.epci.id,)),
+                obj.commune.epci.nom,
+            )
 
     def get_queryset(self, request):
         qs = super(EluMunicipalAdmin, self).get_queryset(request)

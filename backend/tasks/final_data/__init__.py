@@ -6,7 +6,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from backend import BASE_DIR, SOURCE_DIR
+from backend import BASE_DIR, SOURCE_DIR, PREPARE_DIR
+from sources import SOURCES
 from tasks.admin_express import COMMUNES_GEOMETRY
 from tasks.annuaire_administratif import MAIRIES_TRAITEES
 from tasks.cog import (
@@ -16,7 +17,6 @@ from tasks.cog import (
     CANTONS_CSV,
     COMMUNE_TYPE_ORDERING,
 )
-from utils import remove_last
 
 CODES_POSTAUX = SOURCE_DIR / "laposte" / "codes_postaux.csv"
 
@@ -149,7 +149,7 @@ def task_generer_fichier_cantons():
 
 
 def task_generer_fichier_elus_municipaux():
-    source_file = SOURCE_DIR / "interieur" / "rne" / "municipaux.txt"
+    source_file = PREPARE_DIR / SOURCES.interieur.rne.municipaux.filename
     return {
         "file_dep": [source_file, REFERENCES_DIR / "communes.csv"],
         "targets": [FINAL_ELUS_MUNICIPAUX],
@@ -415,40 +415,13 @@ def normaliser_date(d):
     return d.strftime("%Y-%m-%d")
 
 
-def generer_fichier_elus_municipaux(brut_elus, final_elus):
+def generer_fichier_elus_municipaux(elus_municipaux, final_elus):
     with id_from_file("communes.csv") as id_commune, id_from_file(
         "elus_municipaux.csv"
-    ) as id_elu, open(brut_elus, newline="", encoding="latin1") as f, lzma.open(
+    ) as id_elu, open(elus_municipaux, newline="") as f, lzma.open(
         final_elus, "wt", newline=""
     ) as fl:
-        # la première ligne ne correspond pas à des données tabulaires
-        # la deuxième comprend des libellés qu'on souhaite ignorer
-        f.readline()
-        f.readline()
-
-        # La dernière ligne indique juste le nombre total de lignes
-        r = remove_last(
-            csv.DictReader(
-                f,
-                delimiter="\t",
-                fieldnames=[
-                    "code_dep",
-                    "_lib_dep",
-                    "code_commune",
-                    "_lib_commune",
-                    "nom",
-                    "prenom",
-                    "sexe",
-                    "date_naissance",
-                    "profession",
-                    "_lib_profession",
-                    "date_debut_mandat",
-                    "fonction",
-                    "date_debut_fonction",
-                    "nationalite",
-                ],
-            )
-        )
+        r = csv.DictReader(f)
 
         w = csv.DictWriter(
             fl,
@@ -463,47 +436,24 @@ def generer_fichier_elus_municipaux(brut_elus, final_elus):
                 "date_debut_mandat",
                 "fonction",
                 "date_debut_fonction",
+                "date_debut_mandat_epci",
+                "fonction_epci",
+                "date_debut_fonction_epci",
                 "nationalite",
             ],
         )
         w.writeheader()
 
-        corr_outremer = {
-            "ZA": "97",
-            "ZB": "97",
-            "ZC": "97",
-            "ZD": "97",
-            "ZM": "97",
-            "ZN": None,
-            "ZP": None,
-            "ZS": None,
-            "ZW": None,
-            "ZX": None,
-        }
-
-        # pour repérer les doublons éventuels (il y en a quelques uns)
-        # Il s'agit soit de double poste (adjoint + maire délégué par exemple) soit
-        # de cas spécifiques que je ne comprends pas
-        seen = set()
-
         for l in r:
-            code_dep = corr_outremer.get(l["code_dep"], l.pop("code_dep"))
-            if code_dep is None:
-                # on ne gère malheureusement pas encore les collectivités d'outremer
-                continue
+            l["commune_id"] = id_commune(code=l.pop("code"), type="COM")
 
-            # Il y a une demie douzaine d'élus recensés avec des suffixes au code commune
-            # (CD01 ou SN01), je n'ai pas compris à quoi cela faisait référence.
-            code_commune = f'{code_dep}{l.pop("code_commune")[:3]}'
-            l["commune_id"] = id_commune(code=code_commune, type="COM")
-
-            # normaliser les dates
-            l["date_naissance"] = normaliser_date(l["date_naissance"])
-            l["date_debut_mandat"] = normaliser_date(l["date_debut_mandat"])
-            if l["date_debut_fonction"]:
-                l["date_debut_fonction"] = normaliser_date(l["date_debut_fonction"])
-            else:
-                l["date_debut_fonction"] = "\\N"
+            for f in [
+                "date_debut_fonction",
+                "date_debut_mandat_epci",
+                "date_debut_fonction_epci",
+            ]:
+                if not l[f]:
+                    l[f] = "\\N"
 
             # attention: utiliser la date de naissance normalisée et l'id commune
             l["id"] = id_elu(
@@ -515,10 +465,6 @@ def generer_fichier_elus_municipaux(brut_elus, final_elus):
                 sexe=l["sexe"],
                 date_naissance=l["date_naissance"],
             )
-
-            if l["id"] in seen:
-                continue
-            seen.add(l["id"])
 
             if not l["profession"]:
                 l["profession"] = "\\N"

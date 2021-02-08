@@ -5,7 +5,7 @@ import os
 from dataclasses import dataclass
 from importlib.resources import open_binary, open_text
 from sys import stderr
-from typing import List, Tuple
+from typing import Tuple
 
 from django.db import transaction
 from django.db.transaction import get_connection

@@ -585,11 +585,34 @@ class EluMunicipal(models.Model):
         verbose_name="Date de début de la fonction", editable=True, null=True
     )
 
+    date_debut_mandat_epci = models.DateField(
+        verbose_name="Date de début du mandat auprès de l'EPCI",
+        editable=False,
+        null=True,
+    )
+
+    fonction_epci = models.CharField(
+        verbose_name="Fonction auprès de l'EPCI",
+        editable=False,
+        blank=True,
+        max_length=60,
+    )
+
+    date_debut_fonction_epci = models.DateField(
+        verbose_name="Date de début de la fonction auprès de l'EPCI",
+        editable=False,
+        null=True,
+    )
+
     nationalite = models.CharField(
         verbose_name="Nationalité", editable=False, max_length=30
     )
 
     search = SearchVectorField(verbose_name="Champ de recherche", null=True)
+
+    @property
+    def elu_epci(self):
+        return self.date_debut_mandat_epci is not None
 
     def __str__(self):
         return f"{self.nom}, {self.prenom} ({self.commune.nom_complet})"
