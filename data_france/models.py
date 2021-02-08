@@ -4,8 +4,7 @@ from django.db import models
 from django.utils.html import format_html_join
 
 from data_france.search import PrefixSearchQuery
-from data_france.type_noms import TypeNom
-
+from data_france.typologies import TypeNom
 
 __all__ = [
     "Commune",

@@ -11,7 +11,7 @@ from django.db import transaction
 from django.db.transaction import get_connection
 from psycopg2.sql import SQL, Identifier
 
-from data_france.type_noms import TypeNom
+from data_france.typologies import TypeNom
 
 COPY_SQL = SQL(
     """COPY {table} ({columns}) FROM STDIN WITH NULL AS '\\N' CSV QUOTE AS '"';"""

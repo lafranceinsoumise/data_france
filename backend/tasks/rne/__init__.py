@@ -3,9 +3,19 @@ from doit.tools import create_folder
 from pandas._libs.tslibs.np_datetime import OutOfBoundsDatetime
 
 from backend import SOURCE_DIR, PREPARE_DIR
+from data_france.typologies import Fonction
 from sources import SOURCES
 
 __all__ = ["task_joindre_elus_municipaux_epci"]
+
+ORDINAUX = {label.split()[0]: value for value, label in Fonction.choices}
+
+CODES_FONCTION = {
+    "Maire": Fonction.MAIRE,
+    "Maire délégué": Fonction.MAIRE_DELEGUE,
+    "Vice-président d'EPCI": Fonction.VICE_PRESIDENT,
+    "Président": Fonction.PRESIDENT,
+}
 
 MUN_FIELDS = [
     "code_dep",
@@ -73,6 +83,16 @@ def task_joindre_elus_municipaux_epci():
     }
 
 
+def normaliser_fonction(s):
+    if pd.isna(s):
+        return s
+
+    if s in CODES_FONCTION:
+        return CODES_FONCTION[s]
+
+    return ORDINAUX[s.split()[0]]
+
+
 def parser_dates(df):
     for c in df.columns:
         if c.startswith("date_"):
@@ -105,6 +125,7 @@ def joindre_elus_municipaux_epci(municipaux_path, epci_path, dest):
     del mun["code_dep"]
     del mun["code_commune"]
     parser_dates(mun)
+    mun["fonction"] = mun["fonction"].map(normaliser_fonction)
 
     ep = pd.read_csv(
         epci_path,
@@ -125,6 +146,7 @@ def joindre_elus_municipaux_epci(municipaux_path, epci_path, dest):
     del ep["code_dep"]
     del ep["code_commune"]
     parser_dates(ep)
+    ep["fonction"] = ep["fonction"].map(normaliser_fonction)
 
     res = pd.merge(
         mun,
