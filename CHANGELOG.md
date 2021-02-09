@@ -1,12 +1,18 @@
 data_france
 ===========
 
-Version 0.10.9
---------------
+Version 0.10.10
+---------------
 
 * Mise à jour des EPCI pour la liste 2020
 * Ajout des mandats EPCI aux élus municipaux
 * Conseils municipaux et d'EPCI affichés sur les pages respectives
+
+
+Version 0.10.9
+--------------
+
+__ATTENTION : version incorrectement packagée, ne pas utiliser__
 
 Version 0.10.8
 --------------
