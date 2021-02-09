@@ -435,6 +435,7 @@ def generer_fichier_elus_municipaux(elus_municipaux, final_elus):
                 "profession",
                 "date_debut_mandat",
                 "fonction",
+                "ordre_fonction",
                 "date_debut_fonction",
                 "date_debut_mandat_epci",
                 "fonction_epci",
@@ -451,6 +452,8 @@ def generer_fichier_elus_municipaux(elus_municipaux, final_elus):
                 "date_debut_fonction",
                 "date_debut_mandat_epci",
                 "date_debut_fonction_epci",
+                "ordre_fonction",
+                "profession",
             ]:
                 if not l[f]:
                     l[f] = "\\N"
@@ -465,8 +468,5 @@ def generer_fichier_elus_municipaux(elus_municipaux, final_elus):
                 sexe=l["sexe"],
                 date_naissance=l["date_naissance"],
             )
-
-            if not l["profession"]:
-                l["profession"] = "\\N"
 
             w.writerow({k: v for k, v in l.items() if not k[0] == "_"})

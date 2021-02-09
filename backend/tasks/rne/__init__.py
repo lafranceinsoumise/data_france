@@ -3,18 +3,18 @@ from doit.tools import create_folder
 from pandas._libs.tslibs.np_datetime import OutOfBoundsDatetime
 
 from backend import SOURCE_DIR, PREPARE_DIR
-from data_france.typologies import Fonction
+from data_france.typologies import Fonction, ORDINAUX
 from sources import SOURCES
 
-__all__ = ["task_joindre_elus_municipaux_epci"]
-
-ORDINAUX = {label.split()[0]: value for value, label in Fonction.choices}
+__all__ = ["task_traiter_elus_municipaux_epci"]
 
 CODES_FONCTION = {
-    "Maire": Fonction.MAIRE,
-    "Maire délégué": Fonction.MAIRE_DELEGUE,
-    "Vice-président d'EPCI": Fonction.VICE_PRESIDENT,
-    "Président": Fonction.PRESIDENT,
+    "maire délégué": Fonction.MAIRE_DELEGUE,
+    "maire": Fonction.MAIRE,
+    "vice-président": Fonction.VICE_PRESIDENT,
+    "président": Fonction.PRESIDENT,
+    "autre membre": Fonction.AUTRE_MEMBRE_COM,
+    "adjoint au maire": Fonction.MAIRE_ADJOINT,
 }
 
 MUN_FIELDS = [
@@ -67,7 +67,7 @@ corr_outremer = {
 }
 
 
-def task_joindre_elus_municipaux_epci():
+def task_traiter_elus_municipaux_epci():
     RNE = SOURCES.interieur.rne
     rne_municipaux = SOURCE_DIR / RNE.municipaux.filename
     rne_epci = SOURCE_DIR / RNE.epci.filename
@@ -78,7 +78,7 @@ def task_joindre_elus_municipaux_epci():
         "targets": [dest],
         "actions": [
             (create_folder, [dest.parent]),
-            (joindre_elus_municipaux_epci, [rne_municipaux, rne_epci, dest],),
+            (traiter_elus_municipaux_ecpi, [rne_municipaux, rne_epci, dest],),
         ],
     }
 
@@ -87,10 +87,18 @@ def normaliser_fonction(s):
     if pd.isna(s):
         return s
 
-    if s in CODES_FONCTION:
-        return CODES_FONCTION[s]
+    potential_ordinal = s.split(maxsplit=1)[0]
+    if potential_ordinal in ORDINAUX:
+        ordre = ORDINAUX.index(potential_ordinal) + 1
+        s = s.split(maxsplit=1)[1]
+    else:
+        ordre = pd.NA
 
-    return ORDINAUX[s.split()[0]]
+    words = s.lower().split()
+    while words and " ".join(words) not in CODES_FONCTION:
+        words.pop()
+
+    return CODES_FONCTION[" ".join(words)] if words else pd.NA, ordre
 
 
 def parser_dates(df):
@@ -103,7 +111,7 @@ def parser_dates(df):
                 raise ValueError(f"Colonne {c}")
 
 
-def joindre_elus_municipaux_epci(municipaux_path, epci_path, dest):
+def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, dest):
     mun = pd.read_csv(
         municipaux_path,
         sep="\t",
@@ -125,7 +133,9 @@ def joindre_elus_municipaux_epci(municipaux_path, epci_path, dest):
     del mun["code_dep"]
     del mun["code_commune"]
     parser_dates(mun)
-    mun["fonction"] = mun["fonction"].map(normaliser_fonction)
+    fonctions = mun["fonction"].map(normaliser_fonction)
+    mun["fonction"] = fonctions.str.get(0)
+    mun["ordre_fonction"] = fonctions.str.get(1)
 
     ep = pd.read_csv(
         epci_path,
@@ -146,7 +156,8 @@ def joindre_elus_municipaux_epci(municipaux_path, epci_path, dest):
     del ep["code_dep"]
     del ep["code_commune"]
     parser_dates(ep)
-    ep["fonction"] = ep["fonction"].map(normaliser_fonction)
+    fonctions = ep["fonction"].map(normaliser_fonction)
+    ep["fonction"] = fonctions.str.get(0)
 
     res = pd.merge(
         mun,

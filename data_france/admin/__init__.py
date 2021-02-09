@@ -87,7 +87,9 @@ class CommuneAdmin(ImmutableModelAdmin):
     def adjoints(self, obj):
         if obj.id:
             return list_of_links(
-                obj.elus.filter(fonction__in=Fonction.ADJOINTS).order_by("fonction"),
+                obj.elus.filter(fonction=Fonction.MAIRE_ADJOINT).order_by(
+                    "ordre_fonction"
+                ),
                 "admin:data_france_elumunicipal_change",
             )
         return "-"
@@ -224,7 +226,7 @@ class CodePostalAdmin(ImmutableModelAdmin):
 class EluMunicipalAdmin(ImmutableModelAdmin):
     search_fields = ("nom", "prenom")
 
-    list_display = ("nom_complet", "commune", "sexe", "fonction")
+    list_display = ("nom_complet", "commune", "sexe", "libelle_fonction")
     fieldsets = (
         (
             "Identité",
@@ -245,7 +247,7 @@ class EluMunicipalAdmin(ImmutableModelAdmin):
                 "fields": [
                     "commune_link",
                     "date_debut_mandat",
-                    "fonction",
+                    "libelle_fonction",
                     "date_debut_fonction",
                 ]
             },

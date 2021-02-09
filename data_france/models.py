@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.html import format_html_join
 
 from data_france.search import PrefixSearchQuery
-from data_france.typologies import TypeNom
+from data_france.typologies import TypeNom, CodeSexe, ORDINAUX, Fonction
 
 __all__ = [
     "Commune",
@@ -544,10 +544,6 @@ class Canton(TypeNomMixin, models.Model):
 class EluMunicipal(models.Model):
     objects = SearchQueryset.as_manager()
 
-    class CodeSexe(models.TextChoices):
-        MASCULIN = "M"
-        FEMININ = "F"
-
     commune = models.ForeignKey(
         to="Commune",
         on_delete=models.PROTECT,
@@ -578,8 +574,16 @@ class EluMunicipal(models.Model):
     )
 
     fonction = models.CharField(
-        verbose_name="Fonction", editable=False, blank=True, max_length=50
+        verbose_name="Fonction",
+        editable=False,
+        blank=True,
+        max_length=50,
+        choices=Fonction.choices,
     )
+    ordre_fonction = models.PositiveSmallIntegerField(
+        verbose_name="Ordre de la fonction", editable=False, null=True
+    )
+
     date_debut_fonction = models.DateField(
         verbose_name="Date de début de la fonction", editable=True, null=True
     )
@@ -608,6 +612,13 @@ class EluMunicipal(models.Model):
     )
 
     search = SearchVectorField(verbose_name="Champ de recherche", null=True)
+
+    @property
+    def libelle_fonction(self):
+        display = self.get_fonction_display()
+        if self.ordre_fonction:
+            return f"{ORDINAUX[self.ordre_fonction-1]} {display.lower()}"
+        return display
 
     @property
     def elu_epci(self):
