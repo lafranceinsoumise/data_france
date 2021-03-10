@@ -1,10 +1,14 @@
 import datetime
 from dataclasses import dataclass
-from pathlib import PurePath
+from pathlib import Path, PurePath
 
 import yaml
 
-from backend import BASE_DIR
+
+BASE_DIR = Path(__file__).parent.parent
+SOURCE_DIR = BASE_DIR / "sources"
+PREPARE_DIR = BASE_DIR / "build"
+
 
 with open(BASE_DIR / "sources.yml") as f:
     _sources = yaml.load(f, yaml.BaseLoader)

@@ -2,7 +2,7 @@ import pandas as pd
 
 __all__ = ["task_traiter_epci", "task_traiter_communes", "task_traiter_cantons"]
 
-from backend import PREPARE_DIR
+from sources import PREPARE_DIR
 from data_france.data import VILLES_PLM
 
 
@@ -32,7 +32,9 @@ def task_traiter_epci():
     return {
         "file_dep": [EPCI_XLS],
         "targets": [EPCI_CSV],
-        "actions": [(traiter_epci, [EPCI_XLS, EPCI_CSV]),],
+        "actions": [
+            (traiter_epci, [EPCI_XLS, EPCI_CSV]),
+        ],
     }
 
 
@@ -192,10 +194,12 @@ def traiter_communes(
                 "type_nom": ville.type_nom,
                 "commune_parent": ville.code,
                 "population_municipale": arms.loc[
-                    arms.index.isin(secteur.arrondissements), "population_municipale",
+                    arms.index.isin(secteur.arrondissements),
+                    "population_municipale",
                 ].sum(),
                 "population_cap": arms.loc[
-                    arms.index.isin(secteur.arrondissements), "population_cap",
+                    arms.index.isin(secteur.arrondissements),
+                    "population_cap",
                 ].sum(),
             }
             for ville in VILLES_PLM
@@ -204,7 +208,8 @@ def traiter_communes(
     )
 
     res = pd.concat(
-        [communes_et_arrs, anciennes_communes, secteurs_municipaux], ignore_index=True,
+        [communes_et_arrs, anciennes_communes, secteurs_municipaux],
+        ignore_index=True,
     ).convert_dtypes()
 
     for ville in VILLES_PLM:
@@ -224,7 +229,15 @@ def traiter_cantons(cantons_cog_path, dest):
     cantons = pd.read_csv(
         cantons_cog_path,
         dtype={"can": str, "dep": str, "burcentral": str, "compct": pd.UInt32Dtype()},
-        usecols=["can", "typect", "compct", "nccenr", "tncc", "dep", "burcentral",],
+        usecols=[
+            "can",
+            "typect",
+            "compct",
+            "nccenr",
+            "tncc",
+            "dep",
+            "burcentral",
+        ],
     )
 
     # La commune d'Azé (53014) est maintenant une commune déléguée de Château-Gontier-sur-Mayenne

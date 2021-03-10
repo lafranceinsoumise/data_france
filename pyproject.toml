@@ -1,16 +1,24 @@
-[build-system]
-requires = ["flit_core >=2,<4"]
-backend-path = ["backend"]
-build-backend = "backend"
-
-
-[tool.flit.metadata]
-module = "data_france"
-author = "Arthur Cheysson"
-author-email = "arthur@cheysson.fr"
-description-file = "README.rst"
-home-page = "https://github.com/aktiur/data-france"
+[tool.poetry]
+name = "data-france"
+version = "0.11.0"
+description = "Paquet agrégeant des données administratives publiques pour en rendre l'utilisation facile."
+authors = [
+  "Arthur Cheysson <arthur@cheysson.fr>",
+  "Jill Royer <perso@jillroyer.me>"
+]
 license = "GNU-GPL 3.0"
+
+packages = [
+  { include = "data_france" },
+  { include = "sources.py", from="backend", format="sdist" },
+  { include = "tasks", from="backend", format="sdist" },
+  { include = "utils.py", from="backend", format="sdist" },
+]
+include = ["data_france/data/*.csv.lzma"]
+
+readme = "README.rst"
+homepage = "https://github.com/aktiur/data-france"
+
 classifiers = [
     "Environment :: Web Environment",
     "Framework :: Django",
@@ -27,17 +35,30 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
 ]
-requires = ["django >= 2.0"]
-requires-python = ">=3.6"
 
+[tool.poetry.dependencies]
+python = ">=3.7"
+django = "==3.1.*"
+psycopg2 = "==2.8.*"
 
-[tool.flit.sdist]
-include = [
-    "*.py",
-    "sources.yml",
-    "backend/*.py",
-    "backend/tasks",
-    "LICENSE",
-    "Pipfile",
-]
-exclude = ["data_france/data/"]
+[tool.poetry.dev-dependencies]
+black = "==19.10b0"
+doit = "==0.33.*"
+PyYAML = "==5.*"
+pandas = "==1.*"
+pyarrow = "==3.*"
+xlrd = "==2.*"
+openpyxl = "==3.*"
+libarchive = "*"
+fiona = "*"
+ipython = "*"
+flit = "*"
+pep517 = "*"
+dj-database-url = "*"
+shapely = "*"
+python-dotenv = "^0.15.0"
+
+[build-system]
+requires = ["flit_core >=2,<4"]
+backend-path = ["backend"]
+build-backend = "backend"

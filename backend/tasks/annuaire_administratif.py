@@ -11,8 +11,7 @@ from shapely.geometry import Point
 
 from data_france.data import VILLES_PLM
 from data_france.typologies import TypeNom
-from sources import SOURCES
-from backend import PREPARE_DIR, SOURCE_DIR
+from sources import SOURCES, PREPARE_DIR, SOURCE_DIR
 from tasks.cog import CORR_SOUS_COMMUNES, COMMUNE_TYPE_ORDERING
 from utils import normaliser_nom
 
@@ -242,7 +241,10 @@ def obtenir_commune_matcher(corr_sous_communes):
     }
 
     corr_plm = {
-        f"{code_arr}": [("ARM", code_arr), ("SRM", secteur.code),]
+        f"{code_arr}": [
+            ("ARM", code_arr),
+            ("SRM", secteur.code),
+        ]
         for ville in VILLES_PLM
         for secteur in ville.secteurs
         for code_arr in secteur.arrondissements

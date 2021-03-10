@@ -6,8 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from backend import BASE_DIR, SOURCE_DIR, PREPARE_DIR
-from sources import SOURCES
+from sources import BASE_DIR, SOURCE_DIR, PREPARE_DIR, SOURCES
 from tasks.admin_express import COMMUNES_GEOMETRY
 from tasks.annuaire_administratif import MAIRIES_TRAITEES
 from tasks.cog import (
@@ -144,7 +143,12 @@ def task_generer_fichier_cantons():
     return {
         "file_dep": [CANTONS_CSV, REFERENCES_DIR / "communes.csv"],
         "targets": [FINAL_CANTONS],
-        "actions": [(generer_fichier_cantons, [CANTONS_CSV, FINAL_CANTONS],)],
+        "actions": [
+            (
+                generer_fichier_cantons,
+                [CANTONS_CSV, FINAL_CANTONS],
+            )
+        ],
     }
 
 
@@ -154,7 +158,10 @@ def task_generer_fichier_elus_municipaux():
         "file_dep": [source_file, REFERENCES_DIR / "communes.csv"],
         "targets": [FINAL_ELUS_MUNICIPAUX],
         "actions": [
-            (generer_fichier_elus_municipaux, [source_file, FINAL_ELUS_MUNICIPAUX],)
+            (
+                generer_fichier_elus_municipaux,
+                [source_file, FINAL_ELUS_MUNICIPAUX],
+            )
         ],
     }
 
@@ -365,7 +372,8 @@ def generer_fichiers_codes_postaux(
 
 
 def generer_fichier_cantons(
-    cantons, final_cantons,
+    cantons,
+    final_cantons,
 ):
     with id_from_file("cantons.csv") as canton_id, id_from_file(
         "communes.csv"

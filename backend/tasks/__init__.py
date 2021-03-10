@@ -1,8 +1,7 @@
 from doit import create_after
 from doit.tools import create_folder
 
-from backend import SOURCE_DIR, PREPARE_DIR
-from sources import SOURCES
+from sources import SOURCES, SOURCE_DIR, PREPARE_DIR
 from utils import (
     check_hash,
     get_archive_targets,

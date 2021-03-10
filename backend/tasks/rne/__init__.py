@@ -2,9 +2,8 @@ import pandas as pd
 from doit.tools import create_folder
 from pandas._libs.tslibs.np_datetime import OutOfBoundsDatetime
 
-from backend import SOURCE_DIR, PREPARE_DIR
+from sources import SOURCES, SOURCE_DIR, PREPARE_DIR
 from data_france.typologies import Fonction, ORDINAUX
-from sources import SOURCES
 
 __all__ = ["task_traiter_elus_municipaux_epci"]
 

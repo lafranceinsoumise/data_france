@@ -2,8 +2,7 @@ from pathlib import Path
 
 from doit.tools import create_folder
 
-from backend import SOURCE_DIR, PREPARE_DIR
-from sources import SOURCES
+from sources import SOURCE_DIR, PREPARE_DIR, SOURCES
 from .scrutins_2014 import clean_results as clean_results_2014
 from .scrutins_2017_2020 import clean_results as clean_results_post_2017
 
