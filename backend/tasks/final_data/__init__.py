@@ -449,6 +449,7 @@ def generer_fichier_elus_municipaux(elus_municipaux, final_elus):
                 "fonction_epci",
                 "date_debut_fonction_epci",
                 "nationalite",
+                "parrainage2017",
             ],
         )
         w.writeheader()

@@ -6,6 +6,8 @@ from pathlib import Path, PurePath
 from zipfile import ZipFile
 from libarchive.public import file_reader as archive_reader
 
+import pandas as pd
+
 BLOCKSIZE = 65536
 
 
@@ -128,4 +130,15 @@ def normaliser_nom(s):
         )
         .strip()
         .lower()
+    )
+
+
+def normaliser_colonne(s: pd.Series):
+    return (
+        s.str.normalize("NFKD")
+        .str.encode("ascii", errors="ignore")
+        .str.decode("ascii")
+        .str.lower()
+        .str.strip()
+        .str.replace("\s*-\s*", " ", regex=True)
     )

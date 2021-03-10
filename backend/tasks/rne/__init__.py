@@ -3,7 +3,9 @@ from doit.tools import create_folder
 from pandas._libs.tslibs.np_datetime import OutOfBoundsDatetime
 
 from sources import SOURCES, SOURCE_DIR, PREPARE_DIR
+from utils import normaliser_colonne
 from data_france.typologies import Fonction, ORDINAUX
+from tasks.parrainages import PARRAINAGES_MUNICIPAUX
 
 __all__ = ["task_traiter_elus_municipaux_epci"]
 
@@ -73,11 +75,14 @@ def task_traiter_elus_municipaux_epci():
     dest = PREPARE_DIR / RNE.municipaux.filename
 
     return {
-        "file_dep": [rne_municipaux, rne_epci],
+        "file_dep": [rne_municipaux, rne_epci, PARRAINAGES_MUNICIPAUX],
         "targets": [dest],
         "actions": [
             (create_folder, [dest.parent]),
-            (traiter_elus_municipaux_ecpi, [rne_municipaux, rne_epci, dest],),
+            (
+                traiter_elus_municipaux_ecpi,
+                [rne_municipaux, rne_epci, PARRAINAGES_MUNICIPAUX, dest],
+            ),
         ],
     }
 
@@ -110,7 +115,7 @@ def parser_dates(df):
                 raise ValueError(f"Colonne {c}")
 
 
-def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, dest):
+def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, dest):
     mun = pd.read_csv(
         municipaux_path,
         sep="\t",
@@ -165,5 +170,20 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, dest):
         on=["code", "nom", "prenom", "sexe", "date_naissance"],
         suffixes=["", "_epci"],
     )
+
+    parrainages = pd.read_csv(parrainages_path, dtype={"com": str})
+
+    for df in (res, parrainages):
+        df["cle_nom"] = normaliser_colonne(df["nom"])
+        df["cle_prenom"] = normaliser_colonne(df["prenom"])
+
+    parrainages = parrainages.rename(columns={"candidat": "parrainage2017"})
+
+    res = res.join(
+        parrainages.set_index(["com", "cle_nom", "cle_prenom"])["parrainage2017"],
+        on=["code", "cle_nom", "cle_prenom"],
+    )
+    del res["cle_nom"]
+    del res["cle_prenom"]
 
     res.to_csv(dest, index=False)

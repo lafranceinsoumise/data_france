@@ -41,7 +41,11 @@ class TypeNomMixin(models.Model):
     """
 
     type_nom = models.PositiveSmallIntegerField(
-        "Type de nom", blank=False, editable=False, null=False, choices=TypeNom.choices,
+        "Type de nom",
+        blank=False,
+        editable=False,
+        null=False,
+        choices=TypeNom.choices,
     )
 
     @property
@@ -110,7 +114,11 @@ class Commune(TypeNomMixin, models.Model):
     )
 
     nom = models.CharField(
-        "Nom de la commune", max_length=200, blank=False, editable=False, null=False,
+        "Nom de la commune",
+        max_length=200,
+        blank=False,
+        editable=False,
+        null=False,
     )
 
     departement = models.ForeignKey(
@@ -251,7 +259,8 @@ class Commune(TypeNomMixin, models.Model):
                 name="commune_departement_constraint",
             ),
             models.UniqueConstraint(
-                fields=["type", "code"], name="commune_unique_code",
+                fields=["type", "code"],
+                name="commune_unique_code",
             ),
         )
 
@@ -520,7 +529,11 @@ class Canton(TypeNomMixin, models.Model):
     )
 
     nom = models.CharField(
-        "Nom du canton", max_length=200, blank=False, editable=False, null=False,
+        "Nom du canton",
+        max_length=200,
+        blank=False,
+        editable=False,
+        null=False,
     )
 
     departement = models.ForeignKey(
@@ -609,6 +622,13 @@ class EluMunicipal(models.Model):
 
     nationalite = models.CharField(
         verbose_name="Nationalité", editable=False, max_length=30
+    )
+
+    parrainage2017 = models.CharField(
+        verbose_name="Personne parrainée aux Présidentielles de 2017",
+        max_length=80,
+        editable=False,
+        blank=True,
     )
 
     search = SearchVectorField(verbose_name="Champ de recherche", null=True)

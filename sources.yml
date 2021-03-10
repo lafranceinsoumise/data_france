@@ -114,3 +114,8 @@ premier_ministre:
     url: http://lecomarquage.service-public.fr/donnees_locales_v2/all_latest.tar.bz2
     extension: .tar.bz2
     hash: 0ff7121606c81b572cbd6cf12a500b7caa90dad27d83ca9fd6d7ef3deed196f6
+
+conseil_constitutionnel:
+  parrainages2017:
+    url: https://presidentielle2017.conseil-constitutionnel.fr/wp-content/uploads/2017/03/parrainagestotal.csv
+    hash: 8af6c3fe6f2c57ed6751c9a1daa36b26ae873578601ada0aa5483833ef4c8371

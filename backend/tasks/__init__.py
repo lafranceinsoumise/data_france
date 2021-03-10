@@ -13,6 +13,7 @@ from .elections import *
 from .final_data import *
 from .annuaire_administratif import *
 from .rne import *
+from .parrainages import *
 
 
 def task_telecharger():
