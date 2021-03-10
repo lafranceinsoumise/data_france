@@ -1,6 +1,15 @@
 data_france
 ===========
 
+Version 0.11.1
+--------------
+
+* Ajout de l'information des parrainages 2017 aux élus municipaux
+* Passage à *poetry* pour la gestion des dépendances et le paquetage
+* Les fichiers sources bruts sont maintenant sauvegardées dans le dépôt git avec le code.
+  Cela permet de reconstruire le paquet sans rien télécharger.
+* Ajout de la normalisation sur la recherche par texte
+
 Version 0.11.0
 --------------
 
