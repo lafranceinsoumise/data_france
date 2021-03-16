@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "data-france"
-version = "0.11.1"
+version = "0.11.2"
 description = "Paquet agrégeant des données administratives publiques pour en rendre l'utilisation facile."
 authors = [
   "Arthur Cheysson <arthur@cheysson.fr>",
@@ -13,6 +13,7 @@ packages = [
   { include = "sources.py", from="backend", format="sdist" },
   { include = "tasks", from="backend", format="sdist" },
   { include = "utils.py", from="backend", format="sdist" },
+  { include = "backend.py", from="backend", format="sdist" },
 ]
 include = ["data_france/data/*.csv.lzma"]
 
