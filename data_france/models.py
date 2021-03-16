@@ -79,7 +79,7 @@ class SearchQueryset(models.QuerySet):
 
         return (
             self.filter(search=query)
-            .annotate(rank=SearchRank(models.F("search"), query))
+            .annotate(rank=SearchRank(models.F("search"), query, normalization=8))
             .order_by("-rank")
         )
 
@@ -167,7 +167,9 @@ class Commune(TypeNomMixin, models.Model):
         editable=False,
     )
 
-    geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
+    geometry = MultiPolygonField(
+        "Géométrie", geography=True, srid=4326, null=True, spatial_index=True
+    )
 
     ACCESSIBILITE_CHOICES = (
         ("ACC", "Accessible"),
@@ -218,6 +220,7 @@ class Commune(TypeNomMixin, models.Model):
             "type": self.type,
             "nom": self.nom_complet,
             "code_departement": self.code_departement,
+            "nom_departement": self.departement.nom,
         }
 
     def mairie_horaires_display(self):
@@ -285,7 +288,9 @@ class EPCI(models.Model):
 
     population = models.PositiveIntegerField("Population", null=True)
 
-    geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
+    geometry = MultiPolygonField(
+        "Géométrie", geography=True, srid=4326, null=True, spatial_index=True
+    )
 
     def __str__(self):
         return f"{self.nom} ({self.code})"
@@ -328,7 +333,9 @@ class Departement(TypeNomMixin, models.Model):
 
     population = models.PositiveIntegerField("Population", null=True)
 
-    geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
+    geometry = MultiPolygonField(
+        "Géométrie", geography=True, srid=4326, null=True, spatial_index=True
+    )
 
     def __str__(self):
         return f"{self.nom} ({self.code})"
@@ -433,7 +440,9 @@ class CollectiviteDepartementale(TypeNomMixin, models.Model):
 
     population = models.PositiveIntegerField("Population", null=True)
 
-    geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
+    geometry = MultiPolygonField(
+        "Géométrie", geography=True, srid=4326, null=True, spatial_index=True
+    )
 
     class Meta:
         verbose_name = "Collectivité à compétences départementales"
