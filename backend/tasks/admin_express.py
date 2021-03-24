@@ -6,7 +6,7 @@ __all__ = ["task_extraire_polygones_communes"]
 
 from shapely.geometry import shape, Polygon, MultiPolygon
 
-from soures import PREPARE_DIR
+from sources import PREPARE_DIR
 
 COMMUNES_GEOMETRY = PREPARE_DIR / "ign/admin-express/version-cog/communes-geometrie.csv"
 
