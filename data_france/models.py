@@ -141,6 +141,13 @@ class Commune(TypeNomMixin, models.Model):
             return self.commune_parent.departement.code
         return self.departement.code
 
+    @property
+    def nom_departement(self) -> str:
+        """Renvoie le nom du département contenant cette commune."""
+        if self.commune_parent_id:
+            return self.commune_parent.departement.nom
+        return self.departement.nom
+
     epci = models.ForeignKey(
         "EPCI",
         verbose_name="EPCI",
@@ -220,7 +227,7 @@ class Commune(TypeNomMixin, models.Model):
             "type": self.type,
             "nom": self.nom_complet,
             "code_departement": self.code_departement,
-            "nom_departement": self.departement.nom,
+            "nom_departement": self.nom_departement,
         }
 
     def mairie_horaires_display(self):

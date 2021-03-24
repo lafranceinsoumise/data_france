@@ -61,6 +61,7 @@ class CommuneSearchViewTestCase(ViewTestCase):
                             "code": "25222",
                             "code_departement": "25",
                             "nom": "Étalans",
+                            "nom_departement": "Doubs",
                             "type": "COM",
                         }
                     ]
@@ -111,6 +112,7 @@ class CommuneSearchViewTestCase(ViewTestCase):
                 "code": "25222",
                 "code_departement": "25",
                 "nom": "Étalans",
+                "nom_departement": "Doubs",
                 "type": "COM",
             },
         )
@@ -142,6 +144,7 @@ class CommuneParCodeViewTestCase(ViewTestCase):
                 "type": c.type,
                 "nom": c.nom_complet,
                 "code_departement": c.code_departement,
+                "nom_departement": c.nom_departement,
             },
         )
 
