@@ -19,14 +19,21 @@ class SourceExplorer:
         self._d = d
         self._p = p
 
-    def __getattr__(self, item):
-        if item not in self._d:
-            raise AttributeError(f"Attribut `{item}' manquant")
-
+    def _get_subitem(self, item):
         if "url" in self._d[item]:
             return Source(self._p / item, **self._d[item])
 
         return SourceExplorer(self._d[item], self._p / item)
+
+    def __getitem__(self, item):
+        if item not in self._d:
+            raise KeyError(f"Clé {item!r} manquante")
+        return self._get_subitem(item)
+
+    def __getattr__(self, item):
+        if item not in self._d:
+            raise AttributeError(f"Attribut {item!r} manquant")
+        return self._get_subitem(item)
 
     def __iter__(self):
         stack = [(self._p, self._d)]

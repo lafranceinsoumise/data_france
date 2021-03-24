@@ -35,7 +35,7 @@ def task_telecharger():
         }
 
 
-@create_after(executed="telecharger")
+@create_after(executed="telecharger", target_regex=f"{PREPARE_DIR}/.*")
 def task_decompresser():
     for source in SOURCES:
         if source.suffix in [".zip", ".7z"]:
