@@ -1,12 +1,17 @@
 import csv
+import tempfile
+from pathlib import Path
 
 import fiona
-
-__all__ = ["task_extraire_polygones_communes"]
-
+import pandas as pd
 from shapely.geometry import shape, Polygon, MultiPolygon
 
 from sources import PREPARE_DIR
+from .cog import COMMUNE_TYPE_ORDERING
+from contextlib import ExitStack
+import heapq
+
+__all__ = ["task_extraire_polygones_communes"]
 
 COMMUNES_GEOMETRY = PREPARE_DIR / "ign/admin-express/version-cog/communes-geometrie.csv"
 
@@ -38,6 +43,7 @@ def task_extraire_polygones_communes():
                 extraires_polygones_communes,
                 [shp_files, COMMUNES_GEOMETRY],
             ),
+            (trier_polygones_communes, [COMMUNES_GEOMETRY]),
         ],
     }
 
@@ -68,3 +74,37 @@ def extraires_polygones_communes(shp_files, csv_path):
                             to_multipolygon(com["geometry"]),
                         ]
                     )
+
+
+def trier_polygones_communes(csv_path):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_files = []
+        with ExitStack() as stack:
+            for i, df in enumerate(
+                pd.read_csv(
+                    csv_path, dtype={"code": "str", "geometry": "str"}, chunksize=1000
+                )
+            ):
+                path = Path(tmpdir) / f"{i}.csv"
+                df.sort_values(
+                    by=["type", "code"],
+                    key=lambda s: s.map(COMMUNE_TYPE_ORDERING.index)
+                    if s.name == "type"
+                    else s,
+                ).to_csv(path, index=False)
+                tmp_files.append(stack.enter_context(path.open("r")))
+
+            chunks = i + 1
+
+            with csv_path.open("w") as fd:
+                w = csv.DictWriter(fd, fieldnames=df.columns)
+                w.writeheader()
+                w.writerows(
+                    heapq.merge(
+                        *(csv.DictReader(f) for f in tmp_files),
+                        key=lambda line: (
+                            COMMUNE_TYPE_ORDERING.index(line["type"]),
+                            line["code"],
+                        ),
+                    )
+                )
