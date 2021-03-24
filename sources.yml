@@ -107,7 +107,7 @@ laposte:
   codes_postaux:
     url: https://datanova.laposte.fr/explore/dataset/laposte_hexasmal/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%2C
     extension: .csv
-    hash: 5efee6567545417c7f109cb999c69383892803c58860644261e748b7cfe33d80
+    hash: 70bb05c51302b63a5e09edf62a7534e3ae13d15660adafb073a58be408744b91
 
 premier_ministre:
   annuaire_administration:
