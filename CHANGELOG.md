@@ -1,6 +1,11 @@
 data_france
 ===========
 
+Version 0.11.3
+--------------
+
+* Mise à jour des codes postaux
+
 Version 0.11.2
 --------------
 
