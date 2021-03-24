@@ -10,10 +10,6 @@ license = "GNU-GPL 3.0"
 
 packages = [
   { include = "data_france" },
-  { include = "sources.py", from="backend", format="sdist" },
-  { include = "tasks", from="backend", format="sdist" },
-  { include = "utils.py", from="backend", format="sdist" },
-  { include = "backend.py", from="backend", format="sdist" },
 ]
 include = ["data_france/data/*.csv.lzma"]
 
@@ -53,13 +49,11 @@ openpyxl = "==3.*"
 libarchive = "*"
 fiona = "*"
 ipython = "*"
-flit = "*"
-pep517 = "*"
 dj-database-url = "*"
 shapely = "*"
 python-dotenv = "^0.15.0"
+lxml = "^4.6.3"
 
 [build-system]
-requires = ["flit_core >=2,<4"]
-backend-path = ["backend"]
-build-backend = "backend"
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

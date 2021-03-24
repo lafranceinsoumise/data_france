@@ -79,6 +79,7 @@ def traiter_epci(epci_xls, dest):
             skiprows=5,
             dtype={"EPCI": str},
             usecols=["EPCI", "LIBEPCI", "NATURE_EPCI"],
+            engine="openpyxl",
         )
         .rename(columns={"EPCI": "code", "LIBEPCI": "nom", "NATURE_EPCI": "type"})
         .iloc[:-1]  # éliminer le faux EPCI pas d'EPCI
@@ -103,6 +104,7 @@ def traiter_communes(
             skiprows=5,
             dtype={"CODGEO": str, "EPCI": str},
             usecols=["CODGEO", "EPCI"],
+            engine="openpyxl",
         )
         .set_index("CODGEO")["EPCI"]
         .str.strip()
