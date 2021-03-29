@@ -14,6 +14,7 @@ from .final_data import *
 from .annuaire_administratif import *
 from .rne import *
 from .parrainages import *
+from .consulaires import *
 
 
 def task_telecharger():
