@@ -19,9 +19,11 @@ CODES_FONCTION = {
 }
 
 MUN_FIELDS = [
-    "code_dep",
+    "_code_dep",
     "_lib_dep",
-    "code_commune",
+    "_code_csp",
+    "_nom_csp",
+    "code",
     "_lib_commune",
     "nom",
     "prenom",
@@ -36,11 +38,13 @@ MUN_FIELDS = [
 ]
 
 EPCI_FIELDS = [
-    "code_dep",
-    "_siren",
+    "_code_dep",
     "_lib_dep",
-    "code_commune",
-    "_code_dep_com",
+    "_code_csp",
+    "_lib_csp",
+    "_siren",
+    "_lib_epci",
+    "code",
     "_lib_commune",
     "nom",
     "prenom",
@@ -109,7 +113,11 @@ def parser_dates(df):
     for c in df.columns:
         if c.startswith("date_"):
             try:
-                date_corrigee = df[c].str.replace(r"/00(\d{2})$", r"/20\1", regex=True)
+                date_corrigee = (
+                    df[c]
+                    .str.replace(r"/00(\d{2})$", r"/20\1", regex=True)
+                    .str.replace(r"/0990$", r"/1990", regex=True)
+                )
                 df[c] = pd.to_datetime(date_corrigee, format="%d/%m/%Y")
             except OutOfBoundsDatetime:
                 raise ValueError(f"Colonne {c}")
@@ -119,23 +127,17 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, d
     mun = pd.read_csv(
         municipaux_path,
         sep="\t",
-        encoding="latin1",
+        encoding="utf8",
         skiprows=2,
         names=MUN_FIELDS,
         na_values=[""],
         keep_default_na=False,
         usecols=[f for f in MUN_FIELDS if not f.startswith("_")],
-        dtype={"code_dep": str, "code_commune": str, "profession": str},
-    ).iloc[:-1]
-
-    mun["code_dep"] = mun["code_dep"].map(corr_outremer).fillna(mun["code_dep"])
-    mun = mun[mun["code_dep"] != "NA"].drop_duplicates(
-        ["code_dep", "code_commune", "nom", "prenom", "date_naissance"]
+        dtype={"code": str, "profession": str},
     )
 
-    mun["code"] = mun["code_dep"] + mun["code_commune"].str.slice(0, 3)
-    del mun["code_dep"]
-    del mun["code_commune"]
+    mun = mun.drop_duplicates(["code", "nom", "prenom", "date_naissance"])
+
     parser_dates(mun)
     fonctions = mun["fonction"].map(normaliser_fonction)
     mun["fonction"] = fonctions.str.get(0)
@@ -150,15 +152,9 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, d
         na_values=[""],
         keep_default_na=False,
         usecols=[f for f in EPCI_FIELDS if not f.startswith("_")],
-        dtype={"code_dep": str, "siren": str, "code_commune": str, "profession": str},
-    ).iloc[:-1]
+        dtype={"code": str, "profession": str},
+    )
 
-    ep["code_dep"] = ep["code_dep"].map(corr_outremer).fillna(ep["code_dep"])
-    ep = ep[ep["code_dep"] != "NA"]
-
-    ep["code"] = ep["code_dep"] + ep["code_commune"].str.slice(0, 3)
-    del ep["code_dep"]
-    del ep["code_commune"]
     parser_dates(ep)
     fonctions = ep["fonction"].map(normaliser_fonction)
     ep["fonction"] = fonctions.str.get(0)

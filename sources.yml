@@ -2,19 +2,23 @@ insee:
   cog:
     communes:
       url: https://www.insee.fr/fr/statistiques/fichier/4316069/communes2020-csv.zip
-      date: 04/2019
+      date: 04/2020
       hash: a690f63bdcac9c65e1d1e8816f024ca02b9f20df5fd30b93bbcb58bda563d181
     cantons:
       url: https://www.insee.fr/fr/statistiques/fichier/4316069/canton2020-csv.zip
-      date: 01/2019
+      date: 01/2020
       hash: c683a13901ff447a3748fa4662b0b35951d2210e0b5b8b0f9db0f1346a88a338
+    arrondissements:
+      url: https://www.insee.fr/fr/statistiques/fichier/4316069/arrondissement2020-csv.zip
+      date: 01/2020
+      hash: 48fc2982808ca141103bd437ab554c32a1a3ee599ab56cbac4d86eddaddddf0a
     departements:
       url: https://www.insee.fr/fr/statistiques/fichier/4316069/departement2020-csv.zip
-      date: 01/2019
+      date: 01/2020
       hash: b89413321f30118756c9f4502e756279cbcaf089b3a0e5980c32bc14981d86c1
     regions:
       url: https://www.insee.fr/fr/statistiques/fichier/4316069/region2020-csv.zip
-      date: 01/2019
+      date: 01/2020
       hash: 029877a27e283ec7de824a398eb443ef5e34dbd16fc5ba8a41659a2bebca48af
 
   population:
@@ -49,13 +53,13 @@ ign:
 interieur:
   rne:
     municipaux:
-      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20201202-174800/1-rne-cm.txt
-      date: 02/12/2020
-      hash: e22e73267fb26597627f548ec10548554759f10070f3121e8deaec9001c95d25
+      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20210422-103240/rne-cm.csv
+      date: 22/04/2021
+      hash: a2ab20e21fc2295bb085aaf2a70e0f45fe5d0be482878ed43f4a86040dae5811
     epci:
-      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20201202-174822/2-rne-epci.txt
+      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20210422-103340/rne-epci.csv
       date: 02/12/2020
-      hash: 85feac28513250b4a2db896ee72f69fc3c3ff99159fe86c1acea0d5b97cc5036
+      hash: a325d77b8d63fec3f5afc030daf8730fe0240551971444cadaa9a4dbe654063d
   resultats_electoraux:
     presidentielles:
       2017:

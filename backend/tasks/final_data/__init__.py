@@ -70,7 +70,7 @@ def id_from_file(path, read_only=False):
             return reference[key]
         else:
             if read_only:
-                raise KeyError(f"ID inconnue pour {kwargs!r} dans {path}")
+                raise ValueError(f"ID inconnue pour {kwargs!r} dans {path}")
             last_id += 1
             return reference.setdefault(key, last_id)
 
@@ -156,6 +156,7 @@ def task_generer_fichier_elus_municipaux():
     source_file = PREPARE_DIR / SOURCES.interieur.rne.municipaux.filename
     return {
         "file_dep": [source_file, REFERENCES_DIR / "communes.csv"],
+        "task_dep": ["generer_fichier_communes"],
         "targets": [FINAL_ELUS_MUNICIPAUX],
         "actions": [
             (
@@ -424,7 +425,7 @@ def normaliser_date(d):
 
 
 def generer_fichier_elus_municipaux(elus_municipaux, final_elus):
-    with id_from_file("communes.csv") as id_commune, id_from_file(
+    with id_from_file("communes.csv", read_only=True) as id_commune, id_from_file(
         "elus_municipaux.csv"
     ) as id_elu, open(elus_municipaux, newline="") as f, lzma.open(
         final_elus, "wt", newline=""
@@ -455,7 +456,11 @@ def generer_fichier_elus_municipaux(elus_municipaux, final_elus):
         w.writeheader()
 
         for l in r:
-            l["commune_id"] = id_commune(code=l.pop("code"), type="COM")
+            try:
+                l["commune_id"] = id_commune(code=l.pop("code"), type="COM")
+            except ValueError:
+                # on ignore simplement les élus des communes que l'on ne connait pas
+                continue
 
             for f in [
                 "date_debut_fonction",
