@@ -86,8 +86,7 @@ par_candidat = [
 ]
 
 
-def clean_results(src, base_filenames, delimiter=";"):
-    base_filename = base_filenames[0]
+def read_file(src, delimiter=";"):
     with open(src, "r", encoding="latin1", newline="") as in_file:
         r = csv.reader(in_file, delimiter=delimiter)
 
@@ -138,28 +137,36 @@ def clean_results(src, base_filenames, delimiter=";"):
                     break
                 all_entries.append(common_values + candidate_specific_values)
 
-        df = pd.DataFrame(all_entries, columns=fields)
+    df = pd.DataFrame(all_entries, columns=fields)
 
-        for field, transform in transforms.items():
-            try:
-                if field in df.columns:
-                    df[field] = df[field].astype(transform)
-            except ValueError as e:
-                print(f"global_fields: {common_fields!r}")
-                print(f"repeated_fields: {candidate_specific_fields!r}")
-                raise ValueError(f"Echec transformation {transform} sur {field}")
+    for field, transform in transforms.items():
+        try:
+            if field in df.columns:
+                df[field] = df[field].astype(transform)
+        except ValueError as e:
+            print(f"global_fields: {common_fields!r}")
+            print(f"repeated_fields: {candidate_specific_fields!r}")
+            raise ValueError(f"Echec transformation {transform} sur {field}")
 
-        df["code"] = (
-            df["departement"].str.zfill(2)
-            + df["commune"].str.zfill(3)
-            + "-"
-            + df["bureau"].str.zfill(4)
-        )
+    return df
 
-        df.groupby(["code"]).agg(
-            {f: "first" for f in population}
-        ).reset_index().to_feather(f"{base_filename}-pop.feather")
 
-        df[["code", *[c for c in par_candidat if c in df.columns]]].to_feather(
-            f"{base_filename}-votes.feather"
-        )
+def clean_results(src, base_filenames, delimiter=";"):
+    base_filename = base_filenames[0]
+
+    df = read_file(src, delimiter)
+
+    df["code"] = (
+        df["departement"].str.zfill(2)
+        + df["commune"].str.zfill(3)
+        + "-"
+        + df["bureau"].str.zfill(4)
+    )
+
+    df.groupby(["code"]).agg({f: "first" for f in population}).reset_index().to_feather(
+        f"{base_filename}-pop.feather"
+    )
+
+    df[["code", *[c for c in par_candidat if c in df.columns]]].to_feather(
+        f"{base_filename}-votes.feather"
+    )
