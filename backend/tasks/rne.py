@@ -1,13 +1,17 @@
+import re
+
 import pandas as pd
 from doit.tools import create_folder
-from pandas._libs.tslibs.np_datetime import OutOfBoundsDatetime
+from pandas.errors import OutOfBoundsDatetime
 
 from sources import SOURCES, SOURCE_DIR, PREPARE_DIR
 from utils import normaliser_colonne
-from data_france.typologies import Fonction, ORDINAUX
+from data_france.typologies import Fonction, ORDINAUX_LETTRES
 from tasks.parrainages import PARRAINAGES_MUNICIPAUX
 
 __all__ = ["task_traiter_elus_municipaux_epci"]
+
+ORDINAL_RE = re.compile("^(\d+)(?:er|[eè]me)$")
 
 CODES_FONCTION = {
     "maire délégué": Fonction.MAIRE_DELEGUE,
@@ -95,14 +99,17 @@ def normaliser_fonction(s):
     if pd.isna(s):
         return s
 
-    potential_ordinal = s.split(maxsplit=1)[0]
-    if potential_ordinal in ORDINAUX:
-        ordre = ORDINAUX.index(potential_ordinal) + 1
-        s = s.split(maxsplit=1)[1]
+    words = s.lower().split()
+
+    if words[0].lower() in ORDINAUX_LETTRES:
+        ordre = ORDINAUX_LETTRES.index(words[0]) + 1
+        words.pop(0)
+    elif m := ORDINAL_RE.match(words[0]):
+        ordre = int(m.group(1))
+        words.pop(0)
     else:
         ordre = pd.NA
 
-    words = s.lower().split()
     while words and " ".join(words) not in CODES_FONCTION:
         words.pop()
 
@@ -146,7 +153,7 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, d
     ep = pd.read_csv(
         epci_path,
         sep="\t",
-        encoding="latin1",
+        encoding="utf8",
         skiprows=2,
         names=EPCI_FIELDS,
         na_values=[""],
@@ -158,6 +165,17 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, d
     parser_dates(ep)
     fonctions = ep["fonction"].map(normaliser_fonction)
     ep["fonction"] = fonctions.str.get(0)
+    ep = ep.sort_values(
+        [
+            "code",
+            "nom",
+            "prenom",
+            "sexe",
+            "date_naissance",
+            "date_debut_mandat",
+            "date_debut_fonction",
+        ]
+    ).drop_duplicates(["code", "nom", "prenom", "sexe", "date_naissance"], keep="last")
 
     res = pd.merge(
         mun,

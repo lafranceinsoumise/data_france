@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.html import format_html_join
 
 from data_france.search import PrefixSearchQuery
-from data_france.typologies import TypeNom, CodeSexe, ORDINAUX, Fonction
+from data_france.typologies import TypeNom, CodeSexe, ORDINAUX_LETTRES, Fonction
 
 __all__ = [
     "Commune",
@@ -653,7 +653,7 @@ class EluMunicipal(models.Model):
     def libelle_fonction(self):
         display = self.get_fonction_display()
         if self.ordre_fonction:
-            return f"{ORDINAUX[self.ordre_fonction-1]} {display.lower()}"
+            return f"{ORDINAUX_LETTRES[self.ordre_fonction-1]} {display.lower()}"
         return display
 
     @property
