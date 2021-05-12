@@ -1,6 +1,11 @@
 data_france
 ===========
 
+Version 0.11.4
+--------------
+
+* Mise à jour du RNE avec la version d'avril 2021
+
 Version 0.11.3
 --------------
 
