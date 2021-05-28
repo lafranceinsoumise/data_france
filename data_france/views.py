@@ -11,6 +11,7 @@ from data_france.forms import (
 )
 from data_france.models import (
     Commune,
+    CirconscriptionConsulaire,
     EPCI,
     Departement,
     Region,
@@ -54,6 +55,22 @@ class RechercheCommuneView(View):
                 return JsonResponse({"results": res})
 
         return JsonResponse({"errors": params.errors}, status=400)
+
+
+class RechercheCirconscriptionConsulaireView(View):
+    def get(self, request, *args, **kwargs):
+        q = request.GET.get("q")
+
+        if not q:
+            return JsonResponse(
+                {"errors": ["Paramètre de recherche `q' manquant"]}, status=400
+            )
+
+        qs = CirconscriptionConsulaire.objects.search(q)
+
+        res = [c.as_dict() for c in qs]
+
+        return JsonResponse({"results": res})
 
 
 class BaseParCodeView(View):

@@ -598,6 +598,13 @@ class CirconscriptionConsulaire(models.Model):
 
     search = SearchVectorField(verbose_name="Champ de recherche", null=True)
 
+    def as_dict(self):
+        return {
+            "nom": self.nom,
+            "consulats": self.consulats,
+            "nombre_conseillers": self.nombre_conseillers,
+        }
+
     def __str__(self):
         return f"Circonscription «\u00A0{self.nom}\u00A0»"
 

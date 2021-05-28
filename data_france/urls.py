@@ -38,4 +38,9 @@ urlpatterns = [
         views.CollectiviteRegionaleParCodeView.as_view(),
         name="collectivite-regionale-par-code",
     ),
+    path(
+        "circonscription-consulaire/chercher/",
+        views.RechercheCirconscriptionConsulaireView.as_view(),
+        name="circonscriptions-consulaires-par-code",
+    ),
 ]
