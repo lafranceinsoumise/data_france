@@ -6,7 +6,7 @@ add_search_index = """
 CREATE INDEX data_france_elumunicipal_search_index ON data_france_elumunicipal USING GIN ("search");
 """
 
-drop_search_index = "DROP INDEX data_france_commune_search_index"
+drop_search_index = "DROP INDEX data_france_elumunicipal_search_index"
 
 
 class Migration(migrations.Migration):

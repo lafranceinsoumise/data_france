@@ -255,6 +255,7 @@ class Commune(TypeNomMixin, models.Model):
 
         ordering = ("code", "nom", "type")
 
+        indexes = (GinIndex(fields=["search"]),)
         constraints = (
             models.CheckConstraint(
                 check=(
@@ -702,3 +703,4 @@ class EluMunicipal(models.Model):
         verbose_name = "Élu⋅e municipal⋅e"
         verbose_name_plural = "Élu⋅es municipaux⋅les"
         ordering = ("commune", "nom", "prenom", "date_naissance")
+        indexes = (GinIndex(fields=["search"]),)
