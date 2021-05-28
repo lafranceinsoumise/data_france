@@ -1,6 +1,11 @@
 data_france
 ===========
 
+Version 0.11.5
+--------------
+
+* Ajout des circonscriptions consulaires
+
 Version 0.11.4
 --------------
 
