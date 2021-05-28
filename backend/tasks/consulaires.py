@@ -2,21 +2,23 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from doit.tools import create_folder, run_once
+from pathlib import Path
 
 from sources import PREPARE_DIR
 import csv
 
 
 __all__ = [
+    "task_recuperer_circonscriptions_afe",
     "task_recuperer_circonscriptions_consulaires",
-    "task_recuperer_sous_circonscriptions_consulaires",
     "task_recuperer_liste_conseillers_consulaires",
     "task_recuperer_details_conseillers_consulaires",
 ]
 
+
 CONSULAIRE_DIR = PREPARE_DIR / "consulaires"
-LISTE_CIRCONSCRIPTIONS = CONSULAIRE_DIR / "circonscriptions.csv"
-LISTE_SOUS_CIRCONSCRIPTIONS = CONSULAIRE_DIR / "sous_circonscriptions.csv"
+LISTE_CIRCONSCRIPTIONS_AFE = CONSULAIRE_DIR / "circonscriptions_afe.csv"
+LISTE_CIRCONSCRIPTIONS_CONSULAIRES = CONSULAIRE_DIR / "circonscriptions_consulaires.csv"
 LISTE_CONSEILLERS_TEMP = CONSULAIRE_DIR / "conseillers_temp.csv"
 LISTE_CONSEILLERS = CONSULAIRE_DIR / "conseillers.csv"
 
@@ -27,6 +29,28 @@ URL_CIRCONSCRIPTIONS = (
 )
 URL_SOUS_CIRCONSCRIPTIONS = "https://www.assemblee-afe.fr/spip.php?page=sous_mots.json&id_groupe=19&id_mot={id_afe}"
 URL_CONSEILLERS = "https://www.assemblee-afe.fr/spip.php?page=conseillers.json&id_mot={id_sous_circonscription}"
+
+
+def normaliser_nom_circo(s):
+    """produit des noms normalisés communs au fichier de reference et au site AFE
+
+    Pour récupérer les élus consulaires et les associer aux bonnes
+    circonscriptions, il faut réaliser la correspondance entre les noms de
+    circonscriptions utilisées sur le site AFE et ceux que j'utilise dans mon
+    fichier de référence.
+
+    Cette fonction normalise les noms et implémente quelques corrections pour
+    obtenir cette correspondance.
+    """
+    return (
+        s.str.replace(r" ?[_—-] ?(\d+).*$", r" \1")
+        .str.upper()
+        .str.replace(r"BIÉLORUSIE", "BIELORUSSIE")
+        .str.replace(r"[\W_-]", " ")
+        .str.normalize("NFKD")
+        .str.encode("ascii", errors="ignore")
+        .str.decode("ascii")
+    )
 
 
 correspondance = {
@@ -51,25 +75,25 @@ correspondance = {
 }
 
 
-def task_recuperer_circonscriptions_consulaires():
+def task_recuperer_circonscriptions_afe():
     return {
         "uptodate": [run_once],
-        "targets": [LISTE_CIRCONSCRIPTIONS],
+        "targets": [LISTE_CIRCONSCRIPTIONS_AFE],
         "actions": [
             (create_folder, (CONSULAIRE_DIR,)),
-            (recuperer_circonscriptions, (LISTE_CIRCONSCRIPTIONS,)),
+            (recuperer_circonscriptions_afe, (LISTE_CIRCONSCRIPTIONS_AFE,)),
         ],
     }
 
 
-def task_recuperer_sous_circonscriptions_consulaires():
+def task_recuperer_circonscriptions_consulaires():
     return {
-        "file_dep": [LISTE_CIRCONSCRIPTIONS],
-        "targets": [LISTE_SOUS_CIRCONSCRIPTIONS],
+        "file_dep": [LISTE_CIRCONSCRIPTIONS_AFE],
+        "targets": [LISTE_CIRCONSCRIPTIONS_CONSULAIRES],
         "actions": [
             (
-                recuperer_sous_circonscriptions,
-                (LISTE_CIRCONSCRIPTIONS, LISTE_SOUS_CIRCONSCRIPTIONS),
+                recuperer_circonscriptions_consulaires,
+                (LISTE_CIRCONSCRIPTIONS_AFE, LISTE_CIRCONSCRIPTIONS_CONSULAIRES),
             )
         ],
     }
@@ -77,12 +101,12 @@ def task_recuperer_sous_circonscriptions_consulaires():
 
 def task_recuperer_liste_conseillers_consulaires():
     return {
-        "file_dep": [LISTE_SOUS_CIRCONSCRIPTIONS],
+        "file_dep": [LISTE_CIRCONSCRIPTIONS_CONSULAIRES],
         "targets": [LISTE_CONSEILLERS_TEMP],
         "actions": [
             (
-                recuperer_liste_conseillers_par_sous_circonscription,
-                (LISTE_SOUS_CIRCONSCRIPTIONS, LISTE_CONSEILLERS_TEMP),
+                recuperer_liste_conseillers_par_circonscription_consulaire,
+                (LISTE_CIRCONSCRIPTIONS_CONSULAIRES, LISTE_CONSEILLERS_TEMP),
             )
         ],
     }
@@ -104,7 +128,7 @@ def task_recuperer_details_conseillers_consulaires():
     }
 
 
-def recuperer_circonscriptions(target):
+def recuperer_circonscriptions_afe(target):
     res = requests.get(URL_CIRCONSCRIPTIONS)
     res.raise_for_status()
 
@@ -116,7 +140,7 @@ def recuperer_circonscriptions(target):
         w.writerows([c["id"], c["titre"]] for c in circonscriptions)
 
 
-def recuperer_sous_circonscriptions(circonscriptions, target):
+def recuperer_circonscriptions_consulaires(circonscriptions, target):
     with circonscriptions.open("r") as fd_cs, target.open("w") as fd_consulats:
         circos = csv.DictReader(fd_cs)
         w = csv.writer(fd_consulats)
@@ -126,11 +150,16 @@ def recuperer_sous_circonscriptions(circonscriptions, target):
             res = requests.get(URL_SOUS_CIRCONSCRIPTIONS.format(id_afe=c["id"]))
             res.raise_for_status()
             w.writerows(
-                [sc["id"], sc["titre"], sc["capitale"], c["id"]] for sc in res.json()
+                [sc["id"], sc["titre"], sc["capitale"], c["id"]]
+                for sc in res.json()
+                # il y a une erreur sur le site où la 6ème USA est aussi classée au Canada
+                if sc["capitale"] != "Washington" or c["nom"] != "Canada"
             )
 
 
-def recuperer_liste_conseillers_par_sous_circonscription(sous_circonscriptions, target):
+def recuperer_liste_conseillers_par_circonscription_consulaire(
+    sous_circonscriptions, target
+):
     with sous_circonscriptions.open("r") as fd_sc, target.open("w") as fd_cons:
         sous_circos = csv.DictReader(fd_sc)
         w = csv.DictWriter(

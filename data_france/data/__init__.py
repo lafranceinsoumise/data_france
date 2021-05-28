@@ -116,7 +116,9 @@ VILLES_PLM = [
 
 @contextlib.contextmanager
 def console_message(message):
-    stderr.write(f"{message}... ",)
+    stderr.write(
+        f"{message}... ",
+    )
     stderr.flush()
 
     yield
@@ -133,7 +135,9 @@ def temporary_table(cursor, temp_table, reference_table, columns):
 
     cursor.execute(
         CREATE_TEMP_TABLE_SQL.format(
-            temp_table=temp_table, reference_table=reference_table, columns=columns,
+            temp_table=temp_table,
+            reference_table=reference_table,
+            columns=columns,
         )
     )
 
@@ -211,6 +215,14 @@ def importer_cantons(using):
         import_with_temp_table(f, "data_france_canton", using)
 
 
+@console_message("Chargement des circonscriptions consulaires")
+def importer_circonscriptions_consulaires(using):
+    with open_binary(
+        "data_france.data", "circonscriptions_consulaires.csv.lzma"
+    ) as _f, lzma.open(_f, "rt") as f:
+        import_with_temp_table(f, "data_france_circonscriptionconsulaire", using)
+
+
 @console_message("Chargement des élus municipaux")
 def importer_elus_municipaux(using):
     with open_binary("data_france.data", "elus_municipaux.csv.lzma") as _f, lzma.open(
@@ -223,7 +235,10 @@ def agreger_geometries_et_populations(using):
     with get_connection(using).cursor() as cursor:
 
         param_list = [
-            {"arrondissements": secteur.arrondissements, "secteur": secteur.code,}
+            {
+                "arrondissements": secteur.arrondissements,
+                "secteur": secteur.code,
+            }
             for ville in VILLES_PLM
             for secteur in ville.secteurs
         ]
@@ -286,7 +301,7 @@ def agreger_geometries_et_populations(using):
             cursor.execute(
                 """
                 UPDATE "data_france_epci"
-                SET 
+                SET
                     population = c.population,
                     geometry = ST_Multi(c.geometry)
                 FROM (
@@ -343,11 +358,11 @@ def creer_collectivites_departementales(using):
     with get_connection(using).cursor() as cursor:
         cursor.executemany(
             """
-            INSERT INTO "data_france_collectivitedepartementale" 
+            INSERT INTO "data_france_collectivitedepartementale"
                 ("code", "type", "actif", "departement_id", "nom", "type_nom")
             VALUES (%(code)s, %(type)s, %(actif)s, %(departement_id)s, %(nom)s, %(type_nom)s)
             ON CONFLICT(code) DO UPDATE
-            SET 
+            SET
                 type = excluded.type,
                 actif = excluded.actif,
                 departement_id = excluded.departement_id,
@@ -360,26 +375,26 @@ def creer_collectivites_departementales(using):
         cursor.execute(
             """
             UPDATE "data_france_collectivitedepartementale"
-            SET 
+            SET
                 population = m.population,
                 geometry = m.geometry
             FROM (
                 SELECT ST_Multi(ST_Union(geometry :: geometry)) as geometry, SUM(population_municipale) AS population
                 FROM "data_france_commune"
-                WHERE type = 'COM' 
+                WHERE type = 'COM'
                 AND departement_id = %(id_departement_rhone)s
                 AND epci_id = %(id_epci_metropole)s
             ) AS m
             WHERE code = '69M';
-            
+
             UPDATE "data_france_collectivitedepartementale"
-            SET 
+            SET
                 population = m.population,
                 geometry = m.geometry
             FROM (
                 SELECT ST_Multi(ST_Union(geometry :: geometry)) as geometry, SUM(population_municipale) AS population
                 FROM "data_france_commune"
-                WHERE type = 'COM' 
+                WHERE type = 'COM'
                 AND departement_id = %(id_departement_rhone)s
                 AND (epci_id IS NULL OR epci_id != %(id_epci_metropole)s)
             ) AS m
@@ -424,7 +439,7 @@ def creer_collectivites_regionales(using):
             INSERT INTO "data_france_collectiviteregionale" ("code", "type", "actif", "region_id", "nom", "type_nom")
             VALUES (%(code)s, %(type)s, %(actif)s, %(region_id)s, %(nom)s, %(type_nom)s)
             ON CONFLICT(code) DO UPDATE
-            SET 
+            SET
                 type = excluded.type,
                 actif = excluded.actif,
                 region_id = excluded.region_id,
@@ -446,12 +461,12 @@ def creer_index_recherche(using):
                 INNER JOIN data_france_codepostal_communes AS dfcc
                 ON dfcp.id = dfcc.codepostal_id
                 GROUP BY commune_id
-                
-                UNION 
-                
+
+                UNION
+
                 SELECT NULL AS codes_postaux, dfc.id AS commune_id
                 FROM data_france_commune dfc
-                LEFT JOIN data_france_codepostal_communes dfcc 
+                LEFT JOIN data_france_codepostal_communes dfcc
                 ON dfc.id = dfcc.commune_id
                 WHERE dfcc.commune_id IS NULL
             ),
@@ -459,18 +474,18 @@ def creer_index_recherche(using):
                 SELECT dfc.id AS commune_id, dfd.nom AS nom, dfd.code AS code FROM data_france_commune dfc
                 LEFT JOIN data_france_departement dfd
                 ON dfc.departement_id = dfd.id
-                
+
                 UNION
-                
+
                 SELECT dfc.id AS commune_id, dfd.nom AS nom, dfd.code AS code FROM data_france_commune dfc
                 LEFT JOIN data_france_commune dfp
                 ON dfc.commune_parent_id = dfp.id
                 LEFT JOIN data_france_departement dfd
                 ON dfp.departement_id = dfd.id
             )
-            
+
             UPDATE data_france_commune AS dfc
-            SET search = 
+            SET search =
                 setweight(to_tsvector('data_france_search' :: regconfig, dfc.nom), 'A') ||
                 setweight(to_tsvector('data_france_search' :: regconfig, dfc.code), 'C') ||
                 setweight(COALESCE(cps.codes_postaux, '' :: tsvector), 'B') ||
@@ -490,12 +505,12 @@ def creer_index_recherche(using):
                 INNER JOIN data_france_codepostal_communes AS dfcc
                 ON dfcp.id = dfcc.codepostal_id
                 GROUP BY commune_id
-                
-                UNION 
-                
+
+                UNION
+
                 SELECT NULL AS codes_postaux, dfc.id AS commune_id
                 FROM data_france_commune dfc
-                LEFT JOIN data_france_codepostal_communes dfcc 
+                LEFT JOIN data_france_codepostal_communes dfcc
                 ON dfc.id = dfcc.commune_id
                 WHERE dfcc.commune_id IS NULL
             ),
@@ -504,7 +519,7 @@ def creer_index_recherche(using):
                 LEFT JOIN data_france_departement dfd
                 ON dfc.departement_id = dfd.id
             )
-            
+
             UPDATE data_france_elumunicipal em
             SET search =
                    setweight(to_tsvector('data_france_search', COALESCE(em."nom", '')), 'A')
@@ -515,6 +530,15 @@ def creer_index_recherche(using):
                 || setweight(to_tsvector('data_france_search', deps.nom), 'D')
             FROM data_france_commune c, cps, deps
             WHERE c.id = em.commune_id AND c.id = cps.commune_id AND c.id = deps.commune_id;"""
+        )
+
+        cursor.execute(
+            """
+        UPDATE data_france_circonscriptionconsulaire c
+        SET search =
+            setweight(to_tsvector('data_france_search', COALESCE(c.nom, '')), 'A')
+         || setweight(to_tsvector('data_france_search', ARRAY_TO_STRING(c.consulats, ' ')), 'B');
+"""
         )
 
 
@@ -572,6 +596,8 @@ def importer_donnees(using=None):
         importer_associations_communes_codes_postaux(using)
 
         importer_cantons(using)
+
+        importer_circonscriptions_consulaires(using)
 
         importer_elus_municipaux(using)
 

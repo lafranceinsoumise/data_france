@@ -1,0 +1,131 @@
+id;nom;consulats;inscrits_2014;nombre_conseillers;nombre_délégués
+0;Canada — 1re circonscription;Vancouver/Calgary;6 969;3;0
+1;Canada — 2e circonscription;Toronto;10 553;4;0
+2;Canada — 3e circonscription;Québec;10 261;4;0
+3;Canada — 4e circonscription;Montréal/Moncton/Halifax;55 512;7;4
+4;États-Unis d'Amérique — 1re circonscription;Atlanta;6 424;3;0
+5;États-Unis d'Amérique — 2e circonscription;Boston;7 529;3;0
+6;États-Unis d'Amérique — 3e circonscription;Houston/La Nouvelle-Orléans;9 868;4;0
+7;États-Unis d'Amérique — 4e circonscription;Chicago;10 449;4;0
+8;États-Unis d'Amérique — 5e circonscription;Miami;11 598;4;0
+9;États-Unis d'Amérique — 6e circonscription;Washington;13 686;4;0
+10;États-Unis d'Amérique — 7e circonscription;Los Angeles;18 357;5;0
+11;États-Unis d'Amérique — 8e circonscription;San Francisco;19 477;5;0
+12;États-Unis d'Amérique — 9e circonscription;New York;32 132;5;2
+13;Argentine;Buenos Aires;14 577;4;0
+14;Bolivie;La Paz;1 416;1;0
+15;Brésil — 1re circonscription;Brasilia/Recife/Paramaribo;3 999;3;0
+16;Brésil — 2e circonscription;Rio de Janeiro;7 014;3;0
+17;Brésil — 3e circonscription;São Paulo;10 052;4;0
+18;Chili;Santiago;10 623;4;0
+19;Colombie;Bogotá;5 029;3;0
+20;Costa Rica, Honduras, Nicaragua;San José/Tegucigalpa/Managua;3 337;3;0
+21;Equateur;Quito;2 318;3;0
+22;Guatemala, Salvador;Guatemala/San Salvador;1 506;1;0
+23;Haïti;Port-au-Prince;1 654;1;0
+24;Mexique;Mexico;17 690;5;0
+25;Panamá, Cuba, Jamaïque;Panamá/La Havane/Kingston;2 185;1;0
+26;Paraguay;Assomption;1 494;1;0
+27;Pérou;Lima;3 699;3;0
+28;République dominicaine;Saint-Domingue;3 994;3;0
+29;Uruguay;Montevideo;2 869;3;0
+30;Venezuela, Sainte-Lucie, Trinité-et-Tobago;Caracas/Castries/Port d'Espagne;6 015;3;0
+31;Danemark;Copenhague;5 216;3;0
+32;Finlande, Lituanie, Lettonie, Estonie;Helsinki/Vilnius/Riga/Tallinn;3 419;3;0
+33;Irlande;Dublin;8 310;4;0
+34;Norvège, Islande;Oslo/Reykjavik;5 460;3;0
+35;Royaume-Uni — 1re circonscription;Edimbourg/Glasgow;5 532;3;0
+36;Royaume-Uni — 2e circonscription;Londres;120 707;9;11
+37;Suède;Stockholm;6 785;3;0
+38;Belgique;Bruxelles;115 888;9;10
+39;Luxembourg;Luxembourg;32 575;5;2
+40;Pays-Bas;Amsterdam;23 448;5;1
+41;Allemagne — 1re circonscription;Berlin/Hambourg;22 386;5;1
+42;Allemagne — 2e circonscription;Francfort/Düsseldorf/Sarrebruck;43 795;6;3
+43;Allemagne — 3e circonscription;Munich/Stuttgart;46 057;6;3
+44;Autriche, Slovaquie, Slovénie;Vienne/Bratislava/Ljubljana;10 177;4;0
+45;Suisse — 1re circonscription;Zurich;28 932;5;1
+46;Suisse — 2e circonscription;Genève;134 668;9;12
+47;Arménie, Géorgie;Erevan/Tbilissi;867;1;0
+48;Bulgarie, Bosnie-Herzégovine, Macédoine, Albanie, Kosovo, Monténégro;Sofia/Sarajevo/Skopje/Tirana/Pristina/Podgorica;2 129;1;0
+49;Croatie;Zagreb;1 006;1;0
+50;Hongrie;Budapest;2 402;3;0
+51;Pologne;Varsovie/Cracovie;6 067;3;0
+52;République tchèque;Prague;3 403;3;0
+53;Roumanie, Moldavie;Bucarest/Chisinau;3 165;3;0
+54;Russie, Biélorussie;Moscou/Saint-Pétersbourg/Ekaterinbourg/Minsk;6 253;3;0
+55;Serbie;Belgrade;1 397;1;0
+56;Ukraine;Kiev;928;1;0
+57;Chypre;Nicosie;1 428;1;0
+58;Grèce;Athènes/Thessalonique;10 433;4;0
+59;Italie — 1re circonscription (avec Malte et Etat de la Cité du Vatican);Rome/Naples/La Valette/Cité du Vatican;20 441;5;1
+60;Italie — 2e circonscription;Milan/Turin/Gênes;27 055;5;1
+61;Monaco;Monaco;7 865;3;0
+62;Turquie;Istanbul/Ankara;7 916;3;0
+63;Andorre;Andorre-la-Vieille;3 226;3;0
+64;Espagne — 1re circonscription;Barcelone;35 674;6;2
+65;Espagne — 2e circonscription;Madrid/Séville/Bilbao;56 033;7;4
+66;Portugal;Lisbonne/Porto;15 472;4;0
+67;Algérie — 1re circonscription;Oran;4 083;3;0
+68;Algérie — 2e circonscription;Annaba;6 972;3;0
+69;Algérie — 3e circonscription;Alger;20 622;5;1
+70;Egypte;Le Caire/Alexandrie;5 971;3;0
+71;Maroc — 1re circonscription;Tanger;2 535;3;0
+72;Maroc — 2e circonscription;Fès;3 294;3;0
+73;Maroc — 3e circonscription;Agadir;3 765;3;0
+74;Maroc — 4e circonscription;Marrakech;7 598;3;0
+75;Maroc — 5e circonscription;Rabat;9 812;4;0
+76;Maroc — 6e circonscription;Casablanca;19 991;5;0
+77;Tunisie, Libye;Tunis/Tripoli;23 335;5;1
+78;Bénin;Cotonou;3 755;3;0
+79;Burkina Faso;Ouagadougou;3 582;3;0
+80;Côte d'Ivoire;Abidjan;14 162;4;0
+81;Guinée;Conakry;2 839;3;0
+82;Mali;Bamako;5 256;3;0
+83;Mauritanie;Nouakchott;1 915;1;0
+84;Niger;Niamey;1 648;1;0
+85;Sénégal, Guinée-Bissau, Cap-Vert;Dakar/Bissau/Praia;20 187;5;1
+86;Togo, Ghana;Lomé/Accra;3 822;3;0
+87;Afrique du Sud, Mozambique, Namibie, Botswana;Johannesburg/Le Cap/Maputo/Windhoek/Gaborone;8 175;3;0
+88;Angola;Luanda;1 896;1;0
+89;Cameroun, Guinée équatoriale;Douala/Yaoundé/Malabo;6 917;3;0
+90;Comores;Moroni;1 998;1;0
+91;Congo;Pointe-Noire/Brazzaville;5 561;3;0
+92;Djibouti;Djibouti;4 929;3;0
+93;Ethiopie, Soudan, Soudan du Sud;Addis-Abeba/Khartoum/Djouba;1 217;1;0
+94;Gabon;Libreville/Port-Gentil;10 969;4;0
+95;Kenya, Ouganda, Rwanda, Burundi, Tanzanie, Zambie, Zimbabwe;Nairobi/Kampala/Kigali/Bujumbura/Dar es Salam/Lusaka/Harare;3 846;3;0
+96;Madagascar;Tananarive/Diégo-Suarez/Majunga/Tamatave;18 607;5;0
+97;Maurice, Seychelles;Port Louis/Victoria;10 857;4;0
+98;Nigeria;Lagos/Abuja;1 674;1;0
+99;République centrafricaine;Bangui;765;1;0
+100;République démocratique du Congo;Kinshasa;2 630;3;0
+101;Tchad;N'Djamena;1 306;1;0
+102;Arabie saoudite — 1re circonscription (avec Yémen);Djeddah/Sanaa;3 061;3;0
+103;Arabie saoudite — 2e circonscription (avec Koweït);Riyad/Koweït;4 059;3;0
+104;Emirats arabes unis, Oman;Dubaï/Abu Dhabi/Mascate;18 140;5;0
+105;Iran, Pakistan, Afghanistan, Azerbaïdjan, Turkménistan, Kazakhstan, Tadjikistan, Ouzbékistan, Kirghizstan;Téhéran/Islamabad/Karachi/Kaboul/Bakou/Achgabat/Astana/Almaty/Douchanbe/Tachkent;2 843;3;0
+106;Jordanie, Irak;Amman/Bagdad/Erbil;1 784;1;0
+107;Liban, Syrie;Beyrouth/Damas;23 922;5;1
+108;Qatar, Bahreïn;Doha/Manama;4 603;3;0
+109;Israël et Territoires palestiniens — 1re circonscription;Jérusalem;23 274;5;1
+110;Israël et Territoires palestiniens — 2e circonscription;Tel-Aviv/Haïfa;51 714;6;4
+111;Australie, Fidji, Papouasie-Nouvelle-Guinée;Sydney/Canberra/Suva/Port Moresby;21 026;5;1
+112;Cambodge;Phnom Penh;4 530;3;0
+113;Chine — 1re circonscription;Canton/Wuhan/Chengdu;4 105;3;0
+114;Chine — 2e circonscription (avec Mongolie et Corée du Nord);Pékin/Shenyang/Oulan-Bator/Pyongyang;4 814;3;0
+115;Chine — 3e circonscription;Hong-Kong/Macao;11 173;4;0
+116;Chine — 4e circonscription;Shanghai;11 335;4;0
+117;Corée du Sud, Taïwan;Séoul/Taipei;4 129;3;0
+118;Inde — 1re circonscription (avec Bangladesh, Népal, Sri Lanka);New Delhi/Bangalore/Bombay/Calcutta/Dacca/Katmandou/Colombo;4 252;3;0
+119;Inde — 2e circonscription;Pondichéry/Chennai;6 663;3;0
+120;Indonésie;Jakarta;3 973;3;0
+121;Japon;Tokyo/Kyoto;7 292;3;0
+122;Laos;Vientiane;1 936;1;0
+123;Malaisie, Brunei;Kuala Lumpur/Bandar Seri Begawan;3 341;3;0
+124;Nouvelle-Zélande;Wellington;3 612;3;0
+125;Philippines;Manille;2 507;3;0
+126;Singapour;Singapour;10 526;4;0
+127;Thaïlande, Birmanie;Bangkok/Rangoun;10 423;4;0
+128;Vanuatu;Port-Vila;1 978;1;0
+129;Vietnam;Hô Chi Minh-Ville/Hanoi;6 646;3;0

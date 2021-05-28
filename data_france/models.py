@@ -5,6 +5,8 @@ from django.utils.html import format_html_join
 
 from data_france.search import PrefixSearchQuery
 from data_france.typologies import TypeNom, CodeSexe, ORDINAUX_LETTRES, Fonction
+from django.contrib.postgres.fields.array import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 
 __all__ = [
     "Commune",
@@ -568,6 +570,39 @@ class Canton(TypeNomMixin, models.Model):
         related_name="+",
         related_query_name="bureau_centralisateur_de",
     )
+
+
+class CirconscriptionConsulaire(models.Model):
+    objects = SearchQueryset.as_manager()
+
+    nom = models.CharField(
+        verbose_name="Nom de la circonscription",
+        max_length=300,
+        blank=False,
+        editable=False,
+        null=False,
+    )
+
+    consulats = ArrayField(
+        verbose_name="Consulats inclus",
+        base_field=models.CharField(max_length=200),
+        blank=False,
+        null=False,
+        editable=False,
+    )
+
+    nombre_conseillers = models.PositiveSmallIntegerField(
+        verbose_name="Nombre de conseillers", blank=False, null=False, editable=False
+    )
+
+    search = SearchVectorField(verbose_name="Champ de recherche", null=True)
+
+    def __str__(self):
+        return f"Circonscription «\u00A0{self.nom}\u00A0»"
+
+    class Meta:
+        verbose_name_plural = "circonscriptions consulaires"
+        indexes = (GinIndex(fields=["search"]),)
 
 
 class EluMunicipal(models.Model):

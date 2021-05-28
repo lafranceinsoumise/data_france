@@ -11,6 +11,7 @@ from data_france.models import (
     CodePostal,
     CollectiviteDepartementale,
     CollectiviteRegionale,
+    CirconscriptionConsulaire,
     EluMunicipal,
 )
 from data_france.typologies import Fonction
@@ -106,7 +107,17 @@ class CommuneAdmin(ImmutableModelAdmin):
 @admin.register(EPCI)
 class EPCIAdmin(ImmutableModelAdmin):
     fieldsets = (
-        (None, {"fields": ("code", "type", "communes_list", "geometry_as_widget",)}),
+        (
+            None,
+            {
+                "fields": (
+                    "code",
+                    "type",
+                    "communes_list",
+                    "geometry_as_widget",
+                )
+            },
+        ),
         ("Conseil", {"fields": ("president", "vice_presidents", "conseillers")}),
     )
 
@@ -160,7 +171,10 @@ class EPCIAdmin(ImmutableModelAdmin):
 @admin.register(Departement)
 class DepartementAdmin(ImmutableModelAdmin):
     list_display = ("code", "nom", "region_link", "chef_lieu_link")
-    fields = list_display + ("population", "geometry_as_widget",)
+    fields = list_display + (
+        "population",
+        "geometry_as_widget",
+    )
     search_fields = ("code", "nom")
 
     def get_queryset(self, request):
@@ -180,7 +194,11 @@ class CollectiviteDepartementaleAdmin(ImmutableModelAdmin):
 @admin.register(Region)
 class RegionAdmin(ImmutableModelAdmin):
     list_display = ("code", "nom", "chef_lieu_link")
-    fields = list_display + ("departements_list", "population", "geometry_as_widget",)
+    fields = list_display + (
+        "departements_list",
+        "population",
+        "geometry_as_widget",
+    )
     search_fields = ("nom",)
 
     def get_queryset(self, request):
@@ -220,6 +238,25 @@ class CodePostalAdmin(ImmutableModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request=request).prefetch_related("communes")
+
+
+@admin.register(CirconscriptionConsulaire)
+class CirconscriptionConsulaire(ImmutableModelAdmin):
+    list_display = (
+        "nom",
+        "consulats",
+        "nombre_conseillers",
+    )
+
+    fields = ("nom", "consulats", "nombre_conseillers")
+
+    search_fields = ("nom", "consulats")
+
+    def get_search_results(self, request, queryset, search_term):
+        use_distinct = False
+        if search_term:
+            return queryset.search(search_term), use_distinct
+        return queryset, use_distinct
 
 
 @admin.register(EluMunicipal)

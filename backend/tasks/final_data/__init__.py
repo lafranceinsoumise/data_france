@@ -28,6 +28,7 @@ FINAL_COMMUNES = DATA_DIR / "communes.csv.lzma"
 FINAL_CODES_POSTAUX = DATA_DIR / "codes_postaux.csv.lzma"
 FINAL_CORRESPONDANCES_CODE_POSTAUX = DATA_DIR / "codes_postaux_communes.csv.lzma"
 FINAL_CANTONS = DATA_DIR / "cantons.csv.lzma"
+FINAL_CIRCONSCRIPTIONS_CONSULAIRES = DATA_DIR / "circonscriptions_consulaires.csv.lzma"
 FINAL_ELUS_MUNICIPAUX = DATA_DIR / "elus_municipaux.csv.lzma"
 
 NULL = r"\N"
@@ -39,6 +40,7 @@ __all__ = [
     "task_generer_fichier_communes",
     "task_generer_fichier_codes_postaux",
     "task_generer_fichier_cantons",
+    "task_generer_fichier_circonscriptions_consulaires",
     "task_generer_fichier_elus_municipaux",
 ]
 
@@ -147,6 +149,22 @@ def task_generer_fichier_cantons():
             (
                 generer_fichier_cantons,
                 [CANTONS_CSV, FINAL_CANTONS],
+            )
+        ],
+    }
+
+
+def task_generer_fichier_circonscriptions_consulaires():
+    return {
+        "file_dep": [REFERENCES_DIR / "circonscriptions_consulaires.csv"],
+        "targets": [FINAL_CIRCONSCRIPTIONS_CONSULAIRES],
+        "actions": [
+            (
+                generer_fichier_circonscriptions_consulaires,
+                (
+                    REFERENCES_DIR / "circonscriptions_consulaires.csv",
+                    FINAL_CIRCONSCRIPTIONS_CONSULAIRES,
+                ),
             )
         ],
     }
@@ -414,6 +432,24 @@ def generer_fichier_cantons(
             }
             for canton in r
         )
+
+
+def generer_fichier_circonscriptions_consulaires(source, dest):
+    """Le fichier source a été généré à partir de l'arrêté ministériel"""
+    with open(source, "r") as f_in, lzma.open(dest, "wt") as f_out:
+        reader = csv.DictReader(f_in, delimiter=";")
+        writer = csv.DictWriter(
+            f_out,
+            fieldnames=["id", "nom", "consulats", "nombre_conseillers"],
+            extrasaction="ignore",
+        )
+        writer.writeheader()
+
+        for circ in reader:
+            cons = ", ".join(f'"{c}"' for c in circ["consulats"].split("/"))
+            circ["consulats"] = f"{{{cons}}}"
+
+            writer.writerow(circ)
 
 
 def normaliser_date(d):
