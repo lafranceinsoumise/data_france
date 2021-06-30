@@ -19,7 +19,7 @@ from utils import normaliser_nom
 __all__ = ["task_extraire_mairies", "task_post_traitement_mairies"]
 
 
-MAIRIE_RE = re.compile(r"\d{2,3}/mairie-\d{5}-\d{2}.xml")
+MAIRIE_RE = re.compile(r"\d[\dAB]\d?/mairie-\d[\dAB]\d{3}-\d{2}.xml")
 DEFAUT_EDITEUR = (
     "La Direction de l'information légale et administrative (Premier ministre)"
 )
@@ -57,7 +57,7 @@ def task_post_traitement_mairies():
 
 def extraire_mairies(tar_path, dest_path):
     with tarfile.open(tar_path, "r:bz2") as tar, open(dest_path, "w") as dest:
-        while (mem := tar.next()) :
+        while mem := tar.next():
             if not mem.isfile() or not MAIRIE_RE.search(mem.name):
                 continue
 
