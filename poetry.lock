@@ -83,6 +83,14 @@ typed-ast = ">=1.4.0"
 d = ["aiohttp (>=3.3.2)", "aiohttp-cors"]
 
 [[package]]
+name = "boltons"
+version = "21.0.0"
+description = "When they're not builtins, they're boltons."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "certifi"
 version = "2020.12.5"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -205,6 +213,17 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "face"
+version = "20.1.1"
+description = "A command-line application framework (and CLI parser). Friendly for users, full-featured for developers."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+boltons = ">=20.0.0"
+
+[[package]]
 name = "fiona"
 version = "1.8.18"
 description = "Fiona reads and writes spatial data files"
@@ -226,6 +245,22 @@ all = ["pytest (>=3)", "boto3 (>=1.2.4)", "pytest-cov", "shapely", "mock"]
 calc = ["shapely"]
 s3 = ["boto3 (>=1.2.4)"]
 test = ["pytest (>=3)", "pytest-cov", "boto3 (>=1.2.4)", "mock"]
+
+[[package]]
+name = "glom"
+version = "20.11.0"
+description = "A declarative object transformer and formatter, for conglomerating nested data."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+attrs = "*"
+boltons = ">=19.3.0"
+face = ">=20.1.0"
+
+[package.extras]
+yaml = ["pyyaml"]
 
 [[package]]
 name = "idna"
@@ -349,7 +384,7 @@ python-versions = "*"
 name = "numpy"
 version = "1.20.1"
 description = "NumPy is the fundamental package for array computing with Python."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -541,7 +576,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 name = "shapely"
 version = "1.7.1"
 description = "Geometric objects, predicates, and operations"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -581,6 +616,21 @@ description = "Python Library for Tom's Obvious, Minimal Language"
 category = "dev"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[[package]]
+name = "topojson"
+version = "1.1"
+description = "topojson - a powerful library to encode geographic data as topology in Python!🌍"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+numpy = "*"
+shapely = "*"
+
+[package.extras]
+dev = ["shapely (>=1.7a2)", "geojson", "simplification", "pyshp", "fiona (>=1.8.6)", "geopandas", "altair", "ipywidgets"]
 
 [[package]]
 name = "traitlets"
@@ -640,7 +690,7 @@ test = ["pytest", "pytest-cov"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7"
-content-hash = "0abbc44b463533e3f367ee9424f6dff9c946ed65497753258086a3400d7d9341"
+content-hash = "9192877ff747e1053454fee4d8c6ea47cb1829d6f58fd9248f7ff8575bbec114"
 
 [metadata.files]
 appdirs = [
@@ -671,6 +721,10 @@ beautifulsoup4 = [
 black = [
     {file = "black-19.10b0-py36-none-any.whl", hash = "sha256:1b30e59be925fafc1ee4565e5e08abef6b03fe455102883820fe5ee2e4734e0b"},
     {file = "black-19.10b0.tar.gz", hash = "sha256:c2edb73a08e9e0e6f65a0e6af18b059b8b1cdd5bef997d7a0b181df93dc81539"},
+]
+boltons = [
+    {file = "boltons-21.0.0-py2.py3-none-any.whl", hash = "sha256:b9bb7b58b2b420bbe11a6025fdef6d3e5edc9f76a42fb467afe7ca212ef9948b"},
+    {file = "boltons-21.0.0.tar.gz", hash = "sha256:65e70a79a731a7fe6e98592ecfb5ccf2115873d01dbc576079874629e5c90f13"},
 ]
 certifi = [
     {file = "certifi-2020.12.5-py2.py3-none-any.whl", hash = "sha256:719a74fb9e33b9bd44cc7f3a8d94bc35e4049deebe19ba7d8e108280cfd59830"},
@@ -720,6 +774,10 @@ doit = [
 et-xmlfile = [
     {file = "et_xmlfile-1.0.1.tar.gz", hash = "sha256:614d9722d572f6246302c4491846d2c393c199cfa4edc9af593437691683335b"},
 ]
+face = [
+    {file = "face-20.1.1-py2-none-any.whl", hash = "sha256:3790311a7329e4b0d90baee346eecad54b337629576edf3a246683a5f0d24446"},
+    {file = "face-20.1.1.tar.gz", hash = "sha256:7d59ca5ba341316e58cf72c6aff85cca2541cf5056c4af45cb63af9a814bed3e"},
+]
 fiona = [
     {file = "Fiona-1.8.18-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:c64cc0bab040c3a2aec12edd2e1407e3b52609117d9a9a471e3d25172abb1e5e"},
     {file = "Fiona-1.8.18-cp35-cp35m-macosx_10_9_intel.whl", hash = "sha256:8891d25bcb795eec2294390b56426fded566bcc8ed3730dac7e7a61cde71f1b5"},
@@ -732,6 +790,10 @@ fiona = [
     {file = "Fiona-1.8.18-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:a3de7c1da06bc036dcd8954fa30e089587af335d4e549539169b1de9fe8badba"},
     {file = "Fiona-1.8.18-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:1c26f38bfbcd51e710c361f26db605ccf2b5f2a7967e0f4a88683cac3845c947"},
     {file = "Fiona-1.8.18.tar.gz", hash = "sha256:b732ece0ff8886a29c439723a3e1fc382718804bb057519d537a81308854967a"},
+]
+glom = [
+    {file = "glom-20.11.0-py2.py3-none-any.whl", hash = "sha256:566f723ecac64d8bd93b3c33fbfd4d5ea7cb2842b5286a19f48c66240408b55f"},
+    {file = "glom-20.11.0.tar.gz", hash = "sha256:54051072bccc9cdb3ebbd8af0559195137a61d308f04bff19678e4b61350eb12"},
 ]
 idna = [
     {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
@@ -1056,6 +1118,10 @@ sqlparse = [
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
+]
+topojson = [
+    {file = "topojson-1.1-py2.py3-none-any.whl", hash = "sha256:e158e343005682c22235bbdff7c02d67818925a366f8ad9a3dfbb6ffba3253fa"},
+    {file = "topojson-1.1.tar.gz", hash = "sha256:59ee8927444feedc8df79cfd18925ee1dced057a609322dedf08b69e52cf853e"},
 ]
 traitlets = [
     {file = "traitlets-5.0.5-py3-none-any.whl", hash = "sha256:69ff3f9d5351f31a7ad80443c2674b7099df13cc41fc5fa6e2f6d3b0330b0426"},

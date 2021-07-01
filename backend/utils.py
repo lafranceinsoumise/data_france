@@ -41,55 +41,37 @@ class check_hash:
         return self._check()
 
 
-def get_zip_targets(zip_path, dest_prefix):
-    zip_file = ZipFile(zip_path)
-    info_list = zip_file.infolist()
-    if len(info_list) == 1:
-        return [dest_prefix.with_suffix(PurePath(info_list[0].filename).suffix)]
-
-    else:
-        return [dest_prefix / info.filename for info in info_list]
-
-
-def extract_zip_file(zip_path, dest_prefix: Path):
-    zip_file = ZipFile(zip_path)
-    if len(zip_file.infolist()) == 1:
-        info = zip_file.infolist()[0]
-        info.filename = dest_prefix.with_suffix(PurePath(info.filename).suffix).name
-        zip_file.extract(info, path=dest_prefix.parent)
-    else:
-        dest_prefix.mkdir(parents=True, exist_ok=True)
-        zip_file.extractall(dest_prefix)
-
-
-def get_archive_targets(archive_path, dest_prefix: Path):
-    if archive_path.suffix == ".zip":
-        return get_zip_targets(archive_path, dest_prefix)
-
+def extract_singlefile(archive_path, dest, expected_ext):
     with archive_reader(str(archive_path)) as r:
-        paths = [entry.pathname for entry in r if entry.filetype.IFREG]
+        entry = next(r)
 
-        if len(paths) == 1:
-            return [dest_prefix.with_suffix(PurePath(paths[0]).suffix)]
+        ext = PurePath(entry.pathname).suffix
+
+        if ext != f".{expected_ext}":
+            raise ValueError(
+                "Le fichier dans l'archive {archive_path} n'a pas l'extension attendue"
+            )
+
+        with dest.open("wb") as f:
+            for block in entry.get_blocks():
+                f.write(block)
+
+        try:
+            entry = next(r)
+        except StopIteration:
+            pass
         else:
-            return [dest_prefix / path for path in paths]
+            raise ValueError(f"L'archive {archive_path} contient plus d'un fichier !")
 
 
-def extract_archive(archive_path, dest_prefix: Path):
-    if archive_path.suffix == ".zip":
-        return extract_zip_file(archive_path, dest_prefix)
-
-    singlefile = len(get_archive_targets(archive_path, dest_prefix)) == 1
-
+def extract_archive(archive_path, dest_prefix: Path, targets):
     with archive_reader(str(archive_path)) as r:
         for entry in r:
             if entry.filetype.IFREG:
-                if singlefile:
-                    dest = dest_prefix.with_suffix(PurePath(entry.pathname).suffix)
-                else:
-                    dest = dest_prefix / entry.pathname
-
-                dest.parent.mkdir(parents=True, exist_ok=True)
+                name = PurePath(entry.pathname).name
+                if name not in targets:
+                    continue
+                dest = dest_prefix / name
 
                 with dest.open("wb") as f:
                     for block in entry.get_blocks():

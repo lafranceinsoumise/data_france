@@ -36,6 +36,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.7"
 django = "==3.1.*"
+topojson = "^1.1"
 
 [tool.poetry.dev-dependencies]
 black = "==19.10b0"
@@ -56,6 +57,7 @@ psycopg2 = "==2.8.*"
 toml = "^0.10.2"
 beautifulsoup4 = "^4.9.3"
 requests = "^2.25.1"
+glom = "^20.11.0"
 
 [build-system]
 requires = ["poetry_core>=1.0.0"]

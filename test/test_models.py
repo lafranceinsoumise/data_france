@@ -16,9 +16,9 @@ class CommuneTestCase(TestCase):
     def test_communes_correctement_importees(self):
         """Le nombre de communes au sens large, et de communes au sens propre correspond à ce qui est attendu."""
         attendus = {
-            "COM": 34968,
-            "COMA": 546,
-            "COMD": 2342,
+            "COM": 34965,
+            "COMA": 517,
+            "COMD": 2215,
             "ARM": 20 + 9 + 16,
             "SRM": 17 + 9 + 8,
         }
@@ -28,7 +28,7 @@ class CommuneTestCase(TestCase):
             self.assertEqual(
                 reel,
                 attendu,
-                f"Il devrait y avoir f{attendu} entités de type {type_commune}, il y en a {reel}",
+                f"Il devrait y avoir {attendu} entités de type {type_commune}, il y en a {reel}",
             )
 
     def test_polygones_disponibles(self):
@@ -48,7 +48,7 @@ class CommuneTestCase(TestCase):
         """Les communes ont leur population"""
 
         # à part Mayotte, toutes les communes et arrondissements ont leur population
-        self.assertFalse(
+        self.assertCountEqual(
             Commune.objects.filter(
                 type__in=[
                     Commune.TypeCommune.COMMUNE,
@@ -56,12 +56,8 @@ class CommuneTestCase(TestCase):
                     Commune.TypeCommune.SECTEUR_PLM,
                 ],
                 population_municipale__isnull=True,
-            )
-            .exclude(departement__code="976")
-            .exclude(
-                code="14666"
-            )  # la commune de Sannerville rétablie par un jugement du TA
-            .exists()
+            ).values_list("code", flat=True),
+            [],
         )
 
         # à part ces exceptions récentes, toutes les communes ont leur population municipale
@@ -69,24 +65,14 @@ class CommuneTestCase(TestCase):
             Commune.objects.filter(
                 type__in=["COMD", "COMA"], population_municipale__isnull=True
             ).values_list("code", flat=True),
-            [
-                "14114",
-                "21183",
-                "21213",
-                "21452",
-                "21507",
-                "44225",
-                "45287",
-                "50649",
-                "52224",
-            ],
+            [],
         )
 
 
 class EPCITestCase(TestCase):
     def test_epci_correctement_importes(self):
         """Le nombre d'EPCI en base correspond à ce qui est attendu"""
-        self.assertEqual(EPCI.objects.count(), 1255)
+        self.assertEqual(EPCI.objects.count(), 1254)
 
     def test_epci_associees_correctement(self):
         """Seules quatre communes insulaires ne font pas partie d'une intercommunalité"""

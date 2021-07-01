@@ -140,15 +140,15 @@ def traiter_communes(
 
     communes = pd.read_csv(
         communes_cog_path,
-        dtype={"com": str, "dep": str, "comparent": str},
-        usecols=["typecom", "com", "tncc", "nccenr", "comparent"],
+        dtype={"COM": str, "DEP": str, "COMPARENT": str},
+        usecols=["TYPECOM", "COM", "TNCC", "NCCENR", "COMPARENT"],
     ).rename(
         columns={
-            "com": "code",
-            "typecom": "type",
-            "nccenr": "nom",
-            "tncc": "type_nom",
-            "comparent": "commune_parent",
+            "COM": "code",
+            "TYPECOM": "type",
+            "NCCENR": "nom",
+            "TNCC": "type_nom",
+            "COMPARENT": "commune_parent",
         }
     )
 
@@ -230,29 +230,26 @@ def traiter_communes(
 def traiter_cantons(cantons_cog_path, dest):
     cantons = pd.read_csv(
         cantons_cog_path,
-        dtype={"can": str, "dep": str, "burcentral": str, "compct": pd.UInt32Dtype()},
+        dtype={"CAN": str, "DEP": str, "BURCENTRAL": str, "COMPCT": pd.UInt32Dtype()},
         usecols=[
-            "can",
-            "typect",
-            "compct",
-            "nccenr",
-            "tncc",
-            "dep",
-            "burcentral",
+            "CAN",
+            "TYPECT",
+            "COMPCT",
+            "NCCENR",
+            "TNCC",
+            "DEP",
+            "BURCENTRAL",
         ],
     )
 
-    # La commune d'Azé (53014) est maintenant une commune déléguée de Château-Gontier-sur-Mayenne
-    cantons.loc[cantons["burcentral"] == "53014", "burcentral"] = "53062"
-
     cantons.rename(
         columns={
-            "can": "code",
-            "typect": "type",
-            "compct": "composition",
-            "nccenr": "nom",
-            "tncc": "type_nom",
-            "dep": "departement",
-            "burcentral": "bureau_centralisateur",
+            "CAN": "code",
+            "TYPECT": "type",
+            "COMPCT": "composition",
+            "NCCENR": "nom",
+            "TNCC": "type_nom",
+            "DEP": "departement",
+            "BURCENTRAL": "bureau_centralisateur",
         }
     ).to_csv(dest, index=False)

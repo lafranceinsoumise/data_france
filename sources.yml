@@ -1,53 +1,58 @@
 insee:
   cog:
     communes:
-      url: https://www.insee.fr/fr/statistiques/fichier/4316069/communes2020-csv.zip
-      date: 04/2020
-      hash: a690f63bdcac9c65e1d1e8816f024ca02b9f20df5fd30b93bbcb58bda563d181
+      url: https://www.insee.fr/fr/statistiques/fichier/5057840/commune2021-csv.zip
+      date: 01/2021
+      hash: 67a88da9061609c861b20aa853f5480d1fcdc8431e3911ae6c6c03cc925febd7
+      extraire: csv
     cantons:
-      url: https://www.insee.fr/fr/statistiques/fichier/4316069/canton2020-csv.zip
-      date: 01/2020
-      hash: c683a13901ff447a3748fa4662b0b35951d2210e0b5b8b0f9db0f1346a88a338
+      url: https://www.insee.fr/fr/statistiques/fichier/5057840/canton2021-csv.zip
+      date: 01/2021
+      hash: 7884448d9a36f1d79ad4a2d35bbdb26571a3e43da977c733eac5bffd22f783a6
+      extraire: csv
     arrondissements:
-      url: https://www.insee.fr/fr/statistiques/fichier/4316069/arrondissement2020-csv.zip
-      date: 01/2020
-      hash: 48fc2982808ca141103bd437ab554c32a1a3ee599ab56cbac4d86eddaddddf0a
+      url: https://www.insee.fr/fr/statistiques/fichier/5057840/arrondissement2021-csv.zip
+      date: 01/2021
+      hash: a49c3f0cdef3532b1e5a51b5bbfba31e56374dbdf53a6726a224e115f5b9dfb8
+      extraire: csv
     departements:
-      url: https://www.insee.fr/fr/statistiques/fichier/4316069/departement2020-csv.zip
-      date: 01/2020
-      hash: b89413321f30118756c9f4502e756279cbcaf089b3a0e5980c32bc14981d86c1
+      url: https://www.insee.fr/fr/statistiques/fichier/5057840/departement2021-csv.zip
+      date: 01/2021
+      hash: 55b0999478a2992566743dcd3560ed4be4dda01349574240fce1c37fa6fd0587
+      extraire: csv
     regions:
-      url: https://www.insee.fr/fr/statistiques/fichier/4316069/region2020-csv.zip
-      date: 01/2020
-      hash: 029877a27e283ec7de824a398eb443ef5e34dbd16fc5ba8a41659a2bebca48af
+      url: https://www.insee.fr/fr/statistiques/fichier/5057840/region2021-csv.zip
+      date: 01/2021
+      hash: 5fc418c45b2e3faea6ae91540d4da6baaec125dabf18085924cc31b33c3b01f5
+      extraire: csv
+    evenements:
+      url: https://www.insee.fr/fr/statistiques/fichier/5057840/mvtcommune2021-csv.zip
+      date: 01/2021
+      hash: 7e792f561ce2e8963e84a37456d723db9754ec22217d1f00ee4f723ccb3c634f
+      extraire: csv
 
   population:
     url: https://www.insee.fr/fr/statistiques/fichier/4265429/ensemble.zip
     date: 30/12/2019
     hash: 7c12879f5812772c29ab32f40310ef20ee16082c96f34b64152bb83cb1359307
+    extraire:
+      - Communes.csv
+      - Communes_associees_ou_deleguees.csv
 
   intercommunalite:
     epci:
-      url: https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite-Metropole_au_01-01-2020.zip
-      date: 01/2020
-      hash: fbf7dbcd7a995b9fa68c9861d8e5d3ff98c0978ad588d0db4fd7f81a42f85a9c
-
-  decoupage_communal:
-    url: https://www.insee.fr/fr/statistiques/fichier/2028028/table-appartenance-geo-communes-19.zip
-    date: 01/2019
-    hash: af1a56188813d578dd07b5adc7f74c87e0a0b140049dc9e0c544f7b81f4610ca
-
+      url: https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2021.zip
+      date: 01/2021
+      hash: 3b9b9c764cab9359f7bca7d05fc0b15e91b205ab837f46e2b03f50a7af367f1d
+      extraire: xlsx
 
 ign:
   admin-express:
     version-cog:
-      url: ftp://Admin_Express_ext:Dahnoh0eigheeFok@ftp3.ign.fr/ADMIN-EXPRESS-COG_2-1__SHP__FRA_WGS84G_2020-11-20.7z
-      date: 20/11/2020
-      hash: 1b80affb74f93b0fd9fd89612c4dfbbde6d0b3f7c1562822c8ef1461bb7cf42a
-#    classique:
-#      url: ftp://Admin_Express_ext:Dahnoh0eigheeFok@ftp3.ign.fr/ADMIN-EXPRESS_2-2__SHP__FRA_L93_2020-01-16.7z.001
-#      date: 01/2020
-#      hash: 635d5625ea0e4a311d8eb8af10c46fe081385e2840be2f558d457ef814038f20
+      url: ftp://Admin_Express_ext:Dahnoh0eigheeFok@ftp3.ign.fr/ADMIN-EXPRESS-COG_3-0__SHP__FRA_L93_2021-05-19.7z
+      date: 19/05/2021
+      hash: 32665c035409792ce178e270c9fd5ad5aa1d9e52ea0c0d7817c7b3c77a9e8034
+      extraire: False
 
 
 interieur:
@@ -111,13 +116,14 @@ laposte:
   codes_postaux:
     url: https://datanova.laposte.fr/explore/dataset/laposte_hexasmal/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%2C
     extension: .csv
-    hash: 70bb05c51302b63a5e09edf62a7534e3ae13d15660adafb073a58be408744b91
+    hash: f0667bfb6f4b942321cd098936d22f2b130d05f6d5fdecc64efeb66d8aa4e4be
 
 premier_ministre:
   annuaire_administration:
     url: http://lecomarquage.service-public.fr/donnees_locales_v2/all_latest.tar.bz2
     extension: .tar.bz2
-    hash: 0ff7121606c81b572cbd6cf12a500b7caa90dad27d83ca9fd6d7ef3deed196f6
+    hash: 09ee542c0413c04cffcda06b3ef245cdbdb00afe5e0213db9de8705a4f4e29d7
+    extraire: no
 
 conseil_constitutionnel:
   parrainages2017:

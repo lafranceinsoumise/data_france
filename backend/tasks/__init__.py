@@ -1,12 +1,7 @@
-from doit import create_after
 from doit.tools import create_folder
 
 from sources import SOURCES, SOURCE_DIR, PREPARE_DIR
-from utils import (
-    check_hash,
-    get_archive_targets,
-    extract_archive,
-)
+from utils import check_hash, extract_archive, extract_singlefile
 from .admin_express import *
 from .cog import *
 from .elections import *
@@ -36,17 +31,28 @@ def task_telecharger():
         }
 
 
-@create_after(executed="telecharger", target_regex=f"{PREPARE_DIR}/.*")
 def task_decompresser():
     for source in SOURCES:
-        if source.suffix in [".zip", ".7z"]:
+        if source.suffix in [".zip", ".7z"] and source.extraire:
             archive_path = SOURCE_DIR / source.filename
             dest_prefix = PREPARE_DIR / source.path
-            targets = get_archive_targets(archive_path, dest_prefix)
+
+            if isinstance(source.extraire, str):
+                targets = [dest_prefix.with_suffix(f".{source.extraire}")]
+                actions = [
+                    (create_folder, (dest_prefix.parent,)),
+                    (extract_singlefile, (archive_path, targets[0], source.extraire)),
+                ]
+            else:
+                targets = [dest_prefix / p for p in source.extraire]
+                actions = [
+                    (create_folder, (dest_prefix,)),
+                    (extract_archive, (archive_path, dest_prefix, source.extraire)),
+                ]
 
             yield {
                 "name": source.path,
                 "file_dep": [archive_path],
                 "targets": targets,
-                "actions": [(extract_archive, [archive_path, dest_prefix])],
+                "actions": actions,
             }

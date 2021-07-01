@@ -100,9 +100,11 @@ def traiter_parrainages(
     )
     parrainages["sexe"] = parrainages.civilite.map({"M": "M", "Mme": "F"})
 
-    communes = pd.read_csv(communes_path, dtype={"com": str})
+    communes = pd.read_csv(communes_path, dtype={"COM": str}).rename(columns=str.lower)
     communes = communes[communes.typecom == "COM"]
-    departements = pd.read_csv(departements_path, dtype={"dep": str, "reg": str})
+    departements = pd.read_csv(
+        departements_path, dtype={"dep": str, "reg": str}
+    ).rename(columns=str.lower)
 
     # régler une différence de ponctuation
     parrainages.loc[

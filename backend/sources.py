@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from pathlib import Path, PurePath
 
 import yaml
+from typing import List, Union
 
 
 BASE_DIR = Path(__file__).parent.parent
@@ -89,6 +90,7 @@ class Source:
     extension: str = None
     delimiter: str = ";"
     corrected: str = None
+    extraire: Union[str, List[str]] = None
 
     @property
     def suffix(self):

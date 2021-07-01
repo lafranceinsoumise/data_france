@@ -200,6 +200,43 @@ COMMUNE_NON_CONSERVEE = {
     "mairie-31277-02",  # Pradère-les-Bourguets
     "mairie-25156-02",  # Santoche
     "mairie-18222-02",  # Saint-Lunaise
+    "mairie-45287-02",  # Saint-Loup-de-Gonois
+    "mairie-56173-02",  # Bieuzy
+    "mairie-56138-02",  # Monterrein
+    "mairie-72189-02",  # Dissé-sous-Ballon
+    "mairie-23192-02",  # Une des deux anciennes COMD de Fursac
+    "mairie-12090-02",  # Balsac
+    "mairie-22251-02",  # Tréméloir
+    "mairie-38293-02",  # Panissage
+    "mairie-16230-05",  # Saint-Eutrope
+    "mairie-16046-02",  # Cressac-Saint-Genis
+    "mairie-16023-02",  # Bayers
+    "mairie-16230-02",  # Aignes-et-Puypéroux
+    "mairie-16230-03",  # Montmoreau (COMD)
+    "mairie-16230-04",  # Saint-Laurent-de-Belzagot
+    "mairie-39378-02",  # Saint-Jean-d'Étreux
+    "mairie-73227-02",  # La Perrière
+    "mairie-14406-03",  # Cully
+    "mairie-14200-02",  # Saint-Gabriel-Brécy
+    "mairie-14355-02",  # Amblie
+    "mairie-14200-03",  # Villiers-le-Sec
+    "mairie-14355-03",  # Tierceville
+    "mairie-28012-04",  # Courtalain
+    "mairie-28012-03",  # Châtillon-en-Dunois
+    "mairie-28012-06",  # Saint-Pellerin
+    "mairie-28012-05",  # Langey
+    "mairie-28012-02",  # Boisgasson
+    "mairie-05101-02",  # Vallouise
+    "mairie-27676-03",  # Tosny
+    "mairie-27588-03",  # Saint-Pierre d'Autils
+    "mairie-27290-02",  # Tilleul-Othon
+    "mairie-27554-02",  # Saint-Just
+    "mairie-50592-02",  # Pont-Farcy
+    "mairie-50139-02",  # Troisgots
+    "mairie-50417-02",  # Morsalines
+    "mairie-01227-02",  # Saint-Champ
+    "mairie-36093-02",  # Saint-Pierre-de-Lamps
+    "mairie-91182-02",  # Courcouronnes
 }
 
 

@@ -125,14 +125,14 @@ def task_generer_fichier_communes():
 
 def task_generer_fichier_codes_postaux():
     return {
-        "file_dep": [CODES_POSTAUX, REFERENCES_DIR / "communes.csv"],
+        "file_dep": [CODES_POSTAUX, COMMUNES_CSV],
         "targets": [FINAL_CODES_POSTAUX, FINAL_CORRESPONDANCES_CODE_POSTAUX],
         "actions": [
             (
                 generer_fichiers_codes_postaux,
                 [
                     CODES_POSTAUX,
-                    REFERENCES_DIR / "communes.csv",
+                    COMMUNES_CSV,
                     FINAL_CODES_POSTAUX,
                     FINAL_CORRESPONDANCES_CODE_POSTAUX,
                 ],
@@ -173,13 +173,13 @@ def task_generer_fichier_circonscriptions_consulaires():
 def task_generer_fichier_elus_municipaux():
     source_file = PREPARE_DIR / SOURCES.interieur.rne.municipaux.filename
     return {
-        "file_dep": [source_file, REFERENCES_DIR / "communes.csv"],
+        "file_dep": [source_file, COMMUNES_CSV],
         "task_dep": ["generer_fichier_communes"],
         "targets": [FINAL_ELUS_MUNICIPAUX],
         "actions": [
             (
                 generer_fichier_elus_municipaux,
-                [source_file, FINAL_ELUS_MUNICIPAUX],
+                [source_file, COMMUNES_CSV, FINAL_ELUS_MUNICIPAUX],
             )
         ],
     }
@@ -196,11 +196,11 @@ def generer_fichier_regions(path, lzma_path):
         w.writeheader()
         w.writerows(
             {
-                "id": region_id(code=region["reg"]),
-                "code": region["reg"],
-                "nom": region["nccenr"],
-                "type_nom": region["tncc"],
-                "chef_lieu_id": commune_id(type="COM", code=region["cheflieu"]),
+                "id": region_id(code=region["REG"]),
+                "code": region["REG"],
+                "nom": region["NCCENR"],
+                "type_nom": region["TNCC"],
+                "chef_lieu_id": commune_id(type="COM", code=region["CHEFLIEU"]),
             }
             for region in r
         )
@@ -219,12 +219,12 @@ def generer_fichier_departements(path, lzma_path):
         w.writeheader()
         w.writerows(
             {
-                "id": departement_id(code=d["dep"]),
-                "code": d["dep"],
-                "nom": d["nccenr"],
-                "type_nom": d["tncc"],
-                "chef_lieu_id": commune_id(type="COM", code=d["cheflieu"]),
-                "region_id": region_id(code=d["reg"]),
+                "id": departement_id(code=d["DEP"]),
+                "code": d["DEP"],
+                "nom": d["NCCENR"],
+                "type_nom": d["TNCC"],
+                "chef_lieu_id": commune_id(type="COM", code=d["CHEFLIEU"]),
+                "region_id": region_id(code=d["REG"]),
             }
             for d in r
         )
@@ -348,16 +348,16 @@ def generer_fichier_communes(communes, communes_geo, mairies, dest):
 
 
 def generer_fichiers_codes_postaux(
-    codes_postaux, reference_communes, final_code_postal, final_corr
+    codes_postaux, communes, final_code_postal, final_corr
 ):
-    communes = pd.read_csv(reference_communes, dtype={"code": str})
+    communes = pd.read_csv(communes, usecols=["type", "code"], dtype={"code": str})
     communes["type"] = pd.Categorical(
         communes["type"], categories=["COM", "ARM", "COMA", "COMD"]
     )
     communes = (
         communes.sort_values(["type", "code"])
         .drop_duplicates(["code"])
-        .set_index(["code"])["id"]
+        .set_index(["code"])["type"]
     )
 
     codes_postaux = pd.read_csv(
@@ -366,7 +366,15 @@ def generer_fichiers_codes_postaux(
         usecols=["Code_commune_INSEE", "Code_postal"],
     ).drop_duplicates()
 
-    with id_from_file("codes_postaux.csv") as id_code_postal:
+    # La commune Les Trois Lacs a changé de code INSEE au 01/01/2021 et ce n'est
+    # pas pris en compte par la poste, donc modification manuelle
+    codes_postaux.loc[
+        codes_postaux.Code_commune_INSEE == "27676", "Code_commune_INSEE"
+    ] = "27058"
+
+    with id_from_file("codes_postaux.csv") as id_code_postal, id_from_file(
+        "communes.csv"
+    ) as id_commune:
         with lzma.open(final_code_postal, "wt", newline="") as fl:
             w = csv.DictWriter(fl, fieldnames=["id", "code"])
             w.writeheader()
@@ -383,7 +391,10 @@ def generer_fichiers_codes_postaux(
             w.writerows(
                 {
                     "codepostal_id": id_code_postal(code=ligne.Code_postal),
-                    "commune_id": communes.loc[ligne.Code_commune_INSEE],
+                    "commune_id": id_commune(
+                        type=communes.loc[ligne.Code_commune_INSEE],
+                        code=ligne.Code_commune_INSEE,
+                    ),
                 }
                 for ligne in codes_postaux.itertuples()
                 if ligne.Code_commune_INSEE in communes.index
@@ -460,7 +471,10 @@ def normaliser_date(d):
     return d.strftime("%Y-%m-%d")
 
 
-def generer_fichier_elus_municipaux(elus_municipaux, final_elus):
+def generer_fichier_elus_municipaux(elus_municipaux, communes, final_elus):
+    coms = pd.read_csv(communes, usecols=["type", "code"], dtype={"code": str})
+    coms = set(coms[coms.type == "COM"]["code"])
+
     with id_from_file("communes.csv", read_only=True) as id_commune, id_from_file(
         "elus_municipaux.csv"
     ) as id_elu, open(elus_municipaux, newline="") as f, lzma.open(
@@ -492,11 +506,15 @@ def generer_fichier_elus_municipaux(elus_municipaux, final_elus):
         w.writeheader()
 
         for l in r:
-            try:
-                l["commune_id"] = id_commune(code=l.pop("code"), type="COM")
-            except ValueError:
-                # on ignore simplement les élus des communes que l'on ne connait pas
+            code = l.pop("code")
+
+            # prendre en compte le changement de code INSEE des Trois Lacs
+            if code == "27676":
+                code = "27058"
+
+            if code not in coms:
                 continue
+            l["commune_id"] = id_commune(code=code, type="COM")
 
             for f in [
                 "date_debut_fonction",
