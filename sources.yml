@@ -111,6 +111,26 @@ interieur:
         url: https://www.data.gouv.fr/s/resources/elections-municipales-2014-resultats-par-bureaux-de-vote/20150925-122128/MN14_Bvot_T1T2.txt
         date: 25/09/2015
         hash: fe8ae42befb8e006dce1d959bee237449c9f39506c940e68c9b49a20f4363570
+    regionales:
+      2021:
+        tour1:
+          url: https://static.data.gouv.fr/resources/regionales-2021-resultats-du-1er-tour/20210622-130530/resultats-par-niveau-bv-t1-france-entiere-2021-06-22-11h36.txt
+          date: 22/06/2021
+          hash: 877493d2a80fa6f3b417490f9c069844ca714681e8d57bd0c52ff93d9a47086c
+        tour2:
+          url: https://static.data.gouv.fr/resources/elections-regionales-2021-resultats-2eme-tour/20210701-120503/resultats-par-niveau-burvot-t2-france-entiere-2021-06-30-13h33.txt
+          date: 01/07/2021
+          hash: 9f7cea21779650c5f788b0fb2a0d439aef5ee3a0c096b99404d923ca88bca594
+    departementales:
+      2021:
+        tour1:
+          url: https://static.data.gouv.fr/resources/elections-departementales-2021-resultats-du-1er-tour/20210622-165822/resultats-par-niveau-burvot-t1-france-entiere.txt
+          hash: 7b135ed4a6500e6aa16e63af3c5076aa8d8159cf1aa90b742a5dc0c12dd1dce5
+          date: 22/06/2021
+        tour2:
+          url: https://static.data.gouv.fr/resources/elections-departementales-2021-resultats-du-2eme-tour/20210701-120141/resultats-par-niveau-burvot-t2-france-entiere-2021-06-30.txt
+          hash: 4af3b66cf3e81de036954e473baf97f37fb24daa95020224918b4470a4e5fde7
+          date: 01/07/2021
 
 laposte:
   codes_postaux:

@@ -8,8 +8,12 @@ import pandas as pd
 fixed_headers = {
     "Code du département": "departement",
     "Libellé du département": None,
+    "Libellé de la section électorale": None,
     "Code de la circonscription": "circonscription",
     "Libellé de la circonscription": None,
+    "Code du canton": "canton",
+    "Libellé du canton": None,
+    "Libellé du canton": None,
     "Code de la commune": "commune",
     "Libellé de la commune": None,
     "Code du b.vote": "bureau",
@@ -37,11 +41,13 @@ repeated_headers = {
     "N°Panneau": "numero_panneau",
     "N.Pan.": "numero_panneau",
     "N°Liste": "numero_panneau",  # N°Liste
+    "Binôme": "binome",
     "Sexe": "sexe",
     "Nom": "nom",
     "Prénom": "prenom",
     "Nuance": "nuance",
     "Code Nuance": "nuance",
+    "Nuance Liste": "nuance",
     "Libellé Abrégé Liste": "liste_court",  # Libellé Abrégé Liste
     "Libellé Etendu Liste": "liste_long",  # Libellé Etendu Liste
     "Liste": "liste_long",
