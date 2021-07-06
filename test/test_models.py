@@ -56,7 +56,9 @@ class CommuneTestCase(TestCase):
                     Commune.TypeCommune.SECTEUR_PLM,
                 ],
                 population_municipale__isnull=True,
-            ).values_list("code", flat=True),
+            )
+            .exclude(code__startswith="976")  # il manque toutes les communes de Mayotte
+            .values_list("code", flat=True),
             [],
         )
 
