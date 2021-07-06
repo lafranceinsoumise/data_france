@@ -93,8 +93,8 @@ class Commune(TypeNomMixin, models.Model):
         COMMUNE = "COM", "Commune"
         COMMUNE_DELEGUEE = "COMD", "Commune déléguée"
         COMMUNE_ASSOCIEE = "COMA", "Commune associée"
-        ARRONDISSEMENT_PLM = "ARM", "Arrondissement de Paris/Lyon/Marseille"
-        SECTEUR_PLM = "SRM", "Secteur électoral de Paris/Lyon/Marseille"
+        ARRONDISSEMENT_PLM = "ARM", "Arrondissement PLM"
+        SECTEUR_PLM = "SRM", "Secteur électoral PLM"
 
     TYPE_COMMUNE = TypeCommune.COMMUNE
     TYPE_COMMUNE_DELEGUEE = TypeCommune.COMMUNE_DELEGUEE
@@ -221,6 +221,9 @@ class Commune(TypeNomMixin, models.Model):
 
     def __str__(self):
         return f"{self.nom_complet} ({self.code})"
+
+    def __repr__(self):
+        return f"<{self.get_type_display()}: {self}>"
 
     def as_dict(self):
         """Sérialise l'instance (compatible JSON)"""

@@ -62,12 +62,28 @@ class CommuneTestCase(TestCase):
             [],
         )
 
-        # à part ces exceptions récentes, toutes les communes ont leur population municipale
+        # deux de ces exceptions sont des communes qui ont changé de département
+        # en fusionnant, toutes les autres sauf une sont des communes associées
+        # devenues déléguées. Aucune idée des raisons de l'absence pour la dernière (45287)
         self.assertCountEqual(
             Commune.objects.filter(
                 type__in=["COMD", "COMA"], population_municipale__isnull=True
             ).values_list("code", flat=True),
-            [],
+            [
+                "08068",
+                "14114",
+                "14267",
+                "14479",
+                "14673",
+                "44225",
+                "52224",
+                "52387",
+                "52402",
+                "52454",
+                "73148",
+                "73291",
+                "73325",
+            ],
         )
 
 
