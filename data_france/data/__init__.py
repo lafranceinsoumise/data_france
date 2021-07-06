@@ -223,12 +223,28 @@ def importer_circonscriptions_consulaires(using):
         import_with_temp_table(f, "data_france_circonscriptionconsulaire", using)
 
 
+@console_message("Chargement des circonscriptions législatives")
+def importer_circonscriptions_legislatives(using):
+    with open_binary(
+        "data_france.data", "circonscriptions_legislatives.csv.lzma"
+    ) as _f, lzma.open(_f, "rt") as f:
+        import_with_temp_table(f, "data_france_circonscriptionlegislative", using)
+
+
 @console_message("Chargement des élus municipaux")
 def importer_elus_municipaux(using):
     with open_binary("data_france.data", "elus_municipaux.csv.lzma") as _f, lzma.open(
         _f, "rt"
     ) as f:
         import_with_temp_table(f, "data_france_elumunicipal", using)
+
+
+@console_message("Chargement des députés")
+def importer_deputes(using):
+    with open_binary("data_france.data", "deputes.csv.lzma") as _f, lzma.open(
+        _f, "rt"
+    ) as f:
+        import_with_temp_table(f, "data_france_depute", using)
 
 
 def agreger_geometries_et_populations(using):
@@ -599,7 +615,11 @@ def importer_donnees(using=None):
 
         importer_circonscriptions_consulaires(using)
 
+        importer_circonscriptions_legislatives(using)
+
         importer_elus_municipaux(using)
+
+        importer_deputes(using)
 
         agreger_geometries_et_populations(using)
 

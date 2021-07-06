@@ -1,14 +1,20 @@
 import contextlib
 import csv
+import json
 import lzma
+import re
 from datetime import datetime
+from operator import itemgetter
 from pathlib import Path
 
 import pandas as pd
+from glom import glom, T, Invoke, Match, Switch, Regex, Not, Coalesce, Iter, Val
+from shapely.geometry import MultiPolygon, shape
 
 from sources import BASE_DIR, SOURCE_DIR, PREPARE_DIR, SOURCES
 from tasks.admin_express import COMMUNES_GEOMETRY
 from tasks.annuaire_administratif import MAIRIES_TRAITEES
+from tasks.assemblee_nationale import ASSEMBLEE_NATIONALE_DIR
 from tasks.cog import (
     COMMUNES_CSV,
     EPCI_CSV,
@@ -29,9 +35,35 @@ FINAL_CODES_POSTAUX = DATA_DIR / "codes_postaux.csv.lzma"
 FINAL_CORRESPONDANCES_CODE_POSTAUX = DATA_DIR / "codes_postaux_communes.csv.lzma"
 FINAL_CANTONS = DATA_DIR / "cantons.csv.lzma"
 FINAL_CIRCONSCRIPTIONS_CONSULAIRES = DATA_DIR / "circonscriptions_consulaires.csv.lzma"
+FINAL_CIRCONSCRIPTIONS_LEGISLATIVES = (
+    DATA_DIR / "circonscriptions_legislatives.csv.lzma"
+)
 FINAL_ELUS_MUNICIPAUX = DATA_DIR / "elus_municipaux.csv.lzma"
+FINAL_DEPUTES = DATA_DIR / "deputes.csv.lzma"
 
 NULL = r"\N"
+
+INTERIEUR_VERS_DEPARTEMENT = {
+    "ZA": "971",
+    "ZB": "972",
+    "ZC": "973",
+    "ZD": "974",
+    "ZM": "976",
+    "ZN": "988",
+    "ZP": "987",
+    "ZS": "975",
+    "ZW": "986",
+    "ZX": "977",  # choix fait par l'AN pour la circo concernée
+}
+
+NON_DEPARTEMENT = re.compile(r"^9(?:7[57]|8\d)$")
+
+
+def code_circonscription(prop):
+    dep = INTERIEUR_VERS_DEPARTEMENT.get(prop["code_dpt"], prop["code_dpt"])
+    num = prop["num_circ"].rjust(2, "0")
+    return f"{dep}-{num}"
+
 
 __all__ = [
     "task_generer_fichier_regions",
@@ -41,7 +73,9 @@ __all__ = [
     "task_generer_fichier_codes_postaux",
     "task_generer_fichier_cantons",
     "task_generer_fichier_circonscriptions_consulaires",
+    "task_generer_fichier_circonscriptions_legislatives",
     "task_generer_fichier_elus_municipaux",
+    "task_generer_fichier_deputes",
 ]
 
 
@@ -170,6 +204,22 @@ def task_generer_fichier_circonscriptions_consulaires():
     }
 
 
+def task_generer_fichier_circonscriptions_legislatives():
+    source = (
+        SOURCE_DIR / SOURCES.sciences_po.contours_circonscriptions_legislatives.filename
+    )
+    return {
+        "file_dep": [source],
+        "targets": [FINAL_CIRCONSCRIPTIONS_LEGISLATIVES],
+        "actions": [
+            (
+                generer_fichier_circonscriptions_legislatives,
+                (source, FINAL_CIRCONSCRIPTIONS_LEGISLATIVES),
+            )
+        ],
+    }
+
+
 def task_generer_fichier_elus_municipaux():
     source_file = PREPARE_DIR / SOURCES.interieur.rne.municipaux.filename
     return {
@@ -179,7 +229,27 @@ def task_generer_fichier_elus_municipaux():
         "actions": [
             (
                 generer_fichier_elus_municipaux,
-                [source_file, COMMUNES_CSV, FINAL_ELUS_MUNICIPAUX],
+                (source_file, COMMUNES_CSV, FINAL_ELUS_MUNICIPAUX),
+            )
+        ],
+    }
+
+
+def task_generer_fichier_deputes():
+    sources = {
+        f"{c}_path": ASSEMBLEE_NATIONALE_DIR / f"{c}.csv"
+        for c in ["deputes", "groupes", "partis", "deputes_groupes", "deputes_partis"]
+    }
+
+    return {
+        "file_dep": list(sources.values()),
+        "task_dep": ["generer_fichier_circonscriptions_legislatives"],
+        "targets": [FINAL_DEPUTES],
+        "actions": [
+            (
+                generer_fichier_deputes,
+                (),
+                {**sources, "dest": FINAL_DEPUTES},
             )
         ],
     }
@@ -463,6 +533,56 @@ def generer_fichier_circonscriptions_consulaires(source, dest):
             writer.writerow(circ)
 
 
+def geometrie_circonscription(geom):
+    s = shape(geom)
+
+    if not isinstance(s, MultiPolygon):
+        s = MultiPolygon([s])
+    return s.wkb_hex
+
+
+def generer_fichier_circonscriptions_legislatives(source, dest):
+    """À partir du fichier des circonscriptions parlementaires de Sciences Po"""
+
+    with source.open() as f:
+        circos = json.load(f)
+
+    with id_from_file("departements.csv") as id_dep, id_from_file(
+        "circonscriptions_legislatives.csv"
+    ) as id_circ:
+        spec = {
+            "id": ("properties", code_circonscription, Invoke(id_circ).specs(code=T)),
+            "code": ("properties", code_circonscription),
+            "departement_id": (
+                "properties.code_dpt",
+                Invoke(INTERIEUR_VERS_DEPARTEMENT.get).specs(T, T),
+                Match(
+                    Switch({Not(Regex(NON_DEPARTEMENT)): Invoke(id_dep).specs(code=T)}),
+                    default=NULL,
+                ),
+            ),
+            "geometry": ("geometry", geometrie_circonscription),
+        }
+
+        with lzma.open(dest, "wt") as f:
+            w = csv.DictWriter(f, fieldnames=spec)
+            w.writeheader()
+            w.writerows(
+                sorted(glom(circos["features"], [spec]), key=itemgetter("code"))
+            )
+
+            for i in range(1, 12):
+                code = f"99-{i:02d}"
+                w.writerow(
+                    {
+                        "id": id_circ(code=code),
+                        "code": code,
+                        "departement_id": NULL,
+                        "geometry": NULL,
+                    }
+                )
+
+
 def normaliser_date(d):
     """Normalise une date au format ISO"""
     d = datetime.strptime(d, "%d/%m/%Y")
@@ -538,3 +658,71 @@ def generer_fichier_elus_municipaux(elus_municipaux, communes, final_elus):
             )
 
             w.writerow({k: v for k, v in l.items() if not k[0] == "_"})
+
+
+def generer_fichier_deputes(
+    deputes_path,
+    groupes_path,
+    partis_path,
+    deputes_groupes_path,
+    deputes_partis_path,
+    dest,
+):
+    deputes = pd.read_csv(deputes_path)
+    groupes = pd.read_csv(groupes_path)
+    deputes_groupes = pd.read_csv(deputes_groupes_path).join(
+        groupes.set_index("code")[["nom", "sigle"]], on="code"
+    )
+    deputes_groupes = (
+        deputes_groupes[deputes_groupes.date_fin.isnull()]
+        .sort_values(["code_depute", "relation"])
+        .drop_duplicates(
+            "code_depute", keep="last"
+        )  # garder "P" (président) plutôt que "M" (membre)
+        .set_index("code_depute")
+    )
+    deputes_groupes["groupe"] = deputes_groupes.nom + " (" + deputes_groupes.sigle + ")"
+
+    partis = pd.read_csv(partis_path)
+    deputes_partis = pd.read_csv(deputes_partis_path).join(
+        partis.set_index("code")[["nom", "sigle"]], on="code"
+    )
+    deputes_partis = deputes_partis[deputes_partis.date_fin.isnull()].set_index(
+        "code_depute"
+    )
+    deputes_partis = deputes_partis.nom + " (" + deputes_partis.sigle + ")"
+    deputes_partis.name = "parti"
+
+    deputes = deputes.join(deputes_groupes[["groupe", "relation"]], on=["code"]).join(
+        deputes_partis, on=["code"]
+    )
+
+    with lzma.open(dest, "wt") as f, id_from_file(
+        "circonscriptions_legislatives.csv"
+    ) as id_circos, id_from_file("deputes.csv") as id_deputes:
+
+        spec = {
+            "id": Invoke(id_deputes).specs(code=T.code),
+            "circonscription_id": Invoke(id_circos).specs(code=T.circonscription),
+            **{
+                c: getattr(T, c)
+                for c in [
+                    "code",
+                    "nom",
+                    "prenom",
+                    "sexe",
+                    "date_naissance",
+                    "legislature",
+                    "date_debut_mandat",
+                ]
+            },
+            "groupe": Coalesce(T.groupe, skip=pd.isna, default=""),
+            "parti": Coalesce(T.parti, skip=pd.isna, default=""),
+            "date_fin_mandat": Coalesce(T.date_fin_mandat, skip=pd.isna, default=NULL),
+            "relation": Coalesce(T.relation, skip=pd.isna, default=""),
+            "profession": Val(NULL),
+        }
+
+        w = csv.DictWriter(f, fieldnames=spec)
+        w.writeheader()
+        w.writerows(glom(deputes.itertuples(), Iter(spec)))

@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from django.db.models import TextChoices, IntegerChoices
 
 
@@ -29,6 +31,20 @@ class TypeNom(IntegerChoices):
     ARTICLE_LOS = 8, "los ", "de los ", "Article = LOS"
 
 
+@dataclass
+class NomType:
+    nom: str
+    type_nom: TypeNom
+
+    @property
+    def nom_complet(self):
+        return f"{self.type_nom.article}{self.nom}"
+
+    @property
+    def nom_avec_charniere(self):
+        return f"{self.type_nom.charniere}{self.nom}"
+
+
 class CodeSexe(TextChoices):
     MASCULIN = "M"
     FEMININ = "F"
@@ -41,6 +57,12 @@ class Fonction(TextChoices):
     PRESIDENT = "PRE", "Président⋅e"
     MAIRE_ADJOINT = "ADJ", "Adjoint⋅e au maire"
     AUTRE_MEMBRE_COM = "AMC", "Autre membre de la commission permanente"
+
+
+class RelationGroupe(TextChoices):
+    PRESIDENT = "P", "Président⋅e de groupe"
+    MEMBRE = "M", "Membre"
+    APPARENTE = "A", "Membre apparenté au groupe"
 
 
 ORDINAUX_LETTRES = [
@@ -84,3 +106,13 @@ ORDINAUX_LETTRES = [
     "trente-huitième",
     "trente-neuvième",
 ]
+
+
+NOMS_COM = {
+    "975": NomType("Saint-Pierre-et-Miquelon", TypeNom.CONSONNE),
+    "977": NomType("Saint-Barthélémy", TypeNom.CONSONNE),
+    "978": NomType("Saint-Martin", TypeNom.CONSONNE),
+    "986": NomType("Wallis-et-Futuna", TypeNom.CONSONNE),
+    "987": NomType("Polynésie Française", TypeNom.ARTICLE_LA),
+    "988": NomType("Nouvelle-Calédonie", TypeNom.ARTICLE_LA),
+}

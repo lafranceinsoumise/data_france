@@ -49,7 +49,7 @@ def extract_singlefile(archive_path, dest, expected_ext):
 
         if ext != f".{expected_ext}":
             raise ValueError(
-                "Le fichier dans l'archive {archive_path} n'a pas l'extension attendue"
+                f"Le fichier dans l'archive {archive_path} n'a pas l'extension attendue"
             )
 
         with dest.open("wb") as f:

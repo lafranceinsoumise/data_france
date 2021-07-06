@@ -13,6 +13,7 @@ from data_france.models import (
     CollectiviteRegionale,
     CirconscriptionConsulaire,
     EluMunicipal,
+    Depute,
 )
 from data_france.typologies import Fonction
 
@@ -328,3 +329,46 @@ class EluMunicipalAdmin(ImmutableModelAdmin):
         if search_term:
             return queryset.search(search_term), use_distinct
         return queryset, use_distinct
+
+
+@admin.register(Depute)
+class DeputeAdmin(ImmutableModelAdmin):
+    list_display = ("nom_complet", "circonscription", "sexe", "groupe", "relation")
+
+    fieldsets = (
+        (
+            "Identité",
+            {
+                "fields": [
+                    "nom",
+                    "prenom",
+                    "sexe",
+                    "date_naissance",
+                ]
+            },
+        ),
+        (
+            "Mandat",
+            {
+                "fields": [
+                    "legislature",
+                    "code",
+                    "circonscription",
+                    "date_debut_mandat",
+                    "date_fin_mandat",
+                ]
+            },
+        ),
+        (
+            "Groupe et parti",
+            {"fields": ["groupe", "relation", "parti"]},
+        ),
+    )
+
+    search_fields = ("nom", "prenom")
+
+    def nom_complet(self, obj):
+        return f"{obj.nom.upper()}, {obj.prenom}"
+
+    nom_complet.short_description = "Nom complet"
+    nom_complet.admin_order_field = "nom"

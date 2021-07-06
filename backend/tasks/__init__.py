@@ -10,6 +10,7 @@ from .annuaire_administratif import *
 from .rne import *
 from .parrainages import *
 from .consulaires import *
+from .assemblee_nationale import *
 
 
 def task_telecharger():

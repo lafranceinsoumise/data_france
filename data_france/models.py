@@ -4,7 +4,14 @@ from django.db import models
 from django.utils.html import format_html_join
 
 from data_france.search import PrefixSearchQuery
-from data_france.typologies import TypeNom, CodeSexe, ORDINAUX_LETTRES, Fonction
+from data_france.typologies import (
+    CodeSexe,
+    Fonction,
+    NOMS_COM,
+    ORDINAUX_LETTRES,
+    RelationGroupe,
+    TypeNom,
+)
 from django.contrib.postgres.fields.array import ArrayField
 from django.contrib.postgres.indexes import GinIndex
 
@@ -17,6 +24,9 @@ __all__ = [
     "CodePostal",
     "CollectiviteDepartementale",
     "CollectiviteRegionale",
+    "CirconscriptionLegislative",
+    "CirconscriptionConsulaire",
+    "Depute",
     "EluMunicipal",
 ]
 
@@ -65,6 +75,28 @@ class TypeNomMixin(models.Model):
         :return: le nom avec la charniere (par exemple "de la Charente")
         """
         return f"{TypeNom(self.type_nom).charniere}{self.nom}"
+
+    class Meta:
+        abstract = True
+
+
+class IdentiteMixin(models.Model):
+    nom = models.CharField(
+        verbose_name="Nom de famille", editable=False, max_length=200
+    )
+    prenom = models.CharField(
+        verbose_name="Prénom", editable=False, blank=True, max_length=200
+    )
+    sexe = models.CharField(
+        verbose_name="Sexe à l'état civil",
+        choices=CodeSexe.choices,
+        max_length=1,
+        editable=True,
+    )
+    date_naissance = models.DateField(verbose_name="Date de naissance", editable=False)
+    profession = models.SmallIntegerField(
+        verbose_name="Profession", editable=False, null=True
+    )
 
     class Meta:
         abstract = True
@@ -576,6 +608,46 @@ class Canton(TypeNomMixin, models.Model):
     )
 
 
+class CirconscriptionLegislative(models.Model):
+    code = models.CharField(
+        verbose_name="Numéro de la circonscription",
+        max_length=10,
+        blank=False,
+        editable=False,
+        null=False,
+    )
+
+    departement = models.ForeignKey(
+        Departement,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+
+    geometry = MultiPolygonField("Géométrie", geography=True, srid=4326, null=True)
+
+    def __str__(self):
+        code_dep, num = self.code.split("-")
+        num = int(num)
+        if num == 1:
+            ordinal = "1ère"
+        else:
+            ordinal = f"{num}ème"
+
+        if self.departement:
+            return f"{ordinal} {self.departement.nom_avec_charniere}"
+        elif code_dep == "99":
+            return f"{ordinal} des Français de l'Étranger"
+        elif code_dep == "977":
+            return f"{ordinal} de Saint-Barthélémy et Saint-Martin"
+        else:
+            return f"{ordinal} {NOMS_COM[code_dep].nom_avec_charniere}"
+
+    class Meta:
+        verbose_name = "Circonscription législative"
+        verbose_name_plural = "Circonscriptions législatives"
+        ordering = ("code",)
+
+
 class CirconscriptionConsulaire(models.Model):
     objects = SearchQueryset.as_manager()
 
@@ -616,7 +688,63 @@ class CirconscriptionConsulaire(models.Model):
         indexes = (GinIndex(fields=["search"]),)
 
 
-class EluMunicipal(models.Model):
+class Depute(IdentiteMixin, models.Model):
+    objects = SearchQueryset.as_manager()
+
+    code = models.CharField(
+        verbose_name="Identifiant AN",
+        max_length=50,
+        editable=False,
+    )
+
+    circonscription = models.ForeignKey(
+        CirconscriptionLegislative,
+        on_delete=models.CASCADE,
+        related_name="deputes",
+        related_query_name="depute",
+        editable=False,
+    )
+
+    groupe = models.CharField(
+        verbose_name="Groupe parlementaire",
+        max_length=200,
+        blank=True,
+        editable=False,
+    )
+
+    relation = models.CharField(
+        verbose_name="Type de relation au groupe",
+        max_length=1,
+        choices=RelationGroupe.choices,
+        blank=True,
+        editable=False,
+    )
+
+    parti = models.CharField(
+        verbose_name="Parti d'affiliation", max_length=200, blank=True, editable=False
+    )
+
+    legislature = models.PositiveSmallIntegerField(
+        verbose_name="Législature", null=False, editable=False
+    )
+
+    date_debut_mandat = models.DateField(
+        verbose_name="Date de début du mandat", editable=False
+    )
+
+    date_fin_mandat = models.DateField(
+        verbose_name="Date de fin du mandat", null=True, editable=False
+    )
+
+    def __str__(self):
+        return f"{self.nom}, {self.prenom} ({self.circonscription})"
+
+    class Meta:
+        verbose_name = "Député⋅e"
+        ordering = ("nom", "prenom")
+
+
+class EluMunicipal(IdentiteMixin, models.Model):
     objects = SearchQueryset.as_manager()
 
     commune = models.ForeignKey(
@@ -625,23 +753,6 @@ class EluMunicipal(models.Model):
         related_name="elus",
         related_query_name="elu",
         editable=False,
-    )
-
-    nom = models.CharField(
-        verbose_name="Nom de famille", editable=False, max_length=200
-    )
-    prenom = models.CharField(
-        verbose_name="Prénom", editable=False, blank=True, max_length=200
-    )
-    sexe = models.CharField(
-        verbose_name="Sexe à l'état civil",
-        choices=CodeSexe.choices,
-        max_length=1,
-        editable=True,
-    )
-    date_naissance = models.DateField(verbose_name="Date de naissance", editable=False)
-    profession = models.SmallIntegerField(
-        verbose_name="Profession", editable=False, null=True
     )
 
     date_debut_mandat = models.DateField(

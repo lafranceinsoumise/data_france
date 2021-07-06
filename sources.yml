@@ -52,7 +52,7 @@ ign:
       url: ftp://Admin_Express_ext:Dahnoh0eigheeFok@ftp3.ign.fr/ADMIN-EXPRESS-COG_3-0__SHP__FRA_L93_2021-05-19.7z
       date: 19/05/2021
       hash: 32665c035409792ce178e270c9fd5ad5aa1d9e52ea0c0d7817c7b3c77a9e8034
-      extraire: False
+      extraire: []
 
 
 interieur:
@@ -149,3 +149,15 @@ conseil_constitutionnel:
   parrainages2017:
     url: https://presidentielle2017.conseil-constitutionnel.fr/wp-content/uploads/2017/03/parrainagestotal.csv
     hash: 8af6c3fe6f2c57ed6751c9a1daa36b26ae873578601ada0aa5483833ef4c8371
+
+assemblee_nationale:
+  deputes:
+    # url: https://data.assemblee-nationale.fr/static/openData/repository/15/amo/tous_acteurs_mandats_organes_xi_legislature/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json.zip
+    url: https://data.assemblee-nationale.fr/static/openData/repository/15/amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes_XV.json.zip
+    hash: 805617a1d09f0c53f012dd6ae3935454062526ce906bb797934184ec2a76f48b
+
+sciences_po:
+  contours_circonscriptions_legislatives:
+    url: https://static.data.gouv.fr/resources/carte-des-circonscriptions-legislatives-2012-et-2017/20170721-135742/france-circonscriptions-legislatives-2012.json
+    hash: 28c4291fdff57bb2b0c511c6fb514929d1ec650677ae25ff9f21a375cfe67515
+    date: 21/07/2021

@@ -9,6 +9,7 @@ from data_france.models import (
     CollectiviteDepartementale,
     CollectiviteRegionale,
     CirconscriptionConsulaire,
+    CirconscriptionLegislative,
 )
 
 
@@ -195,3 +196,8 @@ class CollectiviteRegionaleTest(TestCase):
 class CirconscriptionConsulaireTest(TestCase):
     def test_import_correct(self):
         self.assertEqual(CirconscriptionConsulaire.objects.count(), 130)
+
+
+class CirconscriptionLegislativeTest(TestCase):
+    def test_import_correct(self):
+        self.assertEqual(CirconscriptionLegislative.objects.count(), 577)

@@ -10,7 +10,7 @@ import fiona
 import pandas as pd
 from doit.tools import create_folder
 from libarchive.public import file_reader as archive_reader
-from shapely.geometry import shape, Polygon, MultiPolygon
+from shapely.geometry import shape, MultiPolygon
 from shapely import wkb
 
 from sources import PREPARE_DIR, SOURCE_DIR, SOURCES
@@ -217,7 +217,7 @@ def normaliser_geometrie(geometry):
         # même chemin). Ces géométries sont sans doute causées par la simplification
         # de la topologie.
         s = s.buffer(0)
-    if isinstance(s, Polygon):
+    if not isinstance(s, MultiPolygon):
         s = MultiPolygon([s])
     return s.wkb_hex
 
