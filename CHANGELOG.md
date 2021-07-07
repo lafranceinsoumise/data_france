@@ -1,6 +1,22 @@
 data_france
 ===========
 
+Version 0.12.1
+--------------
+
+Nouvelles fonctionnalités
+* Ajout des circonscriptions législatives et des députés
+* Les populations sont recalculées pour les communes modifiées (fusions et
+  rétablissements) après 2019
+
+Mises à jour :
+* Mise à jour du COG et d'admin-express à la version de 2021
+
+Résolutions de bugs:
+* Les mairies Corses n'étaient pas importées
+
+**Attention** : la version 0.12.0 a été publiée incorrectement avec une dépendance inutile.
+
 Version 0.11.5
 --------------
 
