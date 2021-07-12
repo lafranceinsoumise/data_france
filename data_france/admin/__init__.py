@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join, mark_safe
 
 from data_france.admin.utils import list_of_links, ImmutableModelAdmin
 from data_france.models import (
@@ -12,6 +12,7 @@ from data_france.models import (
     CollectiviteDepartementale,
     CollectiviteRegionale,
     CirconscriptionConsulaire,
+    CirconscriptionLegislative,
     EluMunicipal,
     Depute,
 )
@@ -372,3 +373,29 @@ class DeputeAdmin(ImmutableModelAdmin):
 
     nom_complet.short_description = "Nom complet"
     nom_complet.admin_order_field = "nom"
+
+
+@admin.register(CirconscriptionLegislative)
+class CirconscriptionLegislativeAdmin(ImmutableModelAdmin):
+    list_display = (
+        "code",
+        "departement",
+    )
+
+    fields = ("code", "departement_link", "geometry_as_widget", "deputes")
+
+    search_fields = ("departement__nom", "code")
+
+    def deputes(self, obj):
+        if obj and obj.id:
+            return format_html_join(
+                mark_safe("<br>"),
+                '<a href="{}">{}</a>',
+                (
+                    (reverse("admin:data_france_depute_change", args=(d.id,)), str(d))
+                    for d in obj.deputes.all()
+                ),
+            )
+        return "-"
+
+    deputes.short_description = "Députés"
