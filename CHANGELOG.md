@@ -1,6 +1,11 @@
 data_france
 ===========
 
+Version 0.12.2
+--------------
+
+* Ajout de l'admin pour les circonscriptions législatives
+
 Version 0.12.1
 --------------
 
