@@ -344,48 +344,127 @@ def creer_collectivites_departementales(using):
     codes_avec_conseil_general = [
         f"{d:02d}"
         for d in range(1, 96)
-        if d not in {20, 75}  # pas de conseil départemental à Paris en ou Corse
-    ] + [
-        "971",
-        "974",
-    ]  # seul la Guadeloupe et la Réunion n'ont pas de collectivité unique
+        if d
+        not in {
+            20,
+            67,
+            68,
+            75,
+        }  # pas de conseil départemental à Paris, en Alsace, en Corse
+    ] + ["971", "974"]
+    # seules la Guadeloupe et la Réunion n'ont pas de collectivité unique
 
     conseils_departementaux = [
         {
             "code": f"{d}D",
             "type": CollectiviteDepartementale.TYPE_CONSEIL_DEPARTEMENTAL,
             "actif": True,
-            "nom": instances_departement[d].nom,
-            "type_nom": instances_departement[d].type_nom,
-            "departement_id": instances_departement[d].id,
+            "nom": f"Conseil départemental {instances_departement[d].nom_avec_charniere}",
+            "type_nom": TypeNom.ARTICLE_LE,
+            "region_id": instances_departement[d].region_id,
         }
         for d in codes_avec_conseil_general
     ]
 
-    metropole_lyon = {
+    lyon = {
         "code": "69M",
-        "type": CollectiviteDepartementale.TYPE_CONSEIL_METROPOLE,
+        "type": CollectiviteDepartementale.TYPE_STATUT_PARTICULIER,
         "actif": True,
         "nom": "Métropole de Lyon",
         "type_nom": TypeNom.ARTICLE_LA,
-        "departement_id": instances_departement["69"].id,
+        "region_id": instances_departement["69"].region_id,
+    }
+
+    paris = {
+        "code": "75C",
+        "type": CollectiviteDepartementale.TYPE_STATUT_PARTICULIER,
+        "actif": True,
+        "nom": "Commune de Paris",
+        "type_nom": TypeNom.ARTICLE_LA,
+        "region_id": instances_departement["75"].region_id,
+    }
+
+    alsace = {
+        "code": "6AE",
+        "type": CollectiviteDepartementale.TYPE_CONSEIL_DEPARTEMENTAL,
+        "actif": True,
+        "nom": "Collectivité européenne d'Alsace",
+        "type_nom": TypeNom.ARTICLE_LA,
+        "region_id": instances_departement["67"].region_id,
+    }
+
+    martinique = {
+        "code": "972R",
+        "type": CollectiviteDepartementale.TYPE_STATUT_PARTICULIER,
+        "actif": True,
+        "nom": "Collectivité unique de Martinique",
+        "type_nom": TypeNom.ARTICLE_LA,
+        "region_id": instances_departement["972"].region_id,
+    }
+
+    guyane = {
+        "code": "973R",
+        "type": CollectiviteDepartementale.TYPE_STATUT_PARTICULIER,
+        "actif": True,
+        "nom": "Collectivité unique de Guyane",
+        "type_nom": TypeNom.ARTICLE_LA,
+        "region_id": instances_departement["973"].region_id,
+    }
+
+    mayotte = {
+        "code": "976R",
+        "type": CollectiviteDepartementale.TYPE_STATUT_PARTICULIER,
+        "actif": True,
+        "nom": "Conseil départemental de Mayotte",
+        "type_nom": TypeNom.ARTICLE_LE,
+        "region_id": instances_departement["976"].region_id,
+    }
+
+    corse = {
+        "code": "20R",
+        "type": CollectiviteDepartementale.TYPE_STATUT_PARTICULIER,
+        "actif": True,
+        "nom": "Collectivité de Corse",
+        "type_nom": TypeNom.ARTICLE_LA,
+        "region_id": instances_departement["2A"].region_id,
     }
 
     with get_connection(using).cursor() as cursor:
         cursor.executemany(
             """
             INSERT INTO "data_france_collectivitedepartementale"
-                ("code", "type", "actif", "departement_id", "nom", "type_nom")
-            VALUES (%(code)s, %(type)s, %(actif)s, %(departement_id)s, %(nom)s, %(type_nom)s)
+                ("code", "type", "actif", "region_id", "nom", "type_nom")
+            VALUES (%(code)s, %(type)s, %(actif)s, %(region_id)s, %(nom)s, %(type_nom)s)
             ON CONFLICT(code) DO UPDATE
             SET
                 type = excluded.type,
                 actif = excluded.actif,
-                departement_id = excluded.departement_id,
+                region_id = excluded.region_id,
                 nom = excluded.nom,
                 type_nom = excluded.type_nom;
             """,
-            conseils_departementaux + [metropole_lyon],
+            conseils_departementaux
+            + [lyon, paris, alsace, martinique, guyane, mayotte, corse],
+        )
+
+        cursor.execute(
+            """
+            UPDATE "data_france_collectivitedepartementale" c
+            SET
+                population = d.population,
+                geometry = d.geometry
+            FROM "data_france_departement" d
+            WHERE d.code = TRIM(trailing 'DRC' from c.code)
+            AND c.code IN %(codes)s
+            """,
+            {
+                "codes": tuple(
+                    c["code"]
+                    for c in (
+                        conseils_departementaux + [paris, martinique, guyane, mayotte]
+                    )
+                )
+            },
         )
 
         cursor.execute(
@@ -395,7 +474,9 @@ def creer_collectivites_departementales(using):
                 population = m.population,
                 geometry = m.geometry
             FROM (
-                SELECT ST_Multi(ST_Union(geometry :: geometry)) as geometry, SUM(population_municipale) AS population
+                SELECT
+                    SUM(population_municipale) AS population,
+                    ST_Multi(ST_Union(geometry :: geometry)) as geometry
                 FROM "data_france_commune"
                 WHERE type = 'COM'
                 AND departement_id = %(id_departement_rhone)s
@@ -422,6 +503,27 @@ def creer_collectivites_departementales(using):
             },
         )
 
+        cursor.executemany(
+            """
+            UPDATE "data_france_collectivitedepartementale" c
+            SET
+                population = m.population,
+                geometry = m.geometry
+            FROM (
+                SELECT
+                   SUM(population) AS population,
+                   ST_Multi(ST_Union(geometry :: geometry)) as geometry
+                FROM "data_france_departement"
+                WHERE code IN %(codes_d)s
+            ) m
+            WHERE code = %(code_c)s;
+            """,
+            [
+                {"code_c": "6AE", "codes_d": ("67", "68")},
+                {"code_c": "20R", "codes_d": ("2A", "2B")},
+            ],
+        )
+
 
 @console_message("Création des collectivités à compétences régionales")
 def creer_collectivites_regionales(using):
@@ -433,7 +535,9 @@ def creer_collectivites_regionales(using):
 
     ctu = {c["code_region"]: c for c in ctu}
 
-    regions = [(r.id, r.code, r.nom, r.type_nom) for r in Region.objects.all()]
+    regions = [
+        (r.id, r.code, r.nom_avec_charniere, r.type_nom) for r in Region.objects.all()
+    ]
 
     collectivites = [
         {
@@ -443,7 +547,7 @@ def creer_collectivites_regionales(using):
             else CollectiviteRegionale.TYPE_CONSEIL_REGIONAL,
             "actif": True,
             "region_id": id,
-            "nom": ctu[code]["nom"] if code in ctu else nom,
+            "nom": ctu[code]["nom"] if code in ctu else f"Conseil régional {nom}",
             "type_nom": ctu[code]["type_nom"] if code in ctu else type_nom,
         }
         for id, code, nom, type_nom in regions

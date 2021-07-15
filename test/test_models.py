@@ -175,17 +175,20 @@ class CodePostalTestCase(TestCase):
 
 class CollectiviteDepartementaleTest(TestCase):
     def test_import_correct(self):
-        # 96 départements en métropole, dont 3 sans collectivité départementale
-        # (Corses et Paris).
+        # 96 départements en métropole. 5 départements d'outremer, soit un total
+        # de 101 départements.
         #
-        # 2 départements d'Outremer ont un conseil départemental (Mayotte n'est
-        # pas compté malgré son nom parce qu'il s'agit d'une collectivité unique
-        # aux compétences régionales+départementales).
+        # Trois cas particuliers : une unique collectivité pour l'Alsace, une
+        # unique collectivité pour la Corse, et une collectivité supplémentaire
+        # avec la Métropole de Lyon.
         #
-        # 1 métropole à compétence départementale (Lyon)
+        # A noter que deux départements d'outremer ont une collectivité unique,
+        # et que la ville de Paris a les compétences départementales sur le
+        # territoire du département de Paris, mais ça ne change pas le nombre de
+        # collectivités.
         #
-        # Pour un total de 93 + 2 + 1 = 96
-        self.assertEqual(CollectiviteDepartementale.objects.count(), 96)
+        # Le total est donc de 101 - 2 + 1 = 100
+        self.assertEqual(CollectiviteDepartementale.objects.count(), 100)
 
 
 class CollectiviteRegionaleTest(TestCase):

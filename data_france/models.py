@@ -463,10 +463,10 @@ class CodePostal(models.Model):
 
 class CollectiviteDepartementale(TypeNomMixin, models.Model):
     TYPE_CONSEIL_DEPARTEMENTAL = "D"
-    TYPE_CONSEIL_METROPOLE = "M"
+    TYPE_STATUT_PARTICULIER = "S"
     TYPE_CHOICES = (
         (TYPE_CONSEIL_DEPARTEMENTAL, "Conseil départemental"),
-        (TYPE_CONSEIL_METROPOLE, "Conseil de métropole"),
+        (TYPE_STATUT_PARTICULIER, "Collectivité à statut particulier"),
     )
 
     code = models.CharField("Code INSEE", max_length=4, unique=True)
@@ -477,10 +477,8 @@ class CollectiviteDepartementale(TypeNomMixin, models.Model):
 
     nom = models.CharField("Nom", max_length=200)
 
-    departement = models.ForeignKey(
-        "Departement",
-        on_delete=models.PROTECT,
-        verbose_name="Circonscription administrative correspondante",
+    region = models.ForeignKey(
+        "Region", on_delete=models.PROTECT, verbose_name="Région", null=True
     )
 
     population = models.PositiveIntegerField("Population", null=True)
@@ -500,7 +498,7 @@ class CollectiviteDepartementale(TypeNomMixin, models.Model):
     def as_dict(self):
         return {
             "code": self.code,
-            "nom": self.nom_complet,
+            "nom": self.nom,
             "population": self.population,
             "type": self.type,
         }
@@ -515,9 +513,7 @@ class CollectiviteRegionale(TypeNomMixin, models.Model):
     )
 
     code = models.CharField("Code INSEE", max_length=4, unique=True)
-    type = models.CharField(
-        "Type de collectivité départementale", max_length=1, choices=TYPE_CHOICES
-    )
+    type = models.CharField("Type de collectivité", max_length=1, choices=TYPE_CHOICES)
 
     actif = models.BooleanField("En cours d'existence", default=True)
 

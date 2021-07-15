@@ -185,12 +185,57 @@ class DepartementAdmin(ImmutableModelAdmin):
 
 @admin.register(CollectiviteDepartementale)
 class CollectiviteDepartementaleAdmin(ImmutableModelAdmin):
-    list_display = ("code", "nom", "departement_link")
-    fields = list_display + ("population", "geometry_as_widget")
+    list_display = ("code", "nom", "region_link")
+    fields = list_display + ("population", "geometry_as_widget", "voir_aussi")
     search_fields = ("code", "nom")
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("departement")
+        return super().get_queryset(request).select_related("region")
+
+    def voir_aussi(self, obj):
+        if not obj:
+            return "-"
+        if (
+            obj.code[-1] in "D"
+            or obj.code.startswith("97")
+            or obj.code in ["20R", "6AE"]
+        ):
+            if obj.code == "20R":
+                deps = Departement.objects.filter(code__in=["2A", "2B"])
+            elif obj.code == "6AE":
+                deps = Departement.objects.filter(code__in=["67", "68"])
+            else:
+                deps = Departement.objects.filter(code=obj.code[:-1])
+
+            links = [
+                (
+                    reverse("admin:data_france_departement_change", args=(dep.id,)),
+                    f"Département {dep.nom_avec_charniere}",
+                )
+                for dep in deps
+            ]
+
+        elif obj.code == "75C":
+            com = Commune.objects.get(code="75056")
+            links = [
+                (
+                    reverse("admin:data_france_commune_change", args=(com.id,)),
+                    "Commune de Paris (commune)",
+                )
+            ]
+
+        elif obj.code == "69M":
+            met = EPCI.objects.get(code="200046977")
+            links = [
+                (
+                    reverse("admin:data_france_epci_change", args=(met.id,)),
+                    "Métropole de Lyon (EPCI)",
+                )
+            ]
+
+        return format_html_join(mark_safe("<br>"), '<a href="{}">{}</a>', links)
+
+    voir_aussi.short_description = "Voir aussi"
 
 
 @admin.register(Region)
@@ -354,7 +399,7 @@ class DeputeAdmin(ImmutableModelAdmin):
                 "fields": [
                     "legislature",
                     "code",
-                    "circonscription",
+                    "circonscription_link",
                     "date_debut_mandat",
                     "date_fin_mandat",
                 ]
