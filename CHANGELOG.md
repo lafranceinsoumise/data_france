@@ -1,6 +1,14 @@
 data_france
 ===========
 
+Version 0.13.0
+--------------
+
+* Documentation légèrement enrichie (on y est pas encore)
+* Retravail complet de la liste des collectivités à rôle départemental pour les
+  inclure toutes, même celle qui étaient inclues ailleurs, avec les codes
+  utilisés par l'INSEE.
+
 Version 0.12.2
 --------------
 
