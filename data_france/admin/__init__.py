@@ -9,11 +9,13 @@ from data_france.models import (
     Departement,
     Region,
     CodePostal,
+    Canton,
     CollectiviteDepartementale,
     CollectiviteRegionale,
     CirconscriptionConsulaire,
     CirconscriptionLegislative,
     EluMunicipal,
+    EluDepartemental,
     Depute,
 )
 from data_france.typologies import Fonction
@@ -287,6 +289,28 @@ class CodePostalAdmin(ImmutableModelAdmin):
         return super().get_queryset(request=request).prefetch_related("communes")
 
 
+@admin.register(Canton)
+class CantonAdmin(ImmutableModelAdmin):
+    list_display = ("code", "nom_complet", "departement", "type")
+
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": [
+                    "code",
+                    "nom_complet",
+                    "type",
+                    "composition",
+                    "elus_list",
+                    "departement_link",
+                    "bureau_centralisateur_link",
+                ]
+            },
+        ),
+    )
+
+
 @admin.register(CirconscriptionConsulaire)
 class CirconscriptionConsulaire(ImmutableModelAdmin):
     list_display = (
@@ -306,8 +330,16 @@ class CirconscriptionConsulaire(ImmutableModelAdmin):
         return queryset, use_distinct
 
 
+class RNEAdmin(ImmutableModelAdmin):
+    def nom_complet(self, obj):
+        return f"{obj.nom}, {obj.prenom}"
+
+    nom_complet.short_description = "Nom complet"
+    nom_complet.admin_order_field = "nom"
+
+
 @admin.register(EluMunicipal)
-class EluMunicipalAdmin(ImmutableModelAdmin):
+class EluMunicipalAdmin(RNEAdmin):
     search_fields = ("nom", "prenom")
 
     list_display = ("nom_complet", "commune", "sexe", "libelle_fonction")
@@ -349,12 +381,6 @@ class EluMunicipalAdmin(ImmutableModelAdmin):
         ),
     )
 
-    def nom_complet(self, obj):
-        return f"{obj.nom}, {obj.prenom}"
-
-    nom_complet.short_description = "Nom complet"
-    nom_complet.admin_order_field = "nom"
-
     def epci_link(self, obj):
         if obj.elu_epci and obj.commune.epci:
             return format_html(
@@ -375,6 +401,30 @@ class EluMunicipalAdmin(ImmutableModelAdmin):
         if search_term:
             return queryset.search(search_term), use_distinct
         return queryset, use_distinct
+
+
+@admin.register(EluDepartemental)
+class EluDepartemental(RNEAdmin):
+    search_fields = ("nom", "prenom")
+
+    list_display = ("nom_complet", "canton", "libelle_fonction")
+    fieldsets = (
+        (
+            "Identité",
+            {"fields": ["nom", "prenom", "sexe", "date_naissance", "profession"]},
+        ),
+        (
+            "Mandat",
+            {
+                "fields": [
+                    "canton_link",
+                    "date_debut_mandat",
+                    "libelle_fonction",
+                    "date_debut_fonction",
+                ]
+            },
+        ),
+    )
 
 
 @admin.register(Depute)

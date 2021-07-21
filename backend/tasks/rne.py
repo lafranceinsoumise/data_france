@@ -9,7 +9,10 @@ from utils import normaliser_colonne
 from data_france.typologies import Fonction, ORDINAUX_LETTRES
 from tasks.parrainages import PARRAINAGES_MUNICIPAUX
 
-__all__ = ["task_traiter_elus_municipaux_epci"]
+__all__ = [
+    "task_traiter_elus_municipaux_epci",
+    "task_traiter_elus_departementaux",
+]
 
 ORDINAL_RE = re.compile("^(\d+)(?:er|[eè]me)$")
 
@@ -61,6 +64,21 @@ EPCI_FIELDS = [
     "date_debut_fonction",
 ]
 
+DEP_FIELDS = [
+    "_code_dep",
+    "_lib_dep",
+    "code",  # code canton
+    "_lib_canton",
+    "nom",
+    "prenom",
+    "sexe",
+    "date_naissance",
+    "profession",
+    "_lib_profession",
+    "date_debut_mandat",
+    "fonction",
+    "date_debut_fonction",
+]
 
 corr_outremer = {
     "ZA": "97",
@@ -95,6 +113,21 @@ def task_traiter_elus_municipaux_epci():
     }
 
 
+def task_traiter_elus_departementaux():
+    DEP = SOURCES.interieur.rne.departementaux
+    source = SOURCE_DIR / DEP.filename
+    dest = PREPARE_DIR / DEP.filename
+
+    return {
+        "file_dep": [source],
+        "targets": [dest],
+        "actions": [
+            (create_folder, [dest.parent]),
+            (traiter_elus_departementaux, (source, dest)),
+        ],
+    }
+
+
 def normaliser_fonction(s):
     if pd.isna(s):
         return s
@@ -113,7 +146,10 @@ def normaliser_fonction(s):
     while words and " ".join(words) not in CODES_FONCTION:
         words.pop()
 
-    return CODES_FONCTION[" ".join(words)] if words else pd.NA, ordre
+    if not words:
+        raise ValueError(f"Fonction inconnue: {s}")
+
+    return CODES_FONCTION[" ".join(words)], ordre
 
 
 def parser_dates(df):
@@ -135,7 +171,7 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, d
         municipaux_path,
         sep="\t",
         encoding="utf8",
-        skiprows=2,
+        skiprows=1,
         names=MUN_FIELDS,
         na_values=[""],
         keep_default_na=False,
@@ -154,7 +190,7 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, d
         epci_path,
         sep="\t",
         encoding="utf8",
-        skiprows=2,
+        skiprows=1,
         names=EPCI_FIELDS,
         na_values=[""],
         keep_default_na=False,
@@ -201,3 +237,28 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, d
     del res["cle_prenom"]
 
     res.to_csv(dest, index=False)
+
+
+def traiter_elus_departementaux(dep_path, dest):
+    dep = pd.read_csv(
+        dep_path,
+        sep="\t",
+        encoding="utf8",
+        skiprows=1,
+        names=DEP_FIELDS,
+        na_values=[""],
+        keep_default_na=False,
+        usecols=[f for f in DEP_FIELDS if not f.startswith("_")],
+        dtype={"code": str, "profession": str},
+    )
+    dep["code"] = dep["code"].str.pad(4, fillchar="0")
+
+    dep = dep.drop_duplicates(["code", "nom", "prenom", "date_naissance"])
+
+    parser_dates(dep)
+
+    fonctions = dep["fonction"].map(normaliser_fonction)
+    dep["fonction"] = fonctions.str.get(0)
+    dep["ordre_fonction"] = fonctions.str.get(1)
+
+    dep.to_csv(dest, index=False)

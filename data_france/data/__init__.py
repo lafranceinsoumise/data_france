@@ -239,6 +239,14 @@ def importer_elus_municipaux(using):
         import_with_temp_table(f, "data_france_elumunicipal", using)
 
 
+@console_message("Chargement des élus départementaux")
+def importer_elus_departementaux(using):
+    with open_binary(
+        "data_france.data", "elus_departementaux.csv.lzma"
+    ) as _f, lzma.open(_f, "rt") as f:
+        import_with_temp_table(f, "data_france_eludepartemental", using)
+
+
 @console_message("Chargement des députés")
 def importer_deputes(using):
     with open_binary("data_france.data", "deputes.csv.lzma") as _f, lzma.open(
@@ -722,6 +730,8 @@ def importer_donnees(using=None):
         importer_circonscriptions_legislatives(using)
 
         importer_elus_municipaux(using)
+
+        importer_elus_departementaux(using)
 
         importer_deputes(using)
 

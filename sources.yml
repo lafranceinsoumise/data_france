@@ -63,8 +63,12 @@ interieur:
       hash: a2ab20e21fc2295bb085aaf2a70e0f45fe5d0be482878ed43f4a86040dae5811
     epci:
       url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20210422-103340/rne-epci.csv
-      date: 02/12/2020
+      date: 22/04/2021
       hash: a325d77b8d63fec3f5afc030daf8730fe0240551971444cadaa9a4dbe654063d
+    departementaux:
+      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20210716-190541/export-datagouv-cd.csv
+      date: 16/07/2021
+      hash: c17f8886254c607aa7653f559958bccf796cead0098acd392496bc6d4dd2c657
   resultats_electoraux:
     presidentielles:
       2017:

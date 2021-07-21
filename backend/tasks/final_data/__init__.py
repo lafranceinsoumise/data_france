@@ -38,8 +38,10 @@ FINAL_CIRCONSCRIPTIONS_CONSULAIRES = DATA_DIR / "circonscriptions_consulaires.cs
 FINAL_CIRCONSCRIPTIONS_LEGISLATIVES = (
     DATA_DIR / "circonscriptions_legislatives.csv.lzma"
 )
-FINAL_ELUS_MUNICIPAUX = DATA_DIR / "elus_municipaux.csv.lzma"
 FINAL_DEPUTES = DATA_DIR / "deputes.csv.lzma"
+FINAL_ELUS_MUNICIPAUX = DATA_DIR / "elus_municipaux.csv.lzma"
+FINAL_ELUS_DEPARTEMENTAUX = DATA_DIR / "elus_departementaux.csv.lzma"
+FINAL_ELUS_REGIONAUX = DATA_DIR / "elus_regionaux.csv.lzma"
 
 NULL = r"\N"
 
@@ -75,6 +77,7 @@ __all__ = [
     "task_generer_fichier_circonscriptions_consulaires",
     "task_generer_fichier_circonscriptions_legislatives",
     "task_generer_fichier_elus_municipaux",
+    "task_generer_fichier_elus_departementaux",
     "task_generer_fichier_deputes",
 ]
 
@@ -230,6 +233,20 @@ def task_generer_fichier_elus_municipaux():
             (
                 generer_fichier_elus_municipaux,
                 (source_file, COMMUNES_CSV, FINAL_ELUS_MUNICIPAUX),
+            )
+        ],
+    }
+
+
+def task_generer_fichier_elus_departementaux():
+    source_file = PREPARE_DIR / SOURCES.interieur.rne.departementaux.filename
+    return {
+        "file_dep": [source_file],
+        "targets": [FINAL_ELUS_DEPARTEMENTAUX],
+        "actions": [
+            (
+                generer_fichier_elus_departementaux,
+                (source_file, FINAL_ELUS_DEPARTEMENTAUX),
             )
         ],
     }
@@ -658,6 +675,55 @@ def generer_fichier_elus_municipaux(elus_municipaux, communes, final_elus):
             )
 
             w.writerow({k: v for k, v in l.items() if not k[0] == "_"})
+
+
+def generer_fichier_elus_departementaux(source, dest):
+    with id_from_file("cantons.csv") as id_canton, id_from_file(
+        "elus_departementaux.csv"
+    ) as id_elu, source.open("r") as i, lzma.open(dest, "wt") as d:
+        r = csv.DictReader(i)
+        w = csv.DictWriter(
+            d,
+            fieldnames=[
+                "id",
+                "canton_id",
+                "nom",
+                "prenom",
+                "sexe",
+                "date_naissance",
+                "profession",
+                "date_debut_mandat",
+                "fonction",
+                "ordre_fonction",
+                "date_debut_fonction",
+            ],
+        )
+        w.writeheader()
+
+        for elu in r:
+            canton_id = id_canton(code=elu.pop("code"))
+
+            for f in [
+                "date_debut_fonction",
+                "ordre_fonction",
+                "profession",
+            ]:
+                if not elu[f]:
+                    elu[f] = "\\N"
+
+            w.writerow(
+                {
+                    **elu,
+                    "id": id_elu(
+                        canton_id=canton_id,
+                        nom=elu["nom"],
+                        prenom=elu["prenom"],
+                        sexe=elu["sexe"],
+                        date_naissance=elu["date_naissance"],
+                    ),
+                    "canton_id": canton_id,
+                }
+            )
 
 
 def generer_fichier_deputes(

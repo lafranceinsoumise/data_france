@@ -102,6 +102,37 @@ class IdentiteMixin(models.Model):
         abstract = True
 
 
+class RNEMixin(models.Model):
+    date_debut_mandat = models.DateField(
+        verbose_name="Date de début du mandat", editable=False
+    )
+
+    fonction = models.CharField(
+        verbose_name="Fonction",
+        editable=False,
+        blank=True,
+        max_length=50,
+        choices=Fonction.choices,
+    )
+    ordre_fonction = models.PositiveSmallIntegerField(
+        verbose_name="Ordre de la fonction", editable=False, null=True
+    )
+
+    date_debut_fonction = models.DateField(
+        verbose_name="Date de début de la fonction", editable=True, null=True
+    )
+
+    @property
+    def libelle_fonction(self):
+        display = self.get_fonction_display()
+        if self.ordre_fonction:
+            return f"{ORDINAUX_LETTRES[self.ordre_fonction-1]} {display.lower()}"
+        return display
+
+    class Meta:
+        abstract = True
+
+
 class SearchQueryset(models.QuerySet):
     def search(self, termes: str):
         """Réalise une recherche plein texte dans le queryset
@@ -603,6 +634,12 @@ class Canton(TypeNomMixin, models.Model):
         related_query_name="bureau_centralisateur_de",
     )
 
+    def __str__(self):
+        return f"Canton {self.nom_avec_charniere} ({self.code})"
+
+    class Meta:
+        ordering = ("code",)
+
 
 class CirconscriptionLegislative(models.Model):
     code = models.CharField(
@@ -740,7 +777,7 @@ class Depute(IdentiteMixin, models.Model):
         ordering = ("nom", "prenom")
 
 
-class EluMunicipal(IdentiteMixin, models.Model):
+class EluMunicipal(IdentiteMixin, RNEMixin):
     objects = SearchQueryset.as_manager()
 
     commune = models.ForeignKey(
@@ -749,25 +786,6 @@ class EluMunicipal(IdentiteMixin, models.Model):
         related_name="elus",
         related_query_name="elu",
         editable=False,
-    )
-
-    date_debut_mandat = models.DateField(
-        verbose_name="Date de début du mandat", editable=False
-    )
-
-    fonction = models.CharField(
-        verbose_name="Fonction",
-        editable=False,
-        blank=True,
-        max_length=50,
-        choices=Fonction.choices,
-    )
-    ordre_fonction = models.PositiveSmallIntegerField(
-        verbose_name="Ordre de la fonction", editable=False, null=True
-    )
-
-    date_debut_fonction = models.DateField(
-        verbose_name="Date de début de la fonction", editable=True, null=True
     )
 
     date_debut_mandat_epci = models.DateField(
@@ -803,13 +821,6 @@ class EluMunicipal(IdentiteMixin, models.Model):
     search = SearchVectorField(verbose_name="Champ de recherche", null=True)
 
     @property
-    def libelle_fonction(self):
-        display = self.get_fonction_display()
-        if self.ordre_fonction:
-            return f"{ORDINAUX_LETTRES[self.ordre_fonction-1]} {display.lower()}"
-        return display
-
-    @property
     def elu_epci(self):
         return self.date_debut_mandat_epci is not None
 
@@ -821,3 +832,17 @@ class EluMunicipal(IdentiteMixin, models.Model):
         verbose_name_plural = "Élu⋅es municipaux⋅les"
         ordering = ("commune", "nom", "prenom", "date_naissance")
         indexes = (GinIndex(fields=["search"]),)
+
+
+class EluDepartemental(IdentiteMixin, RNEMixin):
+    canton = models.ForeignKey(
+        Canton, related_name="elus", related_query_name="elu", on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return f"{self.nom}, {self.prenom}, {self.canton}"
+
+    class Meta:
+        verbose_name = "Élu·e départemental·e"
+        verbose_name_plural = "Élu·es départementaux·ales"
+        ordering = ("canton", "nom", "prenom", "date_naissance")
