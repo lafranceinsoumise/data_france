@@ -1,6 +1,12 @@
 data_france
 ===========
 
+Version 0.13.1
+--------------
+
+* Ajout des conseillers départementaux
+* Ajout de l'administration pour les cantons
+
 Version 0.13.0
 --------------
 
