@@ -846,3 +846,20 @@ class EluDepartemental(IdentiteMixin, RNEMixin):
         verbose_name = "Élu·e départemental·e"
         verbose_name_plural = "Élu·es départementaux·ales"
         ordering = ("canton", "nom", "prenom", "date_naissance")
+
+
+class EluRegional(IdentiteMixin, RNEMixin):
+    region = models.ForeignKey(
+        Region,
+        related_name="elus",
+        related_query_name="elu",
+        on_delete=models.CASCADE,
+    )
+
+    def __str__(self):
+        return f"{self.nom}, {self.nom}, {self.region}"
+
+    class Meta:
+        verbose_name = "Élu·e régional·e"
+        verbose_name_plural = "Élu·es régional·es"
+        ordering = ("region", "nom", "prenom", "date_naissance")

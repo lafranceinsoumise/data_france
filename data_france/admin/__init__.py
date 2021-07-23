@@ -16,6 +16,7 @@ from data_france.models import (
     CirconscriptionLegislative,
     EluMunicipal,
     EluDepartemental,
+    EluRegional,
     Depute,
 )
 from data_france.typologies import Fonction
@@ -418,6 +419,30 @@ class EluDepartemental(RNEAdmin):
             {
                 "fields": [
                     "canton_link",
+                    "date_debut_mandat",
+                    "libelle_fonction",
+                    "date_debut_fonction",
+                ]
+            },
+        ),
+    )
+
+
+@admin.register(EluRegional)
+class EluRegional(RNEAdmin):
+    search_fields = ("nom", "prenom")
+
+    list_display = ("nom_complet", "region", "libelle_fonction")
+    fieldsets = (
+        (
+            "Identité",
+            {"fields": ["nom", "prenom", "sexe", "date_naissance", "profession"]},
+        ),
+        (
+            "Mandat",
+            {
+                "fields": [
+                    "region_link",
                     "date_debut_mandat",
                     "libelle_fonction",
                     "date_debut_fonction",

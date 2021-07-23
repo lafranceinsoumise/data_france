@@ -78,6 +78,7 @@ __all__ = [
     "task_generer_fichier_circonscriptions_legislatives",
     "task_generer_fichier_elus_municipaux",
     "task_generer_fichier_elus_departementaux",
+    "task_generer_fichier_elus_regionaux",
     "task_generer_fichier_deputes",
 ]
 
@@ -248,6 +249,17 @@ def task_generer_fichier_elus_departementaux():
                 generer_fichier_elus_departementaux,
                 (source_file, FINAL_ELUS_DEPARTEMENTAUX),
             )
+        ],
+    }
+
+
+def task_generer_fichier_elus_regionaux():
+    source_file = PREPARE_DIR / SOURCES.interieur.rne.regionaux.filename
+    return {
+        "file_dep": [source_file],
+        "targets": [FINAL_ELUS_REGIONAUX],
+        "actions": [
+            (generer_fichier_elus_regionaux, (source_file, FINAL_ELUS_REGIONAUX))
         ],
     }
 
@@ -722,6 +734,55 @@ def generer_fichier_elus_departementaux(source, dest):
                         date_naissance=elu["date_naissance"],
                     ),
                     "canton_id": canton_id,
+                }
+            )
+
+
+def generer_fichier_elus_regionaux(source, dest):
+    with id_from_file("regions.csv") as id_region, id_from_file(
+        "elus_regionaux.csv"
+    ) as id_elu, source.open("r") as i, lzma.open(dest, "wt") as d:
+        r = csv.DictReader(i)
+        w = csv.DictWriter(
+            d,
+            fieldnames=[
+                "id",
+                "region_id",
+                "nom",
+                "prenom",
+                "sexe",
+                "date_naissance",
+                "profession",
+                "date_debut_mandat",
+                "fonction",
+                "ordre_fonction",
+                "date_debut_fonction",
+            ],
+        )
+        w.writeheader()
+
+        for elu in r:
+            region_id = id_region(code=elu.pop("code"))
+
+            for f in [
+                "date_debut_fonction",
+                "ordre_fonction",
+                "profession",
+            ]:
+                if not elu[f]:
+                    elu[f] = "\\N"
+
+            w.writerow(
+                {
+                    **elu,
+                    "id": id_elu(
+                        region_id=region_id,
+                        nom=elu["nom"],
+                        prenom=elu["prenom"],
+                        sexe=elu["sexe"],
+                        date_naissance=elu["date_naissance"],
+                    ),
+                    "region_id": region_id,
                 }
             )
 

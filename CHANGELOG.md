@@ -1,6 +1,14 @@
 data_france
 ===========
 
+Version ???
+-----------
+
+* Ajout des conseiller·ères régionaux·ales
+
+Les conseillers régionaux sont pour le moment reliés directement aux régions plutôt qu'aux
+collectivités régionales, mais c'est une mesure temporaire, par simplicité.
+
 Version 0.13.1
 --------------
 

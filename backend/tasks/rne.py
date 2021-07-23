@@ -12,6 +12,7 @@ from tasks.parrainages import PARRAINAGES_MUNICIPAUX
 __all__ = [
     "task_traiter_elus_municipaux_epci",
     "task_traiter_elus_departementaux",
+    "task_traiter_elus_regionaux",
 ]
 
 ORDINAL_RE = re.compile("^(\d+)(?:er|[eè]me)$")
@@ -80,6 +81,22 @@ DEP_FIELDS = [
     "date_debut_fonction",
 ]
 
+REG_FIELDS = [
+    "code",
+    "_lib_reg",
+    "code_sec",
+    "_lib_sec",
+    "nom",
+    "prenom",
+    "sexe",
+    "date_naissance",
+    "profession",
+    "_lib_profession",
+    "date_debut_mandat",
+    "fonction",
+    "date_debut_fonction",
+]
+
 corr_outremer = {
     "ZA": "97",
     "ZB": "97",
@@ -124,6 +141,21 @@ def task_traiter_elus_departementaux():
         "actions": [
             (create_folder, [dest.parent]),
             (traiter_elus_departementaux, (source, dest)),
+        ],
+    }
+
+
+def task_traiter_elus_regionaux():
+    REG = SOURCES.interieur.rne.regionaux
+    source = SOURCE_DIR / REG.filename
+    dest = PREPARE_DIR / REG.filename
+
+    return {
+        "file_dep": [source],
+        "targets": [dest],
+        "actions": [
+            (create_folder, [dest.parent]),
+            (traiter_elus_regionaux, (source, dest)),
         ],
     }
 
@@ -262,3 +294,33 @@ def traiter_elus_departementaux(dep_path, dest):
     dep["ordre_fonction"] = fonctions.str.get(1)
 
     dep.to_csv(dest, index=False)
+
+
+def traiter_elus_regionaux(reg_path, dest):
+    reg = pd.read_csv(
+        reg_path,
+        sep="\t",
+        encoding="utf8",
+        skiprows=1,
+        names=REG_FIELDS,
+        na_values=[""],
+        keep_default_na=False,
+        usecols=[f for f in REG_FIELDS if not f.startswith("_")],
+        dtype={"code": str, "code_sec": str, "profession": str},
+    )
+
+    # Code région manquant pour certains conseillers alsaciens
+    reg.loc[reg.code_sec == "67", "code"] = "44"
+    reg["code"] = reg.code.str.pad(2, fillchar="0")
+
+    del reg["code_sec"]
+
+    reg = reg.drop_duplicates(["code", "nom", "prenom", "date_naissance"])
+
+    parser_dates(reg)
+
+    fonctions = reg["fonction"].map(normaliser_fonction)
+    reg["fonction"] = fonctions.str.get(0)
+    reg["ordre_fonction"] = fonctions.str.get(1)
+
+    reg.to_csv(dest, index=False)
