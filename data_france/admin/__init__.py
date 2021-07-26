@@ -359,7 +359,7 @@ class CirconscriptionLegislativeAdmin(ImmutableModelAdmin):
 
 class RNEAdmin(ImmutableModelAdmin):
     def nom_complet(self, obj):
-        return f"{obj.nom}, {obj.prenom}"
+        return f"{obj.nom.upper()}, {obj.prenom}"
 
     nom_complet.short_description = "Nom complet"
     nom_complet.admin_order_field = "nom"
@@ -479,7 +479,7 @@ class EluRegional(RNEAdmin):
 
 
 @admin.register(Depute)
-class DeputeAdmin(ImmutableModelAdmin):
+class DeputeAdmin(RNEAdmin):
     list_display = ("nom_complet", "circonscription", "sexe", "groupe", "relation")
 
     fieldsets = (
@@ -513,11 +513,5 @@ class DeputeAdmin(ImmutableModelAdmin):
     )
 
     search_fields = ("nom", "prenom")
-
-    def nom_complet(self, obj):
-        return f"{obj.nom.upper()}, {obj.prenom}"
-
-    nom_complet.short_description = "Nom complet"
-    nom_complet.admin_order_field = "nom"
 
 
