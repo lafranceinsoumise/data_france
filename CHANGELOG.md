@@ -1,6 +1,11 @@
 data_france
 ===========
 
+Version 0.13.3
+--------------
+
+* Correction d'un bug d'affichage des élus régionaux
+
 Version 0.13.2
 -----------
 

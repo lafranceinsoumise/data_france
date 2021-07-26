@@ -852,7 +852,7 @@ class EluRegional(IdentiteMixin, RNEMixin):
     )
 
     def __str__(self):
-        return f"{self.nom}, {self.nom}, {self.region}"
+        return f"{self.nom}, {self.prenom}, {self.region}"
 
     class Meta:
         verbose_name = "Élu‧e régional‧e"
