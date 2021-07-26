@@ -1,7 +1,7 @@
 data_france
 ===========
 
-Version ???
+Version 0.13.2
 -----------
 
 * Ajout des conseiller·ères régionaux·ales
