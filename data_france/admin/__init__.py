@@ -331,6 +331,32 @@ class CirconscriptionConsulaire(ImmutableModelAdmin):
         return queryset, use_distinct
 
 
+@admin.register(CirconscriptionLegislative)
+class CirconscriptionLegislativeAdmin(ImmutableModelAdmin):
+    list_display = (
+        "code",
+        "departement",
+    )
+
+    fields = ("code", "departement_link", "geometry_as_widget", "deputes")
+
+    search_fields = ("departement__nom", "code")
+
+    def deputes(self, obj):
+        if obj and obj.id:
+            return format_html_join(
+                mark_safe("<br>"),
+                '<a href="{}">{}</a>',
+                (
+                    (reverse("admin:data_france_depute_change", args=(d.id,)), str(d))
+                    for d in obj.deputes.all()
+                ),
+            )
+        return "-"
+
+    deputes.short_description = "Députés"
+
+
 class RNEAdmin(ImmutableModelAdmin):
     def nom_complet(self, obj):
         return f"{obj.nom}, {obj.prenom}"
@@ -495,27 +521,3 @@ class DeputeAdmin(ImmutableModelAdmin):
     nom_complet.admin_order_field = "nom"
 
 
-@admin.register(CirconscriptionLegislative)
-class CirconscriptionLegislativeAdmin(ImmutableModelAdmin):
-    list_display = (
-        "code",
-        "departement",
-    )
-
-    fields = ("code", "departement_link", "geometry_as_widget", "deputes")
-
-    search_fields = ("departement__nom", "code")
-
-    def deputes(self, obj):
-        if obj and obj.id:
-            return format_html_join(
-                mark_safe("<br>"),
-                '<a href="{}">{}</a>',
-                (
-                    (reverse("admin:data_france_depute_change", args=(d.id,)), str(d))
-                    for d in obj.deputes.all()
-                ),
-            )
-        return "-"
-
-    deputes.short_description = "Députés"
