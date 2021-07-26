@@ -39,6 +39,7 @@ FINAL_CIRCONSCRIPTIONS_LEGISLATIVES = (
     DATA_DIR / "circonscriptions_legislatives.csv.lzma"
 )
 FINAL_DEPUTES = DATA_DIR / "deputes.csv.lzma"
+FINAL_DEPUTES_EUROPEENS = DATA_DIR / "deputes_europeens.csv.lzma"
 FINAL_ELUS_MUNICIPAUX = DATA_DIR / "elus_municipaux.csv.lzma"
 FINAL_ELUS_DEPARTEMENTAUX = DATA_DIR / "elus_departementaux.csv.lzma"
 FINAL_ELUS_REGIONAUX = DATA_DIR / "elus_regionaux.csv.lzma"
@@ -80,6 +81,7 @@ __all__ = [
     "task_generer_fichier_elus_departementaux",
     "task_generer_fichier_elus_regionaux",
     "task_generer_fichier_deputes",
+    "task_generer_fichier_deputes_europeens",
 ]
 
 
@@ -280,6 +282,18 @@ def task_generer_fichier_deputes():
                 (),
                 {**sources, "dest": FINAL_DEPUTES},
             )
+        ],
+    }
+
+
+def task_generer_fichier_deputes_europeens():
+    source = PREPARE_DIR / SOURCES.interieur.rne.europeens.filename
+
+    return {
+        "file_dep": [source],
+        "targets": [FINAL_DEPUTES_EUROPEENS],
+        "actions": [
+            (generer_fichiers_deputes_europeens, (source, FINAL_DEPUTES_EUROPEENS))
         ],
     }
 
@@ -770,7 +784,7 @@ def generer_fichier_elus_regionaux(source, dest):
                 "profession",
             ]:
                 if not elu[f]:
-                    elu[f] = "\\N"
+                    elu[f] = NULL
 
             w.writerow(
                 {
@@ -853,3 +867,40 @@ def generer_fichier_deputes(
         w = csv.DictWriter(f, fieldnames=spec)
         w.writeheader()
         w.writerows(glom(deputes.itertuples(), Iter(spec)))
+
+
+def generer_fichiers_deputes_europeens(source, dest):
+    with open(source) as s_fd, lzma.open(dest, "wt") as d_fd, id_from_file(
+        "deputes_europeens.csv"
+    ) as id:
+        r = csv.DictReader(s_fd)
+        w = csv.DictWriter(
+            d_fd,
+            fieldnames=[
+                "id",
+                "nom",
+                "prenom",
+                "sexe",
+                "date_naissance",
+                "profession",
+                "date_debut_mandat",
+            ],
+        )
+
+        w.writeheader()
+
+        for e in r:
+            if not e["profession"]:
+                e["profession"] = NULL
+
+            w.writerow(
+                {
+                    "id": id(
+                        nom=e["nom"],
+                        prenom=e["prenom"],
+                        date_naissance=e["date_naissance"],
+                        sexe=e["sexe"],
+                    ),
+                    **e,
+                }
+            )

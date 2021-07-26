@@ -263,6 +263,14 @@ def importer_deputes(using):
         import_with_temp_table(f, "data_france_depute", using)
 
 
+@console_message("Chargement des députés européens")
+def importer_deputes_europeens(using):
+    with open_binary("data_france.data", "deputes_europeens.csv.lzma") as _f, lzma.open(
+        _f, "rt"
+    ) as f:
+        import_with_temp_table(f, "data_france_deputeeuropeen", using)
+
+
 def agreger_geometries_et_populations(using):
     with get_connection(using).cursor() as cursor:
 
@@ -744,6 +752,8 @@ def importer_donnees(using=None):
         importer_elus_regionaux(using)
 
         importer_deputes(using)
+
+        importer_deputes_europeens(using)
 
         agreger_geometries_et_populations(using)
 

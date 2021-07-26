@@ -5,6 +5,7 @@ Version ???
 -----------
 
 * Ajout des conseiller·ères régionaux·ales
+* Ajout des député·es européen·nes
 
 Les conseillers régionaux sont pour le moment reliés directement aux régions plutôt qu'aux
 collectivités régionales, mais c'est une mesure temporaire, par simplicité.

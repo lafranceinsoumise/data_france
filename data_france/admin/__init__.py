@@ -18,6 +18,7 @@ from data_france.models import (
     EluDepartemental,
     EluRegional,
     Depute,
+    DeputeEuropeen,
 )
 from data_france.typologies import Fonction
 
@@ -480,6 +481,7 @@ class EluRegional(RNEAdmin):
 
 @admin.register(Depute)
 class DeputeAdmin(RNEAdmin):
+    search_fields = ("nom", "prenom")
     list_display = ("nom_complet", "circonscription", "sexe", "groupe", "relation")
 
     fieldsets = (
@@ -512,6 +514,16 @@ class DeputeAdmin(RNEAdmin):
         ),
     )
 
+
+@admin.register(DeputeEuropeen)
+class DeputeEuropeenAdmin(RNEAdmin):
     search_fields = ("nom", "prenom")
+    list_display = ("nom_complet", "sexe")
 
-
+    fields = [
+        "nom",
+        "prenom",
+        "sexe",
+        "date_naissance",
+        "date_debut_mandat",
+    ]

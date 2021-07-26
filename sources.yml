@@ -73,6 +73,10 @@ interieur:
       url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20210716-190642/export-datagouv-cr.csv
       date: 16/07/2021
       hash: 0e3f3b0e56f70ab0dc739125ff5968bc1f78608524ac7d245ae56626a8fec2a5
+    europeens:
+      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20210422-103505/rne-rpe.csv
+      date: 22/04/2021
+      hash: afa9e9759b40c08d28a07fd62fb85715f60350ccd01bead2313accd4bd452f8e
 
   resultats_electoraux:
     presidentielles:

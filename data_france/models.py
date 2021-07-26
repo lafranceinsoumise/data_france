@@ -838,8 +838,8 @@ class EluDepartemental(IdentiteMixin, RNEMixin):
         return f"{self.nom}, {self.prenom}, {self.canton}"
 
     class Meta:
-        verbose_name = "Élu·e départemental·e"
-        verbose_name_plural = "Élu·es départementaux·ales"
+        verbose_name = "Élu‧e départemental‧e"
+        verbose_name_plural = "Élu‧es départementaux‧ales"
         ordering = ("canton", "nom", "prenom", "date_naissance")
 
 
@@ -855,6 +855,22 @@ class EluRegional(IdentiteMixin, RNEMixin):
         return f"{self.nom}, {self.nom}, {self.region}"
 
     class Meta:
-        verbose_name = "Élu·e régional·e"
-        verbose_name_plural = "Élu·es régional·es"
+        verbose_name = "Élu‧e régional‧e"
+        verbose_name_plural = "Élu‧es régionaux‧ales"
         ordering = ("region", "nom", "prenom", "date_naissance")
+
+
+class DeputeEuropeen(IdentiteMixin):
+    date_debut_mandat = models.DateField(
+        verbose_name="Date de début du mandat", editable=False
+    )
+
+    def __str__(self):
+        return (
+            f"{self.nom}, {self.prenom}, {genrer(self.sexe, 'député‧e européen‧ne')} "
+        )
+
+    class Meta:
+        verbose_name = "Député‧e européen‧ne"
+        verbose_name = "Député‧es européen‧es"
+        ordering = ("nom", "prenom", "date_naissance")

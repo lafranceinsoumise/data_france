@@ -14,6 +14,7 @@ __all__ = [
     "task_traiter_elus_municipaux_epci",
     "task_traiter_elus_departementaux",
     "task_traiter_elus_regionaux",
+    "task_traiter_deputes_europeens",
 ]
 
 ORDINAL_RE = re.compile("^(\d+)(?:er|[eè]me)$")
@@ -98,6 +99,17 @@ REG_FIELDS = [
     "date_debut_fonction",
 ]
 
+EURDEP_FIELDS = [
+    "nom",
+    "prenom",
+    "sexe",
+    "date_naissance",
+    "profession",
+    "_lib_profession",
+    "date_debut_mandat",
+]
+
+
 corr_outremer = {
     "ZA": "97",
     "ZB": "97",
@@ -157,6 +169,21 @@ def task_traiter_elus_regionaux():
         "actions": [
             (create_folder, [dest.parent]),
             (traiter_elus_regionaux, (source, dest)),
+        ],
+    }
+
+
+def task_traiter_deputes_europeens():
+    EURDEP = SOURCES.interieur.rne.europeens
+    source = SOURCE_DIR / EURDEP.filename
+    dest = PREPARE_DIR / EURDEP.filename
+
+    return {
+        "file_dep": [source],
+        "targets": [dest],
+        "actions": [
+            (create_folder, [dest.parent]),
+            (traiter_deputes_europeens, (source, dest)),
         ],
     }
 
@@ -325,3 +352,20 @@ def traiter_elus_regionaux(reg_path, dest):
     reg["ordre_fonction"] = fonctions.str.get(1)
 
     reg.to_csv(dest, index=False)
+
+
+def traiter_deputes_europeens(source, dest):
+    eurdep = pd.read_csv(
+        source,
+        sep="\t",
+        encoding="utf8",
+        skiprows=1,
+        names=EURDEP_FIELDS,
+        na_values=[""],
+        keep_default_na=False,
+        usecols=[f for f in EURDEP_FIELDS if not f.startswith("_")],
+        dtype={"profession": str},
+    )
+
+    parser_dates(eurdep)
+    eurdep.to_csv(dest, index=False)
