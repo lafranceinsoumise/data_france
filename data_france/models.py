@@ -1,19 +1,14 @@
 from django.contrib.gis.db.models import MultiPolygonField, PointField
+from django.contrib.postgres.fields.array import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchRank, SearchVectorField
 from django.db import models
 from django.utils.html import format_html_join
 
-from data_france.search import PrefixSearchQuery
-from data_france.typologies import (
-    CodeSexe,
-    Fonction,
-    NOMS_COM,
-    ORDINAUX_LETTRES,
-    RelationGroupe,
-    TypeNom,
-)
-from django.contrib.postgres.fields.array import ArrayField
-from django.contrib.postgres.indexes import GinIndex
+from .search import PrefixSearchQuery
+from .typologies import CodeSexe, Fonction, RelationGroupe
+from .utils import ORDINAUX_LETTRES, JOURS_SEMAINE, NomType, TypeNom, genrer
+
 
 __all__ = [
     "Commune",
@@ -30,15 +25,15 @@ __all__ = [
     "EluMunicipal",
 ]
 
-JOURS_SEMAINE = [
-    "lundi",
-    "mardi",
-    "mercredi",
-    "jeudi",
-    "vendredi",
-    "samedi",
-    "dimanche",
-]
+
+NOMS_COM = {
+    "975": NomType("Saint-Pierre-et-Miquelon", TypeNom.CONSONNE),
+    "977": NomType("Saint-Barthélémy", TypeNom.CONSONNE),
+    "978": NomType("Saint-Martin", TypeNom.CONSONNE),
+    "986": NomType("Wallis-et-Futuna", TypeNom.CONSONNE),
+    "987": NomType("Polynésie Française", TypeNom.ARTICLE_LA),
+    "988": NomType("Nouvelle-Calédonie", TypeNom.ARTICLE_LA),
+}
 
 
 def _horaires_sort_key(j):

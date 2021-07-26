@@ -10,7 +10,7 @@ from lxml import etree
 from shapely.geometry import Point
 
 from data_france.data import VILLES_PLM
-from data_france.typologies import TypeNom
+from data_france.utils import TypeNom
 from sources import SOURCES, PREPARE_DIR, SOURCE_DIR
 from tasks.cog import CORR_SOUS_COMMUNES, COMMUNE_TYPE_ORDERING
 from utils import normaliser_nom

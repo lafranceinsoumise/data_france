@@ -6,7 +6,8 @@ from pandas.errors import OutOfBoundsDatetime
 
 from sources import SOURCES, SOURCE_DIR, PREPARE_DIR
 from utils import normaliser_colonne
-from data_france.typologies import Fonction, ORDINAUX_LETTRES
+from data_france.typologies import Fonction
+from data_france.utils import ORDINAUX_LETTRES
 from tasks.parrainages import PARRAINAGES_MUNICIPAUX
 
 __all__ = [
