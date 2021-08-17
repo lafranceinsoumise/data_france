@@ -764,6 +764,8 @@ class Depute(IdentiteMixin, models.Model):
         verbose_name="Date de fin du mandat", null=True, editable=False
     )
 
+    search = SearchVectorField(verbose_name="Champ de recherche", null=True)
+
     def __str__(self):
         return f"{self.nom}, {self.prenom} ({self.circonscription})"
 
@@ -834,6 +836,8 @@ class EluDepartemental(IdentiteMixin, RNEMixin):
         Canton, related_name="elus", related_query_name="elu", on_delete=models.CASCADE
     )
 
+    search = SearchVectorField(verbose_name="Champ de recherche", null=True)
+
     def __str__(self):
         return f"{self.nom}, {self.prenom}, {self.canton}"
 
@@ -851,6 +855,8 @@ class EluRegional(IdentiteMixin, RNEMixin):
         on_delete=models.CASCADE,
     )
 
+    search = SearchVectorField(verbose_name="Champ de recherche", null=True)
+
     def __str__(self):
         return f"{self.nom}, {self.prenom}, {self.region}"
 
@@ -864,6 +870,8 @@ class DeputeEuropeen(IdentiteMixin):
     date_debut_mandat = models.DateField(
         verbose_name="Date de début du mandat", editable=False
     )
+
+    search = SearchVectorField(verbose_name="Champ de recherche", null=True)
 
     def __str__(self):
         return (

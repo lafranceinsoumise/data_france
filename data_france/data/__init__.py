@@ -597,6 +597,7 @@ def creer_collectivites_regionales(using):
 @console_message("Mise à jour de l'index de recherche")
 def creer_index_recherche(using):
     with get_connection(using).cursor() as cursor:
+        # L'index des communes
         cursor.execute(
             """
             WITH cps AS (
@@ -641,6 +642,17 @@ def creer_index_recherche(using):
         """
         )
 
+        # L'index des circonscriptions consulaires
+        cursor.execute(
+            """
+        UPDATE data_france_circonscriptionconsulaire c
+        SET search =
+            setweight(to_tsvector('data_france_search', COALESCE(c.nom, '')), 'A')
+         || setweight(to_tsvector('data_france_search', ARRAY_TO_STRING(c.consulats, ' ')), 'B');
+"""
+        )
+
+        # l'index des élus municipaux
         cursor.execute(
             """
             WITH cps AS (
@@ -676,13 +688,67 @@ def creer_index_recherche(using):
             WHERE c.id = em.commune_id AND c.id = cps.commune_id AND c.id = deps.commune_id;"""
         )
 
+        # l'index des élus départementaux
         cursor.execute(
             """
-        UPDATE data_france_circonscriptionconsulaire c
+        UPDATE data_france_eludepartemental e
+        SET search = setweight(to_tsvector('data_france_search', COALESCE(e."nom", '')), 'A')
+         || setweight(to_tsvector('data_france_search', COALESCE(e."prenom", '')), 'A')
+         || setweight(to_tsvector('data_france_search', COALESCE(c."nom", '')), 'B')
+         || setweight(to_tsvector('data_france_search', COALESCE(d."nom", '')), 'C')
+         || setweight(to_tsvector('data_france_search', COALESCE(d."code", '')), 'C')
+        FROM data_france_canton c, data_france_departement d
+        WHERE c.id = e.canton_id
+          AND d.id = c.departement_id
+        """
+        )
+
+        # l'index des élus régionaux
+        cursor.execute(
+            """
+        UPDATE data_france_eluregional e
         SET search =
-            setweight(to_tsvector('data_france_search', COALESCE(c.nom, '')), 'A')
-         || setweight(to_tsvector('data_france_search', ARRAY_TO_STRING(c.consulats, ' ')), 'B');
-"""
+            setweight(to_tsvector('data_france_search', COALESCE(e."nom", '')), 'A')
+         || setweight(to_tsvector('data_france_search', COALESCE(e."prenom", '')), 'A')
+         || setweight(to_tsvector('data_france_search', COALESCE(r."nom", '')), 'B')
+        FROM data_france_region r
+        WHERE e.region_id = r.id
+        """
+        )
+
+        # l'index des députés
+        # Il y a des circonscriptions sans départements (français de l'étranger
+        # et collectivités d'outremer), d'où l'obligation de recourir à une
+        # sous-requête pour pouvoir faire une jointure à gauche
+        cursor.execute(
+            """
+        WITH circonscription AS (
+          SELECT
+            c.id AS id,
+            setweight(to_tsvector('data_france_search', COALESCE(c."code", '')), 'C')
+         || setweight(to_tsvector('data_france_search', COALESCE(d."nom", '')), 'C')
+            AS search
+          FROM data_france_circonscriptionlegislative c
+          LEFT JOIN data_france_departement d ON c.departement_id = d.id
+        )
+        UPDATE data_france_depute e
+        SET search =
+            setweight(to_tsvector('data_france_search', COALESCE(e."nom", '')), 'A')
+         || setweight(to_tsvector('data_france_search', COALESCE(e."prenom", '')), 'A')
+         || c.search
+        FROM circonscription c
+        WHERE c.id = e.circonscription_id
+        """
+        )
+
+        # l'index des députés européens
+        cursor.execute(
+            """
+        UPDATE data_france_deputeeuropeen
+        SET search =
+            setweight(to_tsvector('data_france_search', COALESCE("nom", '')), 'A')
+         || setweight(to_tsvector('data_france_search', COALESCE("prenom", '')), 'A')
+        """
         )
 
 
