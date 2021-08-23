@@ -1,6 +1,11 @@
 data_france
 ===========
 
+Version 0.13.4
+--------------
+
+* Ajouts d'index de recherche à toutes les catégories d'élus
+
 Version 0.13.3
 --------------
 
