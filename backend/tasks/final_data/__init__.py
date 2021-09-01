@@ -12,7 +12,7 @@ from glom import glom, T, Invoke, Match, Switch, Regex, Not, Coalesce, Iter, Val
 from shapely.geometry import MultiPolygon, shape
 
 from sources import BASE_DIR, SOURCE_DIR, PREPARE_DIR, SOURCES
-from tasks.admin_express import COMMUNES_GEOMETRY
+from tasks.admin_express import COMMUNES_GEOMETRY, CANTONS_GEOMETRY
 from tasks.annuaire_administratif import MAIRIES_TRAITEES
 from tasks.assemblee_nationale import ASSEMBLEE_NATIONALE_DIR
 from tasks.cog import (
@@ -85,7 +85,7 @@ __all__ = [
 ]
 
 
-def _key(t):
+def commune_key(t):
     return (COMMUNE_TYPE_ORDERING.index(t["type"]), t["code"])
 
 
@@ -183,12 +183,12 @@ def task_generer_fichier_codes_postaux():
 
 def task_generer_fichier_cantons():
     return {
-        "file_dep": [CANTONS_CSV, REFERENCES_DIR / "communes.csv"],
+        "file_dep": [CANTONS_CSV, REFERENCES_DIR / "communes.csv", CANTONS_GEOMETRY],
         "targets": [FINAL_CANTONS],
         "actions": [
             (
                 generer_fichier_cantons,
-                [CANTONS_CSV, FINAL_CANTONS],
+                [CANTONS_CSV, CANTONS_GEOMETRY, FINAL_CANTONS],
             )
         ],
     }
@@ -414,8 +414,8 @@ def generer_fichier_communes(communes, communes_geo, mairies, dest):
         rg = csv.DictReader(fg)
         rm = csv.DictReader(fm)
 
-        geometry_cr = _joiner_generator(rg, _key)
-        mairie_cr = _joiner_generator(rm, _key)
+        geometry_cr = _joiner_generator(rg, commune_key)
+        mairie_cr = _joiner_generator(rm, commune_key)
         next(geometry_cr)
         next(mairie_cr)
 
@@ -423,7 +423,7 @@ def generer_fichier_communes(communes, communes_geo, mairies, dest):
         w.writeheader()
 
         for commune in rc:
-            k = _key(commune)
+            k = commune_key(commune)
             geometry = geometry_cr.send(k)
             mairie = mairie_cr.send(k)
 
@@ -516,16 +516,23 @@ def generer_fichiers_codes_postaux(
 
 def generer_fichier_cantons(
     cantons,
+    geometries,
     final_cantons,
 ):
     with id_from_file("cantons.csv") as canton_id, id_from_file(
         "communes.csv"
     ) as commune_id, id_from_file("departements.csv") as departement_id, open(
-        cantons, "r"
-    ) as f_cantons, lzma.open(
+        cantons,
+    ) as f_cantons, open(
+        geometries
+    ) as f_geometries, lzma.open(
         final_cantons, "wt", newline=""
     ) as fl:
         r = csv.DictReader(f_cantons)
+        gr = csv.DictReader(f_geometries)
+        gj = _joiner_generator(gr, itemgetter("code"))
+        next(gj)
+
         w = csv.DictWriter(
             fl,
             fieldnames=[
@@ -537,6 +544,7 @@ def generer_fichier_cantons(
                 "type_nom",
                 "departement_id",
                 "bureau_centralisateur_id",
+                "geometry",
             ],
             extrasaction="ignore",
         )
@@ -553,6 +561,7 @@ def generer_fichier_cantons(
                 else r"\N",
                 "departement_id": departement_id(code=canton["departement"]),
                 "composition": canton["composition"] or r"\N",
+                "geometry": gj.send(canton["code"]).get("geometry", NULL),
             }
             for canton in r
         )

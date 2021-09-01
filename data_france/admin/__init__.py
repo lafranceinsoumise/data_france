@@ -304,6 +304,7 @@ class CantonAdmin(ImmutableModelAdmin):
                     "nom_complet",
                     "type",
                     "composition",
+                    "geometry_as_widget",
                     "elus_list",
                     "departement_link",
                     "bureau_centralisateur_link",

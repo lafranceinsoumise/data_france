@@ -613,11 +613,22 @@ class Canton(TypeNomMixin, models.Model):
     )
 
     departement = models.ForeignKey(
-        "Departement",
+        to="Departement",
         verbose_name="Département",
         on_delete=models.PROTECT,
         related_name="cantons",
         related_query_name="canton",
+    )
+
+    collectivite_departementale = models.ForeignKey(
+        to="CollectiviteDepartementale",
+        verbose_name="Collectivité départementale",
+        null=True,
+        on_delete=models.PROTECT,
+        related_name="cantons",
+        related_query_name="canton",
+        help_text="La collectivité pour laquelle ce canton sert de circonscription"
+        " électorale.",
     )
 
     bureau_centralisateur = models.ForeignKey(
@@ -627,6 +638,10 @@ class Canton(TypeNomMixin, models.Model):
         on_delete=models.PROTECT,
         related_name="+",
         related_query_name="bureau_centralisateur_de",
+    )
+
+    geometry = MultiPolygonField(
+        "Géométrie", geography=True, srid=4326, null=True, spatial_index=True
     )
 
     def __str__(self):

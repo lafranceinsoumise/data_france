@@ -3,8 +3,11 @@ import json
 import csv
 import subprocess
 import tempfile
-from itertools import product
+from functools import reduce
+from itertools import product, groupby
+from operator import itemgetter
 from pathlib import Path, PurePath
+
 
 import fiona
 import pandas as pd
@@ -16,22 +19,27 @@ from shapely import wkb
 from sources import PREPARE_DIR, SOURCE_DIR, SOURCES
 from .cog import COMMUNE_TYPE_ORDERING
 from contextlib import ExitStack
-import heapq
 
 __all__ = [
     "task_decompresser_admin_express",
     "task_extraire_geometries_communes",
-    "task_simplifier_geometries_communes",
-    "task_trier_et_normaliser_geometries_communes",
+    "task_extraire_geometries_cantons",
+    "task_simplifier_geometries",
+    "task_trier_et_normaliser_geometries",
 ]
 
 COMMUNES_GEOMETRY = PREPARE_DIR / "ign" / "admin-express" / "communes_geometries.csv"
+CANTONS_GEOMETRY = PREPARE_DIR / "ign" / "admin-express" / "cantons_geometries.csv"
 
-GEOMETRIES = {
+
+GEOMETRIES_COMMUNES = {
     "COMMUNE": ("COM", "INSEE_COM"),
     "COMMUNE_ASSOCIEE_OU_DELEGUEE": (None, "INSEE_CAD"),
     "ARRONDISSEMENT_MUNICIPAL": ("ARM", "INSEE_ARM"),
 }
+
+EXTRAIRE_GEOMETRIES = [*GEOMETRIES_COMMUNES, "CANTON"]
+
 
 EXTS = [".shp", ".cpg", ".dbf", ".prj", ".shx"]
 
@@ -41,7 +49,7 @@ MIN_SPHERICAL_TRIANGLE_AREA = "1e-9"
 
 # Il faut augmenter significativement la mémoire disponible pour pouvoir faire
 # tourner topojson
-NODE_OPTIONS = "--max_old_space_size=4096"
+NODE_OPTIONS = "--max_old_space_size=6000"
 
 
 def task_decompresser_admin_express():
@@ -52,7 +60,9 @@ def task_decompresser_admin_express():
     source = SOURCES.ign["admin-express"]["version-cog"]
     archive = SOURCE_DIR / source.filename
     dest_dir = PREPARE_DIR / source.path
-    targets = [(dest_dir / g).with_suffix(s) for g, s in product(GEOMETRIES, EXTS)]
+    targets = [
+        (dest_dir / g).with_suffix(s) for g, s in product(EXTRAIRE_GEOMETRIES, EXTS)
+    ]
 
     return {
         "file_dep": [archive],
@@ -74,8 +84,8 @@ def task_extraire_geometries_communes():
     shp_dir = PREPARE_DIR / SOURCES.ign["admin-express"]["version-cog"].path
     out_dir = PREPARE_DIR / "ign" / "admin-express"
 
-    shp_config = {shp_dir / f"{g}.shp": c for g, c in GEOMETRIES.items()}
-    sources = [shp_dir / f"{g}{e}" for g, e in product(GEOMETRIES, EXTS)]
+    shp_config = {shp_dir / f"{g}.shp": c for g, c in GEOMETRIES_COMMUNES.items()}
+    sources = [shp_dir / f"{g}{e}" for g, e in product(GEOMETRIES_COMMUNES, EXTS)]
     metropole = out_dir / "communes_metropole.ndjson"
     outremer = out_dir / "communes_outremer.ndjson"
 
@@ -91,18 +101,45 @@ def task_extraire_geometries_communes():
     }
 
 
-def task_simplifier_geometries_communes():
+def task_extraire_geometries_cantons():
+    """Extrait les polygones correspondant aux cantons
+
+    On traite séparément la métropole et l'outremer, pour faciliter la
+    quantification : il faut donc séparer les cantons dans deux fichiers.
+    """
+
+    shp_dir = PREPARE_DIR / SOURCES.ign["admin-express"]["version-cog"].path
+    out_dir = PREPARE_DIR / "ign" / "admin-express"
+
+    sources = [shp_dir / f"CANTON{e}" for e in EXTS]
+    metropole = out_dir / "cantons_metropole.ndjson"
+    outremer = out_dir / "cantons_outremer.ndjson"
+
+    return {
+        "file_dep": sources,
+        "targets": [metropole, outremer],
+        "actions": [
+            (extraire_geometries_cantons, (shp_dir / "CANTON.shp", metropole, outremer))
+        ],
+    }
+
+
+def task_simplifier_geometries():
     ae_dir = PREPARE_DIR / "ign" / "admin-express"
     yield {
         "name": "metropole",
-        "file_dep": [ae_dir / "communes_metropole.ndjson"],
-        "targets": [ae_dir / "communes_metropole.csv"],
+        "file_dep": [
+            ae_dir / "communes_metropole.ndjson",
+            ae_dir / "cantons_metropole.ndjson",
+        ],
+        "targets": [ae_dir / "topologie_metropole.csv"],
         "actions": [
             (
-                simplifier_geometries_communes,
+                simplifier_geometries,
                 (
                     ae_dir / "communes_metropole.ndjson",
-                    ae_dir / "communes_metropole.csv",
+                    ae_dir / "cantons_metropole.ndjson",
+                    ae_dir / "topologie_metropole.csv",
                     METROPOLE_QUANTIZATION,
                 ),
             )
@@ -111,14 +148,18 @@ def task_simplifier_geometries_communes():
 
     yield {
         "name": "outremer",
-        "file_dep": [ae_dir / "communes_outremer.ndjson"],
-        "targets": [ae_dir / "communes_outremer.csv"],
+        "file_dep": [
+            ae_dir / "communes_outremer.ndjson",
+            ae_dir / "cantons_outremer.ndjson",
+        ],
+        "targets": [ae_dir / "topologie_outremer.csv"],
         "actions": [
             (
-                simplifier_geometries_communes,
+                simplifier_geometries,
                 (
                     ae_dir / "communes_outremer.ndjson",
-                    ae_dir / "communes_outremer.csv",
+                    ae_dir / "cantons_outremer.ndjson",
+                    ae_dir / "topologie_outremer.csv",
                     OUTREMER_QUANTIZATION,
                 ),
             )
@@ -126,15 +167,47 @@ def task_simplifier_geometries_communes():
     }
 
 
-def task_trier_et_normaliser_geometries_communes():
+def task_trier_et_normaliser_geometries():
     ae_dir = PREPARE_DIR / "ign" / "admin-express"
-    sources = [ae_dir / "communes_metropole.csv", ae_dir / "communes_outremer.csv"]
-    target = COMMUNES_GEOMETRY
+    sources = [
+        ae_dir / "topologie_metropole.csv",
+        ae_dir / "topologie_outremer.csv",
+    ]
 
-    return {
+    yield {
+        "name": "communes",
         "file_dep": sources,
-        "targets": [target],
-        "actions": [(trier_et_normaliser_geometries_communes, (sources, target))],
+        "targets": [COMMUNES_GEOMETRY],
+        "actions": [
+            (
+                trier_et_normaliser_geometries,
+                (),
+                {
+                    "obj": "communes",
+                    "cle": cle_tri,
+                    "inpaths": sources,
+                    "outpath": COMMUNES_GEOMETRY,
+                },
+            )
+        ],
+    }
+
+    yield {
+        "name": "cantons",
+        "file_dep": sources,
+        "targets": [CANTONS_GEOMETRY],
+        "actions": [
+            (
+                trier_et_normaliser_geometries,
+                (),
+                {
+                    "obj": "cantons",
+                    "cle": itemgetter("code"),
+                    "inpaths": sources,
+                    "outpath": CANTONS_GEOMETRY,
+                },
+            )
+        ],
     }
 
 
@@ -142,7 +215,7 @@ def decompresser_admin_express(archive, dest_dir):
     with archive_reader(str(archive)) as r:
         for entry in r:
             p = PurePath(entry.pathname)
-            if p.stem in GEOMETRIES:
+            if p.stem in EXTRAIRE_GEOMETRIES:
                 dest = dest_dir / p.name
 
                 with dest.open("wb") as f:
@@ -167,57 +240,81 @@ def extraire_geometries_communes(shp_config, dest_metropole, dest_outremer):
                     f.write("\n")
 
 
-def simplifier_geometries_communes(geometries, dest, quantization):
+def extraire_geometries_cantons(shp_path, dest_metropole, dest_outremer):
+    with dest_metropole.open("w") as fm, dest_outremer.open("w") as fo, fiona.open(
+        shp_path
+    ) as shp:
+        for canton in shp:
+            p = canton["properties"]
+            canton["properties"] = {"code": f'{p["INSEE_DEP"]}{p["INSEE_CAN"]}'}
+            if len(p["INSEE_DEP"]) == 3:
+                f = fo
+            else:
+                f = fm
+            json.dump(canton, f, separators=(",", ":"))
+            f.write("\n")
+
+
+def simplifier_geometries(
+    geometries_communes, geometries_cantons, dest_topologie, quantization
+):
     env = {"NODE_OPTIONS": NODE_OPTIONS, "PATH": os.environ["PATH"]}
 
-    with geometries.open() as f:
-        # préquantifier à ce stade est malheureusement obligatoire pour pouvoir
-        # faire tourner cette étape sans sortir un fichier JSON trop gros pour
-        # la limite (dure) de taille de chaîne de caractères de V8.
-        geo2topo = subprocess.Popen(
-            ["geo2topo", "-n", "communes=-", "-q", quantization],
+    # préquantifier à ce stade est malheureusement obligatoire pour pouvoir
+    # faire tourner cette étape sans sortir un fichier JSON trop gros pour
+    # la limite (dure) de taille de chaîne de caractères de V8.
+    geo2topo = subprocess.Popen(
+        [
+            "geo2topo",
+            "-n",
+            f"communes={geometries_communes}",
+            f"cantons={geometries_cantons}",
+            "-q",
+            quantization,
+        ],
+        stdout=subprocess.PIPE,
+        env=env,
+    )
+
+    with dest_topologie.open("w") as topologie_file:
+        toposimplify = subprocess.Popen(
+            ["toposimplify", "-s", MIN_SPHERICAL_TRIANGLE_AREA],
+            stdin=geo2topo.stdout,
+            stdout=topologie_file,
+            env=env,
+        )
+    # pour que geo2topo puisse reçoivoir SIGPIPE si toposimplify quitte
+    geo2topo.stdout.close()
+
+    geo2topo.wait()
+    toposimplify.wait()
+
+
+def depuis_topologie(topologie, obj):
+    env = {"NODE_OPTIONS": NODE_OPTIONS, "PATH": os.environ["PATH"]}
+
+    # l'option -n permet de sortir un objet JSON par polygone, ce qui évite de
+    # faire planter node en essayant de lui faire sortir un unique json
+    with open(topologie) as f:
+        topo2geo = subprocess.Popen(
+            ["topo2geo", "-n", f"{obj}=-"],
             stdin=f,
             stdout=subprocess.PIPE,
             env=env,
         )
-    toposimplify = subprocess.Popen(
-        ["toposimplify", "-s", MIN_SPHERICAL_TRIANGLE_AREA],
-        stdin=geo2topo.stdout,
-        stdout=subprocess.PIPE,
-        env=env,
-    )
-    # pour que geo2topo puisse reçoivoir SIGPIPE si toposimplify quitte
-    geo2topo.stdout.close()
 
-    # l'option -n permet de sortir un objet JSON par polygone, ce qui évite de
-    # faire planter node en essayant de lui faire sortir un unique json
-    topo2geo = subprocess.Popen(
-        ["topo2geo", "-n", "communes=-"],
-        stdin=toposimplify.stdout,
-        stdout=subprocess.PIPE,
-        env=env,
-    )
-    # pour que toposimplify reçoive SIGPIPE si topo2geo quitte
-    toposimplify.stdout.close()
+    for line in iter(topo2geo.stdout.readline, b""):
+        yield json.loads(line.decode())
 
-    with open(dest, "w") as f:
-        writer = csv.writer(f)
-        writer.writerow(["type", "code", "geometry"])
-
-        for line in iter(topo2geo.stdout.readline, b""):
-            com = json.loads(line.decode())
-            geom = shape(com["geometry"])
-            writer.writerow(
-                [com["properties"]["type"], com["properties"]["code"], geom.wkb_hex]
-            )
+    topo2geo.wait()
 
 
 def cle_tri(l):
     return (COMMUNE_TYPE_ORDERING.index(l["type"]), l["code"])
 
 
-def normaliser_geometrie(geometry):
-    s = wkb.loads(geometry, hex=True)
+def nettoyer_geometrie(geom, cle):
+    s = shape(geom["geometry"])
     if not s.is_valid:
         # semble généralement corriger les géométries invalides Il semble s'agir
         # généralement de géometries avec un segment d'aire nulle (i.e. un bout
@@ -225,25 +322,49 @@ def normaliser_geometrie(geometry):
         # même chemin). Ces géométries sont sans doute causées par la simplification
         # de la topologie.
         s = s.buffer(0)
+
+    return {
+        "properties": geom["properties"],
+        "cle": cle(geom["properties"]),
+        "shape": s,
+    }
+
+
+def fusionner_geometries(g1, g2):
+    return {
+        "properties": {**g2["properties"], **g1["properties"]},
+        "shape": g1["shape"].union(g2["shape"]),
+    }
+
+
+def serialiser_geometrie(g):
+    """Prépare la géométrie pour sérialisation en csv
+
+    Aplatit l'objet properties et sérialise la géométrie shapely en WKB (hex)
+    """
+    s = g["shape"]
     if not isinstance(s, MultiPolygon):
         s = MultiPolygon([s])
-    return s.wkb_hex
+
+    return {**g["properties"], "geometry": s.wkb_hex}
 
 
-def trier_et_normaliser_geometries_communes(inpaths, outpath):
-    lines = []
+def trier_et_normaliser_geometries(obj, cle, inpaths, outpath):
+    geoms = []
 
     for p in inpaths:
-        with p.open() as f:
-            r = csv.DictReader(f)
-            lines.extend(r)
+        geoms.extend(nettoyer_geometrie(g, cle) for g in depuis_topologie(p, obj))
 
-    lines.sort(key=cle_tri)
+    # trier en utilisant la clé précalculée par `nettoyer_geometrie`
+    geoms.sort(key=itemgetter("cle"))
 
-    for i in range(len(lines)):
-        lines[i]["geometry"] = normaliser_geometrie(lines[i]["geometry"])
+    # fusionner géométries qui partagent la même clé et sérialiser
+    data = [
+        serialiser_geometrie(reduce(fusionner_geometries, gs))
+        for _, gs in groupby(geoms, key=itemgetter("cle"))
+    ]
 
     with outpath.open("w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=lines[0].keys())
+        w = csv.DictWriter(f, fieldnames=data[0].keys())
         w.writeheader()
-        w.writerows(lines)
+        w.writerows(data)
