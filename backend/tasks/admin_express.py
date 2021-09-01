@@ -38,6 +38,9 @@ EXTS = [".shp", ".cpg", ".dbf", ".prj", ".shx"]
 METROPOLE_QUANTIZATION = "1e5"
 OUTREMER_QUANTIZATION = "1e6"
 MIN_SPHERICAL_TRIANGLE_AREA = "1e-9"
+
+# Il faut augmenter significativement la mémoire disponible pour pouvoir faire
+# tourner topojson
 NODE_OPTIONS = "--max_old_space_size=4096"
 
 
@@ -168,6 +171,9 @@ def simplifier_geometries_communes(geometries, dest, quantization):
     env = {"NODE_OPTIONS": NODE_OPTIONS, "PATH": os.environ["PATH"]}
 
     with geometries.open() as f:
+        # préquantifier à ce stade est malheureusement obligatoire pour pouvoir
+        # faire tourner cette étape sans sortir un fichier JSON trop gros pour
+        # la limite (dure) de taille de chaîne de caractères de V8.
         geo2topo = subprocess.Popen(
             ["geo2topo", "-n", "communes=-", "-q", quantization],
             stdin=f,
@@ -183,6 +189,8 @@ def simplifier_geometries_communes(geometries, dest, quantization):
     # pour que geo2topo puisse reçoivoir SIGPIPE si toposimplify quitte
     geo2topo.stdout.close()
 
+    # l'option -n permet de sortir un objet JSON par polygone, ce qui évite de
+    # faire planter node en essayant de lui faire sortir un unique json
     topo2geo = subprocess.Popen(
         ["topo2geo", "-n", "communes=-"],
         stdin=toposimplify.stdout,
