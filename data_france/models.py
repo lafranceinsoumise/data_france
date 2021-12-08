@@ -6,7 +6,7 @@ from django.db import models
 from django.utils.html import format_html_join
 
 from .search import PrefixSearchQuery
-from .typologies import CodeSexe, Fonction, RelationGroupe
+from .typologies import CodeSexe, Fonction, RelationGroupe, CSP
 from .utils import ORDINAUX_LETTRES, JOURS_SEMAINE, NomType, TypeNom, genrer
 
 
@@ -90,7 +90,7 @@ class IdentiteMixin(models.Model):
     )
     date_naissance = models.DateField(verbose_name="Date de naissance", editable=False)
     profession = models.SmallIntegerField(
-        verbose_name="Profession", editable=False, null=True
+        verbose_name="Profession", editable=False, null=True, choices=CSP.choices
     )
 
     class Meta:
