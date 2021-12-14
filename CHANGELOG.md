@@ -1,6 +1,13 @@
 data_france
 ===========
 
+Version 0.13.5
+--------------
+
+* Mise à jour du RNE à décembre 2021
+* Ajout des géométries des cantons
+* Ajout de la nomenclature des catégories socio-professionnelles
+
 Version 0.13.4
 --------------
 
