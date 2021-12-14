@@ -107,7 +107,11 @@ def id_from_file(path, read_only=False):
 
     def get_id(**kwargs):
         nonlocal last_id
-        key = tuple(kwargs[c] for c in columns)
+        key = tuple(str(kwargs.pop(c)) for c in columns)
+
+        if kwargs:
+            raise ValueError(f"Colonnes inconnues ({', '.join(kwargs)}) dans {path}")
+
         if key in reference:
             return reference[key]
         else:

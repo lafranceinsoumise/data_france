@@ -28,11 +28,14 @@ class check_hash:
                 hasher.update(buf)
                 buf = f.read(BLOCKSIZE)
 
-        return hasher.hexdigest() == self.hash_digest
+        self.computed_digest = hasher.hexdigest()
+        return self.computed_digest == self.hash_digest
 
     def _check_after_run(self):
         if not self._check():
-            raise RuntimeError(f"Hash incorrect pour '{self.filename}'")
+            raise RuntimeError(
+                f"Hash incorrect pour '{self.filename}', obtenu {self.computed_digest}"
+            )
 
         return {}
 

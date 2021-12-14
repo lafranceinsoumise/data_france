@@ -16,28 +16,53 @@ from tasks.cog import CORR_SOUS_COMMUNES, COMMUNE_TYPE_ORDERING
 from utils import normaliser_nom
 
 
-__all__ = ["task_extraire_mairies", "task_post_traitement_mairies"]
+__all__ = [
+    "task_extraire_mairies",
+    "task_extraire_conseils_departementaux",
+    "task_post_traitement_mairies",
+]
 
 
-MAIRIE_RE = re.compile(r"\d[\dAB]\d?/mairie-\d[\dAB]\d{3}-\d{2}.xml")
+MAIRIE_RE = re.compile(r"\d[\dAB]\d?/mairie-\d[\dAB]\d{3}-\d{2}.xml$")
+CONSEIL_DEPARTEMENTAL_RE = re.compile(r"\d[\dAB]\d?/cg-\d[\dAB]\d{3}-\d{2}.xml$")
+
 DEFAUT_EDITEUR = (
     "La Direction de l'information légale et administrative (Premier ministre)"
 )
 
-MAIRIES_SOURCE = SOURCES.premier_ministre.annuaire_administration
-MAIRIES_ARCHIVE = SOURCE_DIR / MAIRIES_SOURCE.filename
-MAIRIES_DIR = PREPARE_DIR / MAIRIES_SOURCE.path
-MAIRIES_EXTRAITES = MAIRIES_DIR / "mairies.ndjson"
-MAIRIES_TRAITEES = MAIRIES_DIR / "mairies.csv"
+ANNUAIRE_SOURCE = SOURCES.premier_ministre.annuaire_administration
+ANNUAIRE_ARCHIVE = SOURCE_DIR / ANNUAIRE_SOURCE.filename
+ANNUAIRE_DIR = PREPARE_DIR / ANNUAIRE_SOURCE.path
+MAIRIES_EXTRAITES = ANNUAIRE_DIR / "mairies.ndjson"
+MAIRIES_TRAITEES = ANNUAIRE_DIR / "mairies.csv"
+CONSEILS_DEPARTEMENTAUX_EXTRAITS = ANNUAIRE_DIR / "conseils_departementaux.ndjson"
 
 
 def task_extraire_mairies():
     return {
-        "file_dep": [MAIRIES_ARCHIVE],
+        "file_dep": [ANNUAIRE_ARCHIVE],
         "targets": [MAIRIES_EXTRAITES],
         "actions": [
-            (create_folder, [MAIRIES_DIR]),
-            (extraire_mairies, (MAIRIES_ARCHIVE, MAIRIES_EXTRAITES)),
+            (create_folder, [ANNUAIRE_DIR]),
+            (extraire_organismes, (ANNUAIRE_ARCHIVE, MAIRIES_EXTRAITES, MAIRIE_RE)),
+        ],
+    }
+
+
+def task_extraire_conseils_departementaux():
+    return {
+        "file_dep": [ANNUAIRE_ARCHIVE],
+        "targets": [CONSEILS_DEPARTEMENTAUX_EXTRAITS],
+        "actions": [
+            (create_folder, [ANNUAIRE_DIR]),
+            (
+                extraire_organismes,
+                (
+                    ANNUAIRE_ARCHIVE,
+                    CONSEILS_DEPARTEMENTAUX_EXTRAITS,
+                    CONSEIL_DEPARTEMENTAL_RE,
+                ),
+            ),
         ],
     }
 
@@ -55,21 +80,21 @@ def task_post_traitement_mairies():
     }
 
 
-def extraire_mairies(tar_path, dest_path):
+def extraire_organismes(tar_path, dest_path, path_regex):
     with tarfile.open(tar_path, "r:bz2") as tar, open(dest_path, "w") as dest:
         while mem := tar.next():
-            if not mem.isfile() or not MAIRIE_RE.search(mem.name):
+            if not mem.isfile() or not path_regex.search(mem.name):
                 continue
 
             f = tar.extractfile(mem)
             tree = etree.parse(f)
             root = tree.getroot()
 
-            json.dump(mairie_xml_to_json(root), dest, indent=None)
+            json.dump(organisme_xml_to_json(root), dest, indent=None)
             dest.write("\n")
 
 
-def mairie_xml_to_json(tree):
+def organisme_xml_to_json(tree):
     res = {"id": tree.attrib["id"], "code": tree.attrib["codeInsee"]}
 
     for elem in tree:
@@ -145,11 +170,21 @@ EXCEPTIONS = {
     "mairie-72033-02": ("COM", "72033"),  # (COM)
     "mairie-79078-04": ("COMD", "79247"),  # Saint-Étienne-la-Cigogne (LIBCOM)
     "mairie-79136-02": ("COMD", "79006"),  # Les Alleuds (LIBCOM)
-    "mairie-38446-02": ("COM", "38466"),  # Saint-Pierre-d'Entremont (COM)
+    "mairie-38446-02": ("COM", "38446"),  # Saint-Pierre-d'Entremont (COM)
     "mairie-39483-02": ("COM", "39483"),  # Saint-Hymetière sur Valouse
     "mairie-14712-02": ("COM", "14666"),  # Sannerville, ville ressuscitée
     "mairie-27055-02": ("COM", "27055"),  # Bérengeville-la-Campagne (COM)
     "mairie-35072-04": ("COM", "35072"),  # Châtillon-en-Vendelay
+    "mairie-28103-10": ("COM", "28103"),  # Cloyes-les-trois-rivieres
+    "mairie-28150-01": ("COMD", "28150"),  # Ferté-Villeneuil
+    "mairie-28262-01": ("COMD", "28262"),  # Montigny-le-Gannelon
+    "mairie-28340-01": ("COMD", "28340"),  # Saint-Hilaire-sur-Yerre
+    "mairie-28103-01": ("COMD", "28103"),  # Charray
+    "mairie-49044-01": ("COMD", "49044"),  # Breil
+    "mairie-49122-01": ("COMD", "49122"),  # Dénezé-sous-le-Lude
+    "mairie-49175-01": ("COMD", "49175"),  # Linières-Bouton
+    "mairie-49062-01": ("COMD", "49062"),  # Chalonnes-sous-le-Lude
+    "mairie-50534-01": ("COMD", "50534"),  # Saint-Pelerin
 }
 
 
@@ -236,7 +271,9 @@ COMMUNE_NON_CONSERVEE = {
     "mairie-50417-02",  # Morsalines
     "mairie-01227-02",  # Saint-Champ
     "mairie-36093-02",  # Saint-Pierre-de-Lamps
-    "mairie-91182-02",  # Courcouronnes
+    "mairie-91228-02",  # Courcouronnes
+    "mairie-62431-01",  # Herbelles
+    "mairie-67439-01",  # Schaffhouse-sur-Zorn
 }
 
 
@@ -256,6 +293,8 @@ def _commune_key(c):
 
 
 def obtenir_commune_matcher(corr_sous_communes):
+    # le fichier de correspondances qui liste toutes les sous-communes et leurs
+    # communes parentes
     corr_sous_communes = pd.read_csv(
         corr_sous_communes, dtype={"code": str, "commune_parent": str}
     )
@@ -273,6 +312,8 @@ def obtenir_commune_matcher(corr_sous_communes):
         },
     }
 
+    # cette table de correspondance directe ne peut être utilisée que pour les
+    # cas où aucune commune normale n'existe avec le même numéro.
     corr_direct = {
         code: type for type, code, *_ in corr_sous_communes.itertuples(index=False)
     }

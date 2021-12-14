@@ -58,25 +58,29 @@ ign:
 interieur:
   rne:
     municipaux:
-      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20210422-103240/rne-cm.csv
-      date: 22/04/2021
-      hash: a2ab20e21fc2295bb085aaf2a70e0f45fe5d0be482878ed43f4a86040dae5811
+      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20211202-134925/cm.csv
+      date: 08/12/2021
+      hash: 8a47a3684fcbe467369449961b9e0d528db774867cb0e6a3ef1e44ce004ac04a
     epci:
-      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20210422-103340/rne-epci.csv
-      date: 22/04/2021
-      hash: a325d77b8d63fec3f5afc030daf8730fe0240551971444cadaa9a4dbe654063d
+      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20211118-094139/epci.csv
+      date: 08/12/2021
+      hash: 47c74850849242fd7a11634b410185b71582c98b60025580f80f41728e9a3a1c
     departementaux:
-      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20210716-190541/export-datagouv-cd.csv
-      date: 16/07/2021
-      hash: c17f8886254c607aa7653f559958bccf796cead0098acd392496bc6d4dd2c657
+      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20211118-094214/cd.csv
+      date: 08/12/2021
+      hash: a6f525fceeb68d2a38c0c09696284a0aedb204de2bdfeb1ff21090b3236555bf
     regionaux:
-      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20210716-190642/export-datagouv-cr.csv
-      date: 16/07/2021
-      hash: 0e3f3b0e56f70ab0dc739125ff5968bc1f78608524ac7d245ae56626a8fec2a5
+      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20211118-094255/cr.csv
+      date: 08/12/2021
+      hash: 39855004267c42847eef76b51ae1502921069267db9b0034efdfa32653a9659e
     europeens:
-      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20210422-103505/rne-rpe.csv
-      date: 22/04/2021
-      hash: afa9e9759b40c08d28a07fd62fb85715f60350ccd01bead2313accd4bd452f8e
+      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20211118-094340/rpe.csv
+      date: 08/12/2021
+      hash: 0b0385bf1ac6b08b17aff9ed5b3f5d63902b29b394973e02d00d60ade185d47d
+    uniques:
+      url: https://static.data.gouv.fr/resources/repertoire-national-des-elus-1/20211118-094320/ma.csv
+      date: 08/12/2021
+      hash: 19aa07a1ca424621305d00e4aeaccfe6b50817e1a9e761ee3e48eff2fc60777b
 
   resultats_electoraux:
     presidentielles:
@@ -145,11 +149,13 @@ interieur:
           hash: 4af3b66cf3e81de036954e473baf97f37fb24daa95020224918b4470a4e5fde7
           date: 01/07/2021
 
+
 laposte:
   codes_postaux:
     url: https://datanova.laposte.fr/explore/dataset/laposte_hexasmal/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%2C
     extension: .csv
     hash: f0667bfb6f4b942321cd098936d22f2b130d05f6d5fdecc64efeb66d8aa4e4be
+
 
 premier_ministre:
   annuaire_administration:
@@ -158,16 +164,19 @@ premier_ministre:
     hash: 09ee542c0413c04cffcda06b3ef245cdbdb00afe5e0213db9de8705a4f4e29d7
     extraire: no
 
+
 conseil_constitutionnel:
   parrainages2017:
     url: https://presidentielle2017.conseil-constitutionnel.fr/wp-content/uploads/2017/03/parrainagestotal.csv
     hash: 8af6c3fe6f2c57ed6751c9a1daa36b26ae873578601ada0aa5483833ef4c8371
+
 
 assemblee_nationale:
   deputes:
     # url: https://data.assemblee-nationale.fr/static/openData/repository/15/amo/tous_acteurs_mandats_organes_xi_legislature/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json.zip
     url: https://data.assemblee-nationale.fr/static/openData/repository/15/amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes_XV.json.zip
     hash: 805617a1d09f0c53f012dd6ae3935454062526ce906bb797934184ec2a76f48b
+
 
 sciences_po:
   contours_circonscriptions_legislatives:

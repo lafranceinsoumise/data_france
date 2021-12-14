@@ -218,8 +218,8 @@ def parser_dates(df):
             try:
                 date_corrigee = (
                     df[c]
-                    .str.replace(r"/00(\d{2})$", r"/20\1", regex=True)
-                    .str.replace(r"/0990$", r"/1990", regex=True)
+                    .str.replace(r"/13(\d{2})$", r"/19\1", regex=True)
+                    .str.replace(r"/09(\d{2})$", r"/19\1", regex=True)
                 )
                 df[c] = pd.to_datetime(date_corrigee, format="%d/%m/%Y")
             except OutOfBoundsDatetime:
@@ -239,6 +239,8 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, d
         dtype={"code": str, "profession": str},
     )
 
+    # au moins une version ou le 0 initial est absent du fichier source
+    mun["code"] = mun.code.str.pad(5, fillchar="0")
     mun = mun.drop_duplicates(["code", "nom", "prenom", "date_naissance"])
 
     parser_dates(mun)
