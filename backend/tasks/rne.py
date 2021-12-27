@@ -28,6 +28,15 @@ CODES_FONCTION = {
     "adjoint au maire": Fonction.MAIRE_ADJOINT,
 }
 
+PRIORITE_FONCTIONS = [
+    Fonction.PRESIDENT,
+    Fonction.MAIRE,
+    Fonction.MAIRE_DELEGUE,
+    Fonction.VICE_PRESIDENT,
+    Fonction.MAIRE_ADJOINT,
+    Fonction.AUTRE_MEMBRE_COM,
+]
+
 MUN_FIELDS = [
     "_code_dep",
     "_lib_dep",
@@ -241,12 +250,28 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, d
 
     # au moins une version ou le 0 initial est absent du fichier source
     mun["code"] = mun.code.str.pad(5, fillchar="0")
-    mun = mun.drop_duplicates(["code", "nom", "prenom", "date_naissance"])
+    # mun = mun.drop_duplicates(["code", "nom", "prenom", "date_naissance"])
 
     parser_dates(mun)
     fonctions = mun["fonction"].map(normaliser_fonction)
     mun["fonction"] = fonctions.str.get(0)
     mun["ordre_fonction"] = fonctions.str.get(1)
+    mun["priorite_fonction"] = (
+        mun["fonction"]
+        .map(PRIORITE_FONCTIONS.index, na_action="ignore")
+        .fillna(len(PRIORITE_FONCTIONS))
+    )
+    mun = mun.sort_values(
+        [
+            "code",
+            "nom",
+            "prenom",
+            "date_naissance",
+            "priorite_fonction",
+            "ordre_fonction",
+        ]
+    ).drop_duplicates(["code", "nom", "prenom", "date_naissance"], keep="first")
+    del mun["priorite_fonction"]
 
     ep = pd.read_csv(
         epci_path,
@@ -263,6 +288,9 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, d
     parser_dates(ep)
     fonctions = ep["fonction"].map(normaliser_fonction)
     ep["fonction"] = fonctions.str.get(0)
+    ep["priorite_fonction"] = ep.fonction.map(
+        PRIORITE_FONCTIONS.index, na_action="ignore"
+    ).fillna(len(PRIORITE_FONCTIONS))
     ep = ep.sort_values(
         [
             "code",
@@ -270,10 +298,10 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, d
             "prenom",
             "sexe",
             "date_naissance",
-            "date_debut_mandat",
-            "date_debut_fonction",
+            "priorite_fonction",
         ]
-    ).drop_duplicates(["code", "nom", "prenom", "sexe", "date_naissance"], keep="last")
+    ).drop_duplicates(["code", "nom", "prenom", "sexe", "date_naissance"], keep="first")
+    del ep["priorite_fonction"]
 
     res = pd.merge(
         mun,
