@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "data-france"
-version = "0.13.5"
+version = "0.13.6"
 description = "Paquet agrégeant des données administratives publiques pour en rendre l'utilisation facile."
 authors = [
   "Arthur Cheysson <arthur@cheysson.fr>",

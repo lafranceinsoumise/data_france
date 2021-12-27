@@ -1,6 +1,12 @@
 data_france
 ===========
 
+Version 0.13.6
+--------------
+
+* La fonction correcte est exportée pour les maires déléguées qui sont aussi
+  maires adjoints.
+
 Version 0.13.5
 --------------
 
