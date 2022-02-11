@@ -1,6 +1,11 @@
 data_france
 ===========
 
+Version 0.14.0
+--------------
+
+* Ne pas bloquer la version de django à 3.1
+
 Version 0.13.6
 --------------
 
