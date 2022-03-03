@@ -5,6 +5,7 @@ DEBUG = True
 SECRET_KEY = "fake-key"
 
 INSTALLED_APPS = [
+    "django_countries",
     "data_france",
     "django.contrib.auth",
     "django.contrib.admin",

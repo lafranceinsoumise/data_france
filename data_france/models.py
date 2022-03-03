@@ -4,6 +4,7 @@ from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchRank, SearchVectorField
 from django.db import models
 from django.utils.html import format_html_join
+from django_countries.fields import CountryField
 
 from .search import PrefixSearchQuery
 from .typologies import CodeSexe, Fonction, RelationGroupe, CSP
@@ -702,6 +703,14 @@ class CirconscriptionConsulaire(models.Model):
         null=False,
     )
 
+    pays = CountryField(
+        "Pays de la circonscription",
+        multiple=True,
+        blank=True,
+        null=False,
+        blank_label="(sélectionner un ou plusieurs pays)",
+    )
+
     consulats = ArrayField(
         verbose_name="Consulats inclus",
         base_field=models.CharField(max_length=200),
@@ -719,6 +728,9 @@ class CirconscriptionConsulaire(models.Model):
     def as_dict(self):
         return {
             "nom": self.nom,
+            "pays": [{"name": p.name, "code": p.code} for p in self.pays]
+            if self.pays
+            else None,
             "consulats": self.consulats,
             "nombre_conseillers": self.nombre_conseillers,
         }

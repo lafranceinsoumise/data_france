@@ -578,7 +578,7 @@ def generer_fichier_circonscriptions_consulaires(source, dest):
         reader = csv.DictReader(f_in, delimiter=";")
         writer = csv.DictWriter(
             f_out,
-            fieldnames=["id", "nom", "consulats", "nombre_conseillers"],
+            fieldnames=["id", "nom", "consulats", "nombre_conseillers", "pays"],
             extrasaction="ignore",
         )
         writer.writeheader()
