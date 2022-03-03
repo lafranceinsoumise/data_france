@@ -523,6 +523,7 @@ def generer_fichier_cantons(
     geometries,
     final_cantons,
 ):
+    csv.field_size_limit(5 * 131072)  # quintuple default limit
     with id_from_file("cantons.csv") as canton_id, id_from_file(
         "communes.csv"
     ) as commune_id, id_from_file("departements.csv") as departement_id, open(

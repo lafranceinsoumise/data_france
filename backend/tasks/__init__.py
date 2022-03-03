@@ -23,6 +23,7 @@ def task_telecharger():
                 [
                     "curl",
                     "--silent",
+                    "--location",
                     "--output",
                     SOURCE_DIR / source.filename,
                     source.url,

@@ -224,12 +224,13 @@ def normaliser_fonction(s):
 def parser_dates(df):
     for c in df.columns:
         if c.startswith("date_"):
-            try:
-                date_corrigee = (
-                    df[c]
+            date_corrigee = (
+                df[c]
                     .str.replace(r"/13(\d{2})$", r"/19\1", regex=True)
                     .str.replace(r"/09(\d{2})$", r"/19\1", regex=True)
-                )
+                    .str.replace(r"/10(\d{2})$", r"/19\1", regex=True)
+            )
+            try:
                 df[c] = pd.to_datetime(date_corrigee, format="%d/%m/%Y")
             except OutOfBoundsDatetime:
                 raise ValueError(f"Colonne {c}")
