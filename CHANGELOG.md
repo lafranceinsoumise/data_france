@@ -1,6 +1,12 @@
 data_france
 ===========
 
+Version 0.14.1
+--------------
+
+* Ajout des pays associés à chaque consulat
+* Mises à jour de plusieurs sources
+
 Version 0.14.0
 --------------
 
