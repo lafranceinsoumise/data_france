@@ -49,9 +49,9 @@ insee:
 ign:
   admin-express:
     version-cog:
-      url: ftp://Admin_Express_ext:Dahnoh0eigheeFok@ftp3.ign.fr/ADMIN-EXPRESS-COG_3-0__SHP__FRA_L93_2021-05-19.7z
+      url: ftp://Admin_Express_ext:Dahnoh0eigheeFok@ftp3.ign.fr/ADMIN-EXPRESS-COG-CARTO_3-0__SHP__FRA_WM_2021-05-19.7z
       date: 19/05/2021
-      hash: 991d6b1dcd4495cb79f26b7e56406d5088a61bfe58375263487f68b06b831adb
+      hash: 4c2c7bfd56650d171aa324e9a2611ce9d60ffa05e8793ebdc1ed96292c791844
       extraire: []
 
 
@@ -167,7 +167,7 @@ premier_ministre:
   annuaire_administration:
     url: http://lecomarquage.service-public.fr/donnees_locales_v2/all_latest.tar.bz2
     extension: .tar.bz2
-    hash: 536dce9fa10bc1589c12ff58d66a4b36e123533ca7d73fd0a9c02d45a86c1303
+    hash: 7e11168e475050537b8847d26f096073558d77835b9e2ee843ac4f7e72b832bc
     extraire: no
 
 
@@ -181,7 +181,7 @@ assemblee_nationale:
   deputes:
     # url: https://data.assemblee-nationale.fr/static/openData/repository/15/amo/tous_acteurs_mandats_organes_xi_legislature/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json.zip
     url: https://data.assemblee-nationale.fr/static/openData/repository/15/amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes_XV.json.zip
-    hash: 72a9c29b67046bf542e993f592f5b1762ae738d20badc6fd9cd58cb9224a1a72
+    hash: 5be8c2b54363670175fae090677c059810fe861d70fa89821214281a0504b778
 
 
 sciences_po:
