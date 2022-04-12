@@ -3,13 +3,18 @@ from pathlib import Path
 from doit.tools import create_folder
 
 from sources import SOURCE_DIR, PREPARE_DIR, SOURCES
+from .referendum2005 import clean_results as clean_results_2005
 from .scrutins_2014 import clean_results as clean_results_2014
 from .scrutins_2017_2020 import clean_results as clean_results_post_2017
 
-__all__ = ["task_preparer", "task_corriger_municipales_2020_tour_1"]
+__all__ = [
+    "task_preparer",
+    "task_corriger_referendum_2005_caen",
+    "task_corriger_municipales_2020_tour_1",
+]
 
 
-sans_deuxieme_tour = {"europeennes"}
+sans_deuxieme_tour = {"europeennes", "referendums"}
 
 RESULTATS_DIR = PREPARE_DIR / "interieur" / "resultats_electoraux"
 
@@ -33,6 +38,21 @@ def task_corriger_municipales_2020_tour_1():
         "targets": [source_file.with_suffix(".csv")],
         "actions": [
             "sed '13751,13752s/ \t / / ; 16921s/ \t / /' < {dependencies} > {targets}"
+        ],
+    }
+
+
+def task_corriger_referendum_2005_caen():
+    source = (
+        SOURCE_DIR / SOURCES.interieur.resultats_electoraux.referendums["2005"].filename
+    )
+
+    return {
+        "file_dep": [source],
+        "targets": [source.with_suffix(".csv")],
+        "actions": [
+            "sed -E '15337,15452s/;Caen;([[:digit:]]{{2}});([[:digit:]])/;Caen;\10\2/' "
+            "< {dependencies} > {targets}",
         ],
     }
 
@@ -61,13 +81,15 @@ def task_preparer():
             for ext in ["-pop.feather", "-votes.feather"]
         ]
 
-        if int(annee) >= 2017:
+        if election == "referendums" and int(annee) == 2005:
+            func = clean_results_2005
+        elif int(annee) >= 2017:
             func = clean_results_post_2017
         else:
             func = clean_results_2014
 
         yield {
-            "name": source.path,
+            "name": "/".join(source.path.parts[2:]),
             "targets": targets,
             "file_dep": [src],
             "actions": [

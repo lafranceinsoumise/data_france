@@ -1,22 +1,25 @@
+from itertools import chain
 from pathlib import Path
 
 import pandas as pd
 
-entetes = {
-    "numero_tour": True,  # -- Champ 1  : N° tour
-    "departement": True,  # -- Champ 2  : Code département
-    "commune": True,  # -- Champ 3  : Code commune
-    "commune_libelle": False,  # -- Champ 4  : Nom de la commune
-    "bureau": True,  # -- Champ 5  : N° de bureau de vote
-    "inscrits": True,  # -- Champ 6  : Inscrits
-    "votants": True,  # -- Champ 7  : Votants
-    "exprimes": True,  # -- Champ 8  : Exprimés
-    "numero_panneau": True,  # -- Champ 9  : N° de dépôt de la liste
-    "nom": True,  # -- Champ 10 : Nom du candidat tête de liste
-    "prenom": True,  # -- Champ 11 : Prénom du candidat  tête de liste
-    "nuance": True,  # -- Champ 12 : Code nuance de la liste
-    "voix": True,  # -- Champ 13 : Nombre de voix
-}
+partie_commune = [
+    "numero_tour",  # -- Champ 1  : N° tour
+    "departement",  # -- Champ 2  : Code département
+    "commune",  # -- Champ 3  : Code commune
+]
+
+partie_bureau = [
+    "bureau",  # -- Champ 5  : N° de bureau de vote
+    "inscrits",  # -- Champ 6  : Inscrits
+    "votants",  # -- Champ 7  : Votants
+    "exprimes",  # -- Champ 8  : Exprimés
+    "numero_panneau",  # -- Champ 9  : N° de dépôt de la liste
+    "nom",  # -- Champ 10 : Nom du candidat tête de liste
+    "prenom",  # -- Champ 11 : Prénom du candidat  tête de liste
+    "nuance",  # -- Champ 12 : Code nuance de la liste
+    "voix",  # -- Champ 13 : Nombre de voix
+]
 
 
 transforms = {
@@ -35,7 +38,7 @@ par_candidat = ["numero_panneau", "nom", "prenom", "nuance", "voix"]
 
 
 types_par_colonne = {
-    **{h: str for h in entetes},
+    **{h: str for h in chain(partie_commune, partie_bureau)},
     **{"inscrits": int, "votants": int, "exprimes": int, "voix": int},
 }
 
@@ -48,14 +51,23 @@ def clean_results(src, base_filenames, delimiter):
     with open(src, "r", encoding="latin1") as f:
         for i, line in enumerate(f):
             if delimiter in line:
+                nb_champs = len(line.split(delimiter))
                 break
+
+    nb_champs_additionnels = nb_champs - len(partie_commune) - len(partie_bureau)
+    names = (
+        partie_commune
+        + [f"na{i}" for i in range(nb_champs_additionnels)]
+        + partie_bureau
+    )
 
     df = pd.read_csv(
         src,
         sep=delimiter,
         skiprows=i,
-        names=entetes,
-        usecols=[e for e, b in entetes.items() if b],
+        names=list(names),
+        header=None,
+        usecols=partie_commune + partie_bureau,
         dtype=types_par_colonne,
         encoding="latin1",
     )

@@ -90,6 +90,11 @@ interieur:
 
   resultats_electoraux:
     presidentielles:
+      2012:
+        url: https://www.data.gouv.fr/fr/datasets/r/206b1668-2b31-46da-b957-9857f94fe85c
+        date: 09/2015
+        extension: .txt
+        hash: baf999ed0d5aee3cfa3192e152f34db4b0e77af72bad18af4853c4b7b958448e
       2017:
         tour1:
           url: https://www.data.gouv.fr/s/resources/election-presidentielle-des-23-avril-et-7-mai-2017-resultats-definitifs-du-1er-tour-par-bureaux-de-vote/20170427-100955/PR17_BVot_T1_FE.txt
@@ -100,6 +105,11 @@ interieur:
           date: 05/2017
           hash: 2b6137b64957b9bfff24436cf859aad15e8b155b837b182eebff71c21fc82798
     legislatives:
+      2012:
+          url: https://www.data.gouv.fr/fr/datasets/r/32981cf5-2560-48c7-a355-1acdf33bd504
+          date: 09/2015
+          extension: .txt
+          hash: 12dc6f0b56ea1cbe799b6ca5c01cbd028d7820b8ed64c7c29347cd11a6fca60f
       2017:
         tour1:
           url: https://www.data.gouv.fr/s/resources/elections-legislatives-des-11-et-18-juin-2017-resultats-par-bureaux-de-vote-du-1er-tour/20170613-100441/Leg_2017_Resultats_BVT_T1_c.txt
@@ -154,7 +164,13 @@ interieur:
           url: https://static.data.gouv.fr/resources/elections-departementales-2021-resultats-du-2eme-tour/20210701-120141/resultats-par-niveau-burvot-t2-france-entiere-2021-06-30.txt
           hash: 4af3b66cf3e81de036954e473baf97f37fb24daa95020224918b4470a4e5fde7
           date: 01/07/2021
-
+    referendums:
+      2005:
+        url: https://www.data.gouv.fr/fr/datasets/r/8b1f3e0e-001f-414c-9bf0-7b5a9219e26a
+        date: 09/2015
+        hash: c93bb1e0711db91d0d1e25322912ba6c7eb3df32d11bc4df63e6ac3cf1727911
+        extension: .txt
+        corrected: .csv
 
 laposte:
   codes_postaux:

@@ -1,5 +1,5 @@
 """
-Ce fichier comprend la routine permettant de nettoyer les fichiers électoraux des scrutins de 2017 et 2019
+Ce fichier comprend la routine permettant de nettoyer les fichiers électoraux des scrutins de 2017 et 2021
 """
 
 import csv
