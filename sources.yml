@@ -130,6 +130,12 @@ interieur:
           url: https://www.data.gouv.fr/s/resources/elections-legislatives-des-11-et-18-juin-2017-resultats-du-2nd-tour-par-bureaux-de-vote/20170620-094954/Leg_2017_Resultats_BVT_T2_c.txt
           date: 06/2017
           hash: 2d898b6bebcc401b79fe3ebbc0deb37d5dcc32c11ac3f5e8be0b0f006ee9eb8e
+      2022:
+        tour1:
+          url: https://www.data.gouv.fr/fr/datasets/r/2632e5e7-8deb-49f7-bebf-e6ea0ec3d253
+          date: 13/06/2022
+          extension: .txt
+          hash: 237c89b199d04137350358a6fd0ce81d8189e10ff1ce5c7e1616eef78266b84f
     europeennes:
       2019:
         url: https://static.data.gouv.fr/resources/resultats-des-elections-europeennes-2019/20190531-144007/resultats-definitifs-par-bureau-de-vote.txt

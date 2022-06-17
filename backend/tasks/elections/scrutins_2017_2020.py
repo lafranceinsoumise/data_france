@@ -32,6 +32,7 @@ fixed_headers = {
     "Exprimés": "exprimes",
     "% Exp/Ins": None,
     "% Exp/Vot": None,
+    "Etat saisie": None,
 }
 """
 Comment renommer les entêtes ?
@@ -80,12 +81,13 @@ transforms = {
 }
 
 identifiants = ["departement", "commune", "bureau"]
-population = ["inscrits", "votants", "exprimes"]
+population = ["inscrits", "votants", "exprimes", "circonscription"]
 par_candidat = [
     "numero_panneau",
     "nuance",
     "nom",
     "prenom",
+    "sexe",
     "liste_court",
     "liste_long",
     "voix",
@@ -169,9 +171,9 @@ def clean_results(src, base_filenames, delimiter=";"):
         + df["bureau"].str.zfill(4)
     )
 
-    df.groupby(["code"]).agg({f: "first" for f in population}).reset_index().to_feather(
-        f"{base_filename}-pop.feather"
-    )
+    df.groupby(["code"]).agg(
+        {f: "first" for f in population if f in df.columns}
+    ).reset_index().to_feather(f"{base_filename}-pop.feather")
 
     df[["code", *[c for c in par_candidat if c in df.columns]]].to_feather(
         f"{base_filename}-votes.feather"
