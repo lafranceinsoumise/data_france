@@ -104,6 +104,17 @@ interieur:
           url: https://www.data.gouv.fr/s/resources/election-presidentielle-des-23-avril-et-7-mai-2017-resultats-definitifs-du-2nd-tour-par-bureaux-de-vote/20170511-093541/PR17_BVot_T2_FE.txt
           date: 05/2017
           hash: 2b6137b64957b9bfff24436cf859aad15e8b155b837b182eebff71c21fc82798
+      2022:
+        tour1:
+          url: https://www.data.gouv.fr/fr/datasets/r/79b5cac4-4957-486b-bbda-322d80868224
+          extension: .txt
+          date: 04/2022
+          hash: d878f33c4c1488188af0ca0eee9ff5a3116ea88c44979a1538ff43c663831624
+        tour2:
+          url: https://www.data.gouv.fr/fr/datasets/r/4dfd05a9-094e-4043-8a19-43b6b6bbe086
+          extension: .txt
+          date: 04/2022
+          hash: c2ead8aaa3501db95bc887ef949504c914b66d81b2d46313bbfcc5fdeea0bff3
     legislatives:
       2012:
           url: https://www.data.gouv.fr/fr/datasets/r/32981cf5-2560-48c7-a355-1acdf33bd504
