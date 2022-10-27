@@ -74,6 +74,17 @@ spec_depute = {
     "date_debut_mandat": "mandatDepute.dateDebut",
     "date_fin_mandat": "mandatDepute.dateFin",
     "legislature": "mandatDepute.legislature",
+    "emails": (
+        "adresses.adresse",
+        [
+            Match(
+                {"@xsi:type": "AdresseMail_Type", object: object},
+                default=SKIP,
+            ),
+        ],
+        ["valElec"],
+        "/".join,
+    ),
     "groupes": (
         S(code_depute=T["uid"]["#text"]),
         "mandats.mandat",

@@ -218,8 +218,8 @@ conseil_constitutionnel:
 assemblee_nationale:
   deputes:
     # url: https://data.assemblee-nationale.fr/static/openData/repository/15/amo/tous_acteurs_mandats_organes_xi_legislature/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json.zip
-    url: https://data.assemblee-nationale.fr/static/openData/repository/15/amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes_XV.json.zip
-    hash: 5be8c2b54363670175fae090677c059810fe861d70fa89821214281a0504b778
+    url: http://data.assemblee-nationale.fr/static/openData/repository/16/amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes.json.zip
+    hash: 9b2c4fd231f8a46dfd2c596b233008f1c83cfe1619a424e75de74071302520f0
 
 
 sciences_po:
