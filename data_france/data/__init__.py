@@ -9,7 +9,7 @@ from typing import Tuple
 
 from django.db import transaction
 from django.db.transaction import get_connection
-from psycopg2.sql import SQL, Identifier
+from psycopg.sql import SQL, Identifier
 
 from data_france.utils import TypeNom
 
