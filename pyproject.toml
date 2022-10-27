@@ -68,3 +68,12 @@ dj-database-url = "^1.0.0"
 requires = ["poetry_core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+
+[tool.pyright]
+include = ["backend", "data_france"]
+exclude = ["**/__pycache__"]
+
+executionEnvironments = [
+  { root = "backend" },
+  { root = "."}
+]
