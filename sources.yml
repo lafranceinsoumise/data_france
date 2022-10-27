@@ -136,6 +136,11 @@ interieur:
           date: 13/06/2022
           extension: .txt
           hash: 237c89b199d04137350358a6fd0ce81d8189e10ff1ce5c7e1616eef78266b84f
+        tour2:
+          url: https://www.data.gouv.fr/fr/datasets/r/cada247a-6528-44e7-8308-30c0c335a4b2
+          date: 20/06/2022
+          extension: .txt
+          hash: 6fea869e277c871fa862428fc718c8b2dc8f08c96a3db1b7d28074c064271993
     europeennes:
       2019:
         url: https://static.data.gouv.fr/resources/resultats-des-elections-europeennes-2019/20190531-144007/resultats-definitifs-par-bureau-de-vote.txt

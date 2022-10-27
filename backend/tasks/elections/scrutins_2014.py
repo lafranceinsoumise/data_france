@@ -7,6 +7,9 @@ partie_commune = [
     "numero_tour",  # -- Champ 1  : N° tour
     "departement",  # -- Champ 2  : Code département
     "commune",  # -- Champ 3  : Code commune
+    "nom_commune",
+    "circonscription",
+    "canton",
 ]
 
 partie_bureau = [
@@ -23,17 +26,17 @@ partie_bureau = [
 
 
 transforms = {
-    "numero_tour": int,
-    "numero_panneau": int,
+    "circonscription": "int",
+    "numero_tour": "int",
+    "numero_panneau": "int",
     "nuance": "category",
-    "inscrits": int,
-    "votants": int,
-    "exprimes": int,
-    "voix": int,
+    "inscrits": "int",
+    "votants": "int",
+    "exprimes": "int",
+    "voix": "int",
 }
 
-identifiants = ["departement", "commune", "bureau"]
-population = ["inscrits", "votants", "exprimes"]
+population = ["circonscription", "canton", "inscrits", "votants", "exprimes"]
 par_candidat = ["numero_panneau", "nom", "prenom", "nuance", "voix"]
 
 
@@ -43,7 +46,11 @@ types_par_colonne = {
 }
 
 
-def clean_results(src, base_filenames, delimiter):
+def clean_results(
+    src,
+    base_filenames,
+    delimiter,
+):
     if isinstance(base_filenames, (str, Path)):
         base_filenames = [base_filenames]
 
@@ -54,26 +61,23 @@ def clean_results(src, base_filenames, delimiter):
                 nb_champs = len(line.split(delimiter))
                 break
 
-    nb_champs_additionnels = nb_champs - len(partie_commune) - len(partie_bureau)
-    names = (
-        partie_commune
-        + [f"na{i}" for i in range(nb_champs_additionnels)]
-        + partie_bureau
-    )
+    nb_communs = nb_champs - len(partie_bureau)  # type: ignore[reportUnboundVariable]
+    names = partie_commune[:nb_communs] + partie_bureau
 
-    df = pd.read_csv(
+    df: pd.DataFrame = pd.read_csv(
         src,
         sep=delimiter,
-        skiprows=i,
-        names=list(names),
-        header=None,
+        skiprows=i,  # type: ignore[reportUnboundVariable]
+        names=names,  # type: ignore
+        header=None,  # type: ignore
         usecols=partie_commune + partie_bureau,
-        dtype=types_par_colonne,
+        dtype=types_par_colonne,  # type: ignore
         encoding="latin1",
     )
 
     for field, transform in transforms.items():
-        df[field] = df[field].astype(transform)
+        if field in df.columns:
+            df[field] = df[field].astype(transform)
 
     if df.nom.nunique() < 1000:
         df["nom"] = df["nom"].astype("category")
@@ -87,8 +91,8 @@ def clean_results(src, base_filenames, delimiter):
     )
 
     for tour, base_filename in zip(sorted(df["numero_tour"].unique()), base_filenames):
-        df.loc[df["numero_tour"] == tour, ["code", *population]].groupby("code").agg(
-            {f: "first" for f in population}
+        df.loc[df["numero_tour"] == tour].groupby("code").agg(
+            {f: "first" for f in population if f in df.columns}
         ).reset_index().to_feather(f"{base_filename}-pop.feather")
         df.loc[df["numero_tour"] == tour, ["code", *par_candidat]].reset_index(
             drop=True
