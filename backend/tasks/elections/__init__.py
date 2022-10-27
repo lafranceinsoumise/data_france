@@ -11,12 +11,25 @@ __all__ = [
     "task_preparer",
     "task_corriger_referendum_2005_caen",
     "task_corriger_municipales_2020_tour_1",
+    "task_election_csv",
 ]
 
 
 sans_deuxieme_tour = {"europeennes", "referendums"}
 
 RESULTATS_DIR = PREPARE_DIR / "interieur" / "resultats_electoraux"
+
+SELECTION_CANDIDAT = {
+    ("2012", "presidentielles"): "nom",
+    ("2012", "legislatives"): "nuance",
+    ("2017", "presidentielles"): "nom",
+    ("2017", "legislatives"): "nuance",
+    ("2019", "europeennes"): "liste_court",
+    ("2021", "departementales"): "nuance",
+    ("2021", "regionales"): "nuance",
+    ("2022", "presidentielles"): "nom",
+    ("2022", "legislatives"): "nuance",
+}
 
 
 def task_corriger_municipales_2020_tour_1():
@@ -43,6 +56,7 @@ def task_corriger_municipales_2020_tour_1():
 
 
 def task_corriger_referendum_2005_caen():
+    """Corrige les lignes correspondant aux résultats de Caen pour le référendum sur le TCE de 2005"""
     source = (
         SOURCE_DIR / SOURCES.interieur.resultats_electoraux.referendums["2005"].filename
     )
@@ -58,6 +72,7 @@ def task_corriger_referendum_2005_caen():
 
 
 def task_preparer():
+    """Extrait et formate les résultats des élections françaises de façon uniforme."""
     for source in SOURCES.interieur.resultats_electoraux:
         election, annee = source.path.parts[2:4]
         tour = int(source.path.parts[4][-1]) if len(source.path.parts) == 5 else None
@@ -105,3 +120,59 @@ def task_preparer():
                 ),
             ],
         }
+
+
+def task_election_csv():
+    """Exporte les résultats électoraux au format CSV."""
+    for source in SOURCES.interieur.resultats_electoraux:
+        election, annee = source.path.parts[2:4]
+
+        tour = int(source.path.parts[4][-1]) if len(source.path.parts) == 5 else None
+
+        if tour:
+            tours = [tour]
+        elif election in sans_deuxieme_tour:
+            tours = [None]
+        else:
+            tours = [1, 2]
+
+        for tour in tours:
+            if tour is None:
+                name = f"{election}/{annee}"
+                base = RESULTATS_DIR / f"{annee}-{election}"
+            else:
+                name = f"{election}/{annee}/tour{tour}"
+                base = RESULTATS_DIR / f"{annee}-{election}-{tour}"
+
+            sources = [
+                base.with_name(f"{base.name}-pop.feather"),
+                base.with_name(f"{base.name}-votes.feather"),
+            ]
+
+            target = base.with_suffix(".csv")
+            grouper_candidat = SELECTION_CANDIDAT.get((annee, election))
+            if grouper_candidat is None:
+                continue
+
+            yield {
+                "name": name,
+                "file_dep": sources,
+                "targets": [target],
+                "actions": [(feather_to_csv, (*sources, grouper_candidat, target), {})],
+            }
+
+
+def feather_to_csv(pop_path: Path, votes_path: Path, grouper_candidat: str, dest: Path):
+    import pandas as pd
+
+    pop = pd.read_feather(pop_path).set_index("code")
+    votes = (
+        pd.read_feather(votes_path)
+        .groupby(["code", grouper_candidat])["voix"]
+        .sum()
+        .unstack()
+        .fillna(0, downcast="infer")
+    )
+
+    res = pd.concat([pop, votes], axis=1)
+    res.to_csv(dest)
