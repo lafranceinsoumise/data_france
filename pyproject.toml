@@ -3,7 +3,7 @@ name = "data-france"
 version = "0.14.1"
 description = "Paquet agrégeant des données administratives publiques pour en rendre l'utilisation facile."
 authors = [
-  "Arthur Cheysson <arthur@cheysson.fr>",
+  "Salomé Cheysson <salome@cheysson.fr>",
   "Jill Royer <perso@jillroyer.me>"
 ]
 license = "GNU-GPL 3.0"
@@ -67,3 +67,4 @@ dj-database-url = "^1.0.0"
 [build-system]
 requires = ["poetry_core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
