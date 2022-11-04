@@ -70,7 +70,6 @@ def clean_results(
         skiprows=i,  # type: ignore[reportUnboundVariable]
         names=names,  # type: ignore
         header=None,  # type: ignore
-        usecols=partie_commune + partie_bureau,
         dtype=types_par_colonne,  # type: ignore
         encoding="latin1",
     )
