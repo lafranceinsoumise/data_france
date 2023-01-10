@@ -40,7 +40,7 @@ classifiers = [
 python = ">=3.8,<4"
 django = ">=3.1.*"
 django-countries = "^7.3.1"
-psycopg = "^3.0.16"
+psycopg2 = ">=2.9.5"
 
 [tool.poetry.dev-dependencies]
 # pipeline
