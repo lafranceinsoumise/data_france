@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "data-france"
-version = "0.14.1"
+version = "0.14.2"
 description = "Paquet agrégeant des données administratives publiques pour en rendre l'utilisation facile."
 authors = [
   "Salomé Cheysson <salome@cheysson.fr>",
@@ -28,6 +28,9 @@ classifiers = [
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
@@ -40,7 +43,6 @@ django-countries = "^7.3.1"
 psycopg = "^3.0.16"
 
 [tool.poetry.dev-dependencies]
-
 # pipeline
 doit = "^0.36.0"  # task runner
 PyYAML = "^6.0"  # read YAML configuration

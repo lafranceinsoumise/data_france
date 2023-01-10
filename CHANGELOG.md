@@ -1,6 +1,13 @@
 data_france
 ===========
 
+Version 0.14.2
+--------------
+
+* Mise à jour du Répertoire National des Élus (décembre 2022)
+* Ajout du référendum de 2005 et des élections 2012 et 2022
+* Ajout de la 16ème législature pour les députés
+
 Version 0.14.1
 --------------
 
