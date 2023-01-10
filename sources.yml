@@ -219,7 +219,7 @@ assemblee_nationale:
   deputes:
     # url: https://data.assemblee-nationale.fr/static/openData/repository/15/amo/tous_acteurs_mandats_organes_xi_legislature/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json.zip
     url: http://data.assemblee-nationale.fr/static/openData/repository/16/amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes.json.zip
-    hash: 9b2c4fd231f8a46dfd2c596b233008f1c83cfe1619a424e75de74071302520f0
+    hash: 75d92096c0019cb24d6f9ac073d00ccb276f957957aacc28e1e9438dabd7a2b6
 
 
 sciences_po:

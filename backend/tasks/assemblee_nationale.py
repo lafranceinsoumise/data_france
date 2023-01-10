@@ -2,7 +2,6 @@ import csv
 import json
 import re
 
-from doit import create_after
 from glom import glom, Iter, Match, SKIP, Not, S, T
 
 from sources import PREPARE_DIR, SOURCES, SOURCE_DIR
@@ -19,6 +18,23 @@ ASSEMBLEE_NATIONALE_DIR = PREPARE_DIR / "assemblee_nationale"
 
 ORGANE_RE = re.compile(r"organe/PO\d+\.json$")
 ACTEUR_RE = re.compile(r"acteur/PA\d+\.json$")
+
+
+def extraire_adresses(matcher):
+    return (
+        "adresses.adresse",
+        [
+            Match(
+                {
+                    **matcher,
+                    object: object,
+                },
+                default=SKIP,
+            ),
+        ],
+        ["valElec"],
+        "/".join,
+    )
 
 
 def parser_deputes(path, archive):
@@ -74,17 +90,25 @@ spec_depute = {
     "date_debut_mandat": "mandatDepute.dateDebut",
     "date_fin_mandat": "mandatDepute.dateFin",
     "legislature": "mandatDepute.legislature",
-    "emails": (
-        "adresses.adresse",
-        [
-            Match(
-                {"@xsi:type": "AdresseMail_Type", object: object},
-                default=SKIP,
-            ),
-        ],
-        ["valElec"],
-        "/".join,
+    "twitter": extraire_adresses(
+        {
+            "@xsi:type": "AdresseSiteWeb_Type",
+            "typeLibelle": "Twitter",
+        }
     ),
+    "facebook": extraire_adresses(
+        {
+            "@xsi:type": "AdresseSiteWeb_Type",
+            "typeLibelle": "Facebook",
+        }
+    ),
+    "instagram": extraire_adresses(
+        {
+            "@xsi:type": "AdresseSiteWeb_Type",
+            "typeLibelle": "Instagram",
+        }
+    ),
+    "emails": extraire_adresses({"@xsi:type": "AdresseMail_Type"}),
     "groupes": (
         S(code_depute=T["uid"]["#text"]),
         "mandats.mandat",
