@@ -1,6 +1,12 @@
 data_france
 ===========
 
+Version 0.14.3
+--------------
+
+Retour à psycopg2 en attendant que la version 3 soit supportée par
+Django.
+
 Version 0.14.2
 --------------
 
