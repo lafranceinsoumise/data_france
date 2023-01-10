@@ -57,8 +57,11 @@ def task_corriger_municipales_2020_tour_1():
 
 def task_corriger_referendum_2005_caen():
     """Corrige les lignes correspondant aux résultats de Caen pour le référendum sur le TCE de 2005"""
-    source = (
-        SOURCE_DIR / SOURCES.interieur.resultats_electoraux.referendums["2005"].filename
+    source: Path = (
+        SOURCE_DIR
+        / SOURCES.interieur.resultats_electoraux.referendums[  # pyright: ignore
+            "2005"
+        ].filename
     )
 
     return {
@@ -73,7 +76,9 @@ def task_corriger_referendum_2005_caen():
 
 def task_preparer():
     """Extrait et formate les résultats des élections françaises de façon uniforme."""
-    for source in SOURCES.interieur.resultats_electoraux:
+    fichiers_electoraux = SOURCES.interieur.resultats_electoraux  # type: ignore
+
+    for source in fichiers_electoraux:  # type: ignore
         election, annee = source.path.parts[2:4]
         tour = int(source.path.parts[4][-1]) if len(source.path.parts) == 5 else None
 
@@ -124,7 +129,7 @@ def task_preparer():
 
 def task_election_csv():
     """Exporte les résultats électoraux au format CSV."""
-    for source in SOURCES.interieur.resultats_electoraux:
+    for source in SOURCES.interieur.resultats_electoraux:  # type: ignore
         election, annee = source.path.parts[2:4]
 
         tour = int(source.path.parts[4][-1]) if len(source.path.parts) == 5 else None
