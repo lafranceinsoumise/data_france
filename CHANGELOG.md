@@ -1,6 +1,12 @@
 data_france
 ===========
 
+Version 0.14.4
+--------------
+
+Ajout d'un champ « actif » aux modèles d'élus pour indiquer si les
+mandats sont en cours ou dans le passé.
+
 Version 0.14.3
 --------------
 
