@@ -32,10 +32,20 @@ DROP_TEMPORARY_TABLE_SQL = SQL(
 
 COPY_FROM_TEMP_TABLE = SQL(
     """
-    INSERT INTO {table} ({all_columns})
-    SELECT {all_columns}
+    INSERT INTO {table} ({column_list})
+    SELECT {select_list}
     FROM {temp_table}
-    ON CONFLICT({id_column}) DO UPDATE SET {setters}
+    ON CONFLICT({id_column}) DO UPDATE SET {setters};
+    """
+)
+
+MARQUER_INACTIF = SQL(
+    """
+    UPDATE {table}
+    SET actif = false
+    WHERE actif = true AND id NOT IN (
+        SELECT id FROM {temp_table}
+    );
     """
 )
 
@@ -236,7 +246,9 @@ def importer_elus_municipaux(using):
     with open_binary("data_france.data", "elus_municipaux.csv.lzma") as _f, lzma.open(
         _f, "rt"
     ) as f:
-        import_with_temp_table(f, "data_france_elumunicipal", using)
+        import_with_temp_table(
+            f, "data_france_elumunicipal", using, marquer_inactif=True
+        )
 
 
 @console_message("Chargement des élus départementaux")
@@ -244,7 +256,9 @@ def importer_elus_departementaux(using):
     with open_binary(
         "data_france.data", "elus_departementaux.csv.lzma"
     ) as _f, lzma.open(_f, "rt") as f:
-        import_with_temp_table(f, "data_france_eludepartemental", using)
+        import_with_temp_table(
+            f, "data_france_eludepartemental", using, marquer_inactif=True
+        )
 
 
 @console_message("Chargement des élus régionaux")
@@ -252,7 +266,9 @@ def importer_elus_regionaux(using):
     with open_binary("data_france.data", "elus_regionaux.csv.lzma") as _f, lzma.open(
         _f, "rt"
     ) as f:
-        import_with_temp_table(f, "data_france_eluregional", using)
+        import_with_temp_table(
+            f, "data_france_eluregional", using, marquer_inactif=True
+        )
 
 
 @console_message("Chargement des députés")
@@ -260,7 +276,7 @@ def importer_deputes(using):
     with open_binary("data_france.data", "deputes.csv.lzma") as _f, lzma.open(
         _f, "rt"
     ) as f:
-        import_with_temp_table(f, "data_france_depute", using)
+        import_with_temp_table(f, "data_france_depute", using, marquer_inactif=True)
 
 
 @console_message("Chargement des députés européens")
@@ -268,7 +284,9 @@ def importer_deputes_europeens(using):
     with open_binary("data_france.data", "deputes_europeens.csv.lzma") as _f, lzma.open(
         _f, "rt"
     ) as f:
-        import_with_temp_table(f, "data_france_deputeeuropeen", using)
+        import_with_temp_table(
+            f, "data_france_deputeeuropeen", using, marquer_inactif=True
+        )
 
 
 def agreger_geometries_et_populations(using):
@@ -752,7 +770,7 @@ def creer_index_recherche(using):
         )
 
 
-def import_with_temp_table(csv_file, table, using):
+def import_with_temp_table(csv_file, table, using, marquer_inactif=False):
     temp_table = f"{table}_temp"
     columns = csv_file.readline().strip().split(",")
 
@@ -768,18 +786,34 @@ def import_with_temp_table(csv_file, table, using):
             csv_file,
         )
 
+        setters = [
+            Identifier(c) + SQL(" = ") + Identifier("excluded", c) for c in columns[1:]
+        ]
+        column_list = [Identifier(c) for c in columns]
+        select_list = column_list
+
+        if marquer_inactif:
+            select_list = [*column_list, SQL("false AS ") + Identifier("actif")]
+            column_list = [*column_list, Identifier("actif")]
+            setters.append(Identifier("actif") + SQL(" = true"))
+
         cursor.execute(
             COPY_FROM_TEMP_TABLE.format(
                 table=Identifier(table),
                 temp_table=Identifier(temp_table),
-                all_columns=SQL(",").join(Identifier(c) for c in columns),
+                column_list=SQL(",").join(column_list),
+                select_list=SQL(",").join(select_list),
                 id_column=Identifier(columns[0]),
-                setters=SQL(",").join(
-                    Identifier(c) + SQL(" = ") + Identifier("excluded", c)
-                    for c in columns[1:]
-                ),
+                setters=SQL(",").join(setters),
             ),
         )
+
+        if marquer_inactif:
+            cursor.execute(
+                MARQUER_INACTIF.format(
+                    table=Identifier(table), temp_table=Identifier(temp_table)
+                )
+            )
 
 
 def importer_donnees(using=None):

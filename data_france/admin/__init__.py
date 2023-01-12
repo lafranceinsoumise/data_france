@@ -315,7 +315,7 @@ class CantonAdmin(ImmutableModelAdmin):
 
 
 @admin.register(CirconscriptionConsulaire)
-class CirconscriptionConsulaire(ImmutableModelAdmin):
+class CirconscriptionConsulaireAdmin(ImmutableModelAdmin):
     list_display = (
         "nom",
         "consulats",
@@ -371,7 +371,9 @@ class RNEAdmin(ImmutableModelAdmin):
 class EluMunicipalAdmin(RNEAdmin):
     search_fields = ("nom", "prenom")
 
-    list_display = ("nom_complet", "commune", "sexe", "libelle_fonction")
+    list_display = ("nom_complet", "commune", "sexe", "libelle_fonction", "actif")
+    list_filter = ("actif",)
+
     fieldsets = (
         (
             "Identité",
@@ -391,6 +393,7 @@ class EluMunicipalAdmin(RNEAdmin):
             {
                 "fields": [
                     "commune_link",
+                    "actif",
                     "date_debut_mandat",
                     "libelle_fonction",
                     "date_debut_fonction",
@@ -433,10 +436,12 @@ class EluMunicipalAdmin(RNEAdmin):
 
 
 @admin.register(EluDepartemental)
-class EluDepartemental(RNEAdmin):
+class EluDepartementalAdmin(RNEAdmin):
     search_fields = ("nom", "prenom")
 
-    list_display = ("nom_complet", "canton", "libelle_fonction")
+    list_display = ("nom_complet", "canton", "libelle_fonction", "actif")
+    list_filter = ("actif",)
+
     fieldsets = (
         (
             "Identité",
@@ -447,6 +452,7 @@ class EluDepartemental(RNEAdmin):
             {
                 "fields": [
                     "canton_link",
+                    "actif",
                     "date_debut_mandat",
                     "libelle_fonction",
                     "date_debut_fonction",
@@ -457,10 +463,12 @@ class EluDepartemental(RNEAdmin):
 
 
 @admin.register(EluRegional)
-class EluRegional(RNEAdmin):
+class EluRegionalAdmin(RNEAdmin):
     search_fields = ("nom", "prenom")
 
-    list_display = ("nom_complet", "region", "libelle_fonction")
+    list_display = ("nom_complet", "region", "libelle_fonction", "actif")
+    list_filter = ("actif",)
+
     fieldsets = (
         (
             "Identité",
@@ -483,7 +491,15 @@ class EluRegional(RNEAdmin):
 @admin.register(Depute)
 class DeputeAdmin(RNEAdmin):
     search_fields = ("nom", "prenom")
-    list_display = ("nom_complet", "circonscription", "sexe", "groupe", "relation")
+    list_display = (
+        "nom_complet",
+        "circonscription",
+        "sexe",
+        "groupe",
+        "relation",
+        "actif",
+    )
+    list_filter = ("actif",)
 
     fieldsets = (
         (
@@ -504,6 +520,7 @@ class DeputeAdmin(RNEAdmin):
                     "legislature",
                     "code",
                     "circonscription_link",
+                    "actif",
                     "date_debut_mandat",
                     "date_fin_mandat",
                 ]
@@ -519,12 +536,14 @@ class DeputeAdmin(RNEAdmin):
 @admin.register(DeputeEuropeen)
 class DeputeEuropeenAdmin(RNEAdmin):
     search_fields = ("nom", "prenom")
-    list_display = ("nom_complet", "sexe")
+    list_display = ("nom_complet", "sexe", "actif")
+    list_filter = ("actif",)
 
     fields = [
         "nom",
         "prenom",
         "sexe",
         "date_naissance",
+        "actif",
         "date_debut_mandat",
     ]

@@ -98,7 +98,7 @@ class IdentiteMixin(models.Model):
         abstract = True
 
 
-class RNEMixin(models.Model):
+class MandatLocalMixin(models.Model):
     date_debut_mandat = models.DateField(
         verbose_name="Date de début du mandat", editable=False
     )
@@ -115,7 +115,11 @@ class RNEMixin(models.Model):
     )
 
     date_debut_fonction = models.DateField(
-        verbose_name="Date de début de la fonction", editable=True, null=True
+        verbose_name="Date de début de la fonction", editable=False, null=True
+    )
+
+    actif = models.BooleanField(
+        verbose_name="Mandat en cours", editable=False, default=True
     )
 
     @property
@@ -760,6 +764,10 @@ class Depute(IdentiteMixin, models.Model):
         editable=False,
     )
 
+    actif = models.BooleanField(
+        verbose_name="Mandat en cours", editable=False, default=True
+    )
+
     groupe = models.CharField(
         verbose_name="Groupe parlementaire",
         max_length=200,
@@ -801,7 +809,7 @@ class Depute(IdentiteMixin, models.Model):
         ordering = ("nom", "prenom")
 
 
-class EluMunicipal(IdentiteMixin, RNEMixin):
+class EluMunicipal(IdentiteMixin, MandatLocalMixin):
     objects = SearchQueryset.as_manager()
 
     commune = models.ForeignKey(
@@ -849,7 +857,8 @@ class EluMunicipal(IdentiteMixin, RNEMixin):
         return self.date_debut_mandat_epci is not None
 
     def __str__(self):
-        return f"{self.nom}, {self.prenom} ({self.commune.nom_complet})"
+        actif = "A" if self.actif else "T"
+        return f"{fini}{self.nom}, {self.prenom} ({actif}, {self.commune.nom_complet})"
 
     class Meta:
         verbose_name = "Élu⋅e municipal⋅e"
@@ -858,7 +867,7 @@ class EluMunicipal(IdentiteMixin, RNEMixin):
         indexes = (GinIndex(fields=["search"]),)
 
 
-class EluDepartemental(IdentiteMixin, RNEMixin):
+class EluDepartemental(IdentiteMixin, MandatLocalMixin):
     canton = models.ForeignKey(
         Canton, related_name="elus", related_query_name="elu", on_delete=models.CASCADE
     )
@@ -866,7 +875,9 @@ class EluDepartemental(IdentiteMixin, RNEMixin):
     search = SearchVectorField(verbose_name="Champ de recherche", null=True)
 
     def __str__(self):
-        return f"{self.nom}, {self.prenom}, {self.canton}"
+        actif = "A" if self.actif else "T"
+
+        return f"{self.nom}, {self.prenom}, ({actif}, {self.canton})"
 
     class Meta:
         verbose_name = "Élu‧e départemental‧e"
@@ -874,7 +885,7 @@ class EluDepartemental(IdentiteMixin, RNEMixin):
         ordering = ("canton", "nom", "prenom", "date_naissance")
 
 
-class EluRegional(IdentiteMixin, RNEMixin):
+class EluRegional(IdentiteMixin, MandatLocalMixin):
     region = models.ForeignKey(
         Region,
         related_name="elus",
@@ -885,7 +896,8 @@ class EluRegional(IdentiteMixin, RNEMixin):
     search = SearchVectorField(verbose_name="Champ de recherche", null=True)
 
     def __str__(self):
-        return f"{self.nom}, {self.prenom}, {self.region}"
+        actif = "A" if self.actif else "T"
+        return f"{self.nom}, {self.prenom}, ({actif}, {self.region})"
 
     class Meta:
         verbose_name = "Élu‧e régional‧e"
@@ -894,6 +906,10 @@ class EluRegional(IdentiteMixin, RNEMixin):
 
 
 class DeputeEuropeen(IdentiteMixin):
+    actif = models.BooleanField(
+        verbose_name="Mandat en cours", editable=False, default=True
+    )
+
     date_debut_mandat = models.DateField(
         verbose_name="Date de début du mandat", editable=False
     )
