@@ -1,6 +1,11 @@
 data_france
 ===========
 
+Version 0.14.5
+--------------
+
+Fix d'un bug sur la méthode `__str__` des élus municipaux.
+
 Version 0.14.4
 --------------
 
