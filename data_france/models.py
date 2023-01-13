@@ -858,7 +858,7 @@ class EluMunicipal(IdentiteMixin, MandatLocalMixin):
 
     def __str__(self):
         actif = "A" if self.actif else "T"
-        return f"{fini}{self.nom}, {self.prenom} ({actif}, {self.commune.nom_complet})"
+        return f"{self.nom}, {self.prenom} ({actif}, {self.commune.nom_complet})"
 
     class Meta:
         verbose_name = "Élu⋅e municipal⋅e"
