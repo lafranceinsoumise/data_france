@@ -39,7 +39,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.8,<4"
 django = ">=3.1.*"
-django-countries = "^7.3.1"
+django-countries = ">=7.3.1"
 psycopg2 = ">=2.9.5"
 
 [tool.poetry.dev-dependencies]
@@ -61,6 +61,7 @@ glom = "^22.1.0"  # express data transformations
 
 # developing and testing
 black = "^22.6.0"  # formatting source code
+django-types = "^0.16.0"
 ipython = "*"
 python-dotenv = "^0.15.0"
 dj-database-url = "^1.0.0"
