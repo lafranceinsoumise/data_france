@@ -5,9 +5,8 @@ import pandas as pd
 from doit.tools import create_folder
 
 from sources import SOURCES, SOURCE_DIR, PREPARE_DIR
-from tasks.cog import COG_DIR
+from tasks.cog import DEPARTEMENTS_COG, COMMUNES_COG
 from utils import normaliser_colonne
-
 
 __all__ = ["task_traiter_parrainages"]
 
@@ -50,8 +49,8 @@ def task_traiter_parrainages():
     return {
         "file_dep": [
             parrainages,
-            COG_DIR / "departements.csv",
-            COG_DIR / "communes.csv",
+            DEPARTEMENTS_COG,
+            COMMUNES_COG,
         ],
         "targets": [
             PARRAINAGES_MUNICIPAUX,
@@ -64,8 +63,8 @@ def task_traiter_parrainages():
                 traiter_parrainages,
                 (
                     parrainages,
-                    COG_DIR / "communes.csv",
-                    COG_DIR / "departements.csv",
+                    COMMUNES_COG,
+                    DEPARTEMENTS_COG,
                     PARRAINAGES_MUNICIPAUX,
                     PARRAINAGES_DEPARTEMENTAUX,
                     PARRAINAGES_REGIONAUX,

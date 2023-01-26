@@ -24,6 +24,9 @@ __all__ = [
     "CirconscriptionConsulaire",
     "Depute",
     "EluMunicipal",
+    "EluDepartemental",
+    "EluRegional",
+    "DeputeEuropeen",
 ]
 
 

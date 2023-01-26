@@ -17,9 +17,9 @@ class CommuneTestCase(TestCase):
     def test_communes_correctement_importees(self):
         """Le nombre de communes au sens large, et de communes au sens propre correspond à ce qui est attendu."""
         attendus = {
-            "COM": 34965,
-            "COMA": 517,
-            "COMD": 2215,
+            "COM": 34955,
+            "COMA": 508,
+            "COMD": 2093,
             "ARM": 20 + 9 + 16,
             "SRM": 17 + 9 + 8,
         }
@@ -48,7 +48,7 @@ class CommuneTestCase(TestCase):
     def test_avec_population(self):
         """Les communes ont leur population"""
 
-        # à part Mayotte, toutes les communes et arrondissements ont leur population
+        # à part Mayotte et deux exceptions, toutes les communes et arrondissements ont leur population
         self.assertCountEqual(
             Commune.objects.filter(
                 type__in=[
@@ -60,7 +60,10 @@ class CommuneTestCase(TestCase):
             )
             .exclude(code__startswith="976")  # il manque toutes les communes de Mayotte
             .values_list("code", flat=True),
-            [],
+            [
+                "14666",  # Sannerville (fusion puis annulation par le tribunal administratif)
+                "27058"   # Trois-Lacs (fusion et changement de code insee principal 5 ans après)
+            ],
         )
 
         # deux de ces exceptions sont des communes qui ont changé de département

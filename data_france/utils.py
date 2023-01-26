@@ -73,6 +73,9 @@ class TypeNom(IntegerChoices):
     https://www.insee.fr/fr/information/2560684#tncc
     """
 
+    article: str
+    charniere: str
+
     def __new__(cls, value, article, charniere):
         obj = int.__new__(cls, value)
         obj._value_ = value

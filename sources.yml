@@ -1,35 +1,15 @@
 insee:
   cog:
-    communes:
-      url: https://www.insee.fr/fr/statistiques/fichier/5057840/commune2021-csv.zip
-      date: 01/2021
-      hash: 67a88da9061609c861b20aa853f5480d1fcdc8431e3911ae6c6c03cc925febd7
-      extraire: csv
-    cantons:
-      url: https://www.insee.fr/fr/statistiques/fichier/5057840/canton2021-csv.zip
-      date: 01/2021
-      hash: 7884448d9a36f1d79ad4a2d35bbdb26571a3e43da977c733eac5bffd22f783a6
-      extraire: csv
-    arrondissements:
-      url: https://www.insee.fr/fr/statistiques/fichier/5057840/arrondissement2021-csv.zip
-      date: 01/2021
-      hash: a49c3f0cdef3532b1e5a51b5bbfba31e56374dbdf53a6726a224e115f5b9dfb8
-      extraire: csv
-    departements:
-      url: https://www.insee.fr/fr/statistiques/fichier/5057840/departement2021-csv.zip
-      date: 01/2021
-      hash: 55b0999478a2992566743dcd3560ed4be4dda01349574240fce1c37fa6fd0587
-      extraire: csv
-    regions:
-      url: https://www.insee.fr/fr/statistiques/fichier/5057840/region2021-csv.zip
-      date: 01/2021
-      hash: 5fc418c45b2e3faea6ae91540d4da6baaec125dabf18085924cc31b33c3b01f5
-      extraire: csv
-    evenements:
-      url: https://www.insee.fr/fr/statistiques/fichier/5057840/mvtcommune2021-csv.zip
-      date: 01/2021
-      hash: 63742e6f3b8adc36bd0eb1a56452bae9fccc3090dd43a4606ad4f222f88906f5
-      extraire: csv
+    url: https://www.insee.fr/fr/statistiques/fichier/6051727/cog_ensemble_2022_csv.zip
+    date: 01/01/2022
+    hash:  6f3c5da667f1c7643bc50a31d662be09c1dd2d86a7b0e15b8d11e1b9f05f7bb8
+    extraire:
+      - canton_2022.csv
+      - commune_2022.csv
+      - CTCD_2022.csv
+      - departement_2022.csv
+      - mvtcommune_2022.csv
+      - region_2022.csv
 
   population:
     url: https://www.insee.fr/fr/statistiques/fichier/4265429/ensemble.zip

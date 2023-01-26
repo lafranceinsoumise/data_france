@@ -11,14 +11,17 @@ import pandas as pd
 from glom import glom, T, Invoke, Match, Switch, Regex, Not, Coalesce, Iter, Val
 from shapely.geometry import MultiPolygon, shape
 
+from data_france.utils import TypeNom
 from sources import BASE_DIR, SOURCE_DIR, PREPARE_DIR, SOURCES
 from tasks.admin_express import COMMUNES_GEOMETRY, CANTONS_GEOMETRY
 from tasks.annuaire_administratif import MAIRIES_TRAITEES
 from tasks.assemblee_nationale import ASSEMBLEE_NATIONALE_DIR
 from tasks.cog import (
+    DEPARTEMENTS_COG,
+    REGIONS_COG,
+    COLLECTIVITES_DEPARTEMENTALES_COG,
     COMMUNES_CSV,
     EPCI_CSV,
-    COG_DIR,
     CANTONS_CSV,
     COMMUNE_TYPE_ORDERING,
 )
@@ -27,6 +30,9 @@ CODES_POSTAUX = SOURCE_DIR / "laposte" / "codes_postaux.csv"
 
 REFERENCES_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data_france" / "data"
+
+CTU = DATA_DIR / "ctu.csv"
+
 FINAL_REGIONS = DATA_DIR / "regions.csv.lzma"
 FINAL_DEPARTEMENTS = DATA_DIR / "departements.csv.lzma"
 FINAL_EPCI = DATA_DIR / "epci.csv.lzma"
@@ -38,6 +44,10 @@ FINAL_CIRCONSCRIPTIONS_CONSULAIRES = DATA_DIR / "circonscriptions_consulaires.cs
 FINAL_CIRCONSCRIPTIONS_LEGISLATIVES = (
     DATA_DIR / "circonscriptions_legislatives.csv.lzma"
 )
+FINAL_COLLECTIVITES_DEPARTEMENTALES = (
+    DATA_DIR / "collectivites_departementales.csv.lzma"
+)
+FINAL_COLLECTIVITES_REGIONALES = DATA_DIR / "collectivites_regionales.csv.lzma"
 FINAL_DEPUTES = DATA_DIR / "deputes.csv.lzma"
 FINAL_DEPUTES_EUROPEENS = DATA_DIR / "deputes_europeens.csv.lzma"
 FINAL_ELUS_MUNICIPAUX = DATA_DIR / "elus_municipaux.csv.lzma"
@@ -70,7 +80,9 @@ def code_circonscription(prop):
 
 __all__ = [
     "task_generer_fichier_regions",
+    "task_generer_fichier_collectivites_regionales",
     "task_generer_fichier_departements",
+    "task_generer_fichier_collectivites_departementales",
     "task_generer_fichier_epci",
     "task_generer_fichier_communes",
     "task_generer_fichier_codes_postaux",
@@ -129,7 +141,7 @@ def id_from_file(path, read_only=False):
 
 
 def task_generer_fichier_regions():
-    src = COG_DIR / "regions.csv"
+    src = REGIONS_COG
     return {
         "file_dep": [src],
         "targets": [FINAL_REGIONS],
@@ -137,12 +149,39 @@ def task_generer_fichier_regions():
     }
 
 
+def task_generer_fichier_collectivites_regionales():
+    return {
+        "file_dep": [REGIONS_COG, CTU],
+        "targets": [FINAL_COLLECTIVITES_REGIONALES],
+        "actions": [
+            (
+                generer_fichier_collectivites_regionales,
+                [REGIONS_COG, CTU, FINAL_COLLECTIVITES_REGIONALES],
+            )
+        ],
+    }
+
+
 def task_generer_fichier_departements():
-    src = COG_DIR / "departements.csv"
+    src = DEPARTEMENTS_COG
     return {
         "file_dep": [src],
         "targets": [FINAL_DEPARTEMENTS],
         "actions": [(generer_fichier_departements, [src, FINAL_DEPARTEMENTS])],
+    }
+
+
+def task_generer_fichier_collectivites_departementales():
+    src = COLLECTIVITES_DEPARTEMENTALES_COG
+    return {
+        "file_dep": [src],
+        "targets": [FINAL_COLLECTIVITES_DEPARTEMENTALES],
+        "actions": [
+            (
+                generer_fichier_collectivites_departementales,
+                [src, FINAL_COLLECTIVITES_DEPARTEMENTALES],
+            )
+        ],
     }
 
 
@@ -345,6 +384,67 @@ def generer_fichier_departements(path, lzma_path):
             }
             for d in r
         )
+
+
+def generer_fichier_collectivites_departementales(col_dep_path, lzma_path):
+    with open(col_dep_path) as f, lzma.open(lzma_path, "wt") as l, id_from_file(
+        "collectivites_departementales.csv"
+    ) as id_coldep, id_from_file("regions.csv", read_only=True) as id_region:
+        r = csv.DictReader(f)
+        w = csv.DictWriter(
+            l, fieldnames=["id", "code", "type", "nom", "type_nom", "region_id"]
+        )
+
+        w.writeheader()
+        w.writerows(
+            [
+                {
+                    "id": id_coldep(code=c["CTCD"]),
+                    "code": c["CTCD"],
+                    "type": "D" if c["CTCD"].endswith("D") else "S",
+                    "type_nom": c["TNCC"],
+                    "nom": c["NCCENR"],
+                    "region_id": id_region(code=c["REG"]),
+                }
+                for c in r
+            ]
+        )
+
+
+def generer_fichier_collectivites_regionales(reg_path, ctu_path, lzma_path):
+    regions = pd.read_csv(reg_path, dtype={"REG": str})
+    ctu = pd.read_csv(ctu_path, dtype={"code_region": str}).set_index("code_region")
+    with id_from_file("regions.csv") as reg_id:
+        regions["id"] = regions.REG.map(lambda r: reg_id(code=r))
+
+    est_ctu = regions.REG.isin(ctu.index)
+
+    codes = regions.REG.map(ctu.code).where(est_ctu, regions.REG + "R")
+    type_col = est_ctu.map({True: "U", False: "R"})
+    charnieres = regions.TNCC.map(lambda t: TypeNom(t).charniere)
+    noms = regions.REG.map(ctu.nom).where(
+        regions.REG.isin(est_ctu), "Conseil régional " + charnieres + regions.LIBELLE
+    )
+
+    type_nom = regions.REG.map(ctu.type_nom).where(est_ctu, 2).convert_dtypes()
+    region_id = regions.id
+
+    with id_from_file("collectivites_regionales.csv") as colreg_id:
+        id = codes.map(lambda c: colreg_id(code=c))
+
+    colreg = pd.DataFrame(
+        {
+            "id": id,
+            "code": codes,
+            "nom": noms,
+            "region_id": region_id,
+            "type_nom": type_nom,
+            "type": type_col,
+        }
+    )
+
+    with lzma.open(lzma_path, "wb") as l:
+        colreg.to_csv(l, index=False)
 
 
 def generer_fichier_epci(path, lzma_path):
