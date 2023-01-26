@@ -461,8 +461,9 @@ def creer_index_recherche(using):
             setweight(to_tsvector('data_france_search', COALESCE(e."nom", '')), 'A')
          || setweight(to_tsvector('data_france_search', COALESCE(e."prenom", '')), 'A')
          || setweight(to_tsvector('data_france_search', COALESCE(r."nom", '')), 'B')
-        FROM data_france_region r
-        WHERE e.region_id = r.id
+        FROM data_france_collectiviteregionale cr
+        LEFT JOIN data_france_region r ON cr.region_id = r.id
+        WHERE e.collectivite_regionale_id = cr.id
         """
         )
 

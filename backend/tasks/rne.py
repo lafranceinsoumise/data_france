@@ -226,9 +226,9 @@ def parser_dates(df):
         if c.startswith("date_"):
             date_corrigee = (
                 df[c]
-                    .str.replace(r"/13(\d{2})$", r"/19\1", regex=True)
-                    .str.replace(r"/09(\d{2})$", r"/19\1", regex=True)
-                    .str.replace(r"/10(\d{2})$", r"/19\1", regex=True)
+                .str.replace(r"/13(\d{2})$", r"/19\1", regex=True)
+                .str.replace(r"/09(\d{2})$", r"/19\1", regex=True)
+                .str.replace(r"/10(\d{2})$", r"/19\1", regex=True)
             )
             try:
                 df[c] = pd.to_datetime(date_corrigee, format="%d/%m/%Y")
@@ -368,11 +368,7 @@ def traiter_elus_regionaux(reg_path, dest):
         dtype={"code": str, "code_sec": str, "profession": str},
     )
 
-    # Code région manquant pour certains conseillers alsaciens
-    reg.loc[reg.code_sec == "67", "code"] = "44"
     reg["code"] = reg.code.str.pad(2, fillchar="0")
-
-    del reg["code_sec"]
 
     reg = reg.drop_duplicates(["code", "nom", "prenom", "date_naissance"])
 

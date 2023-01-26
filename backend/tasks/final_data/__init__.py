@@ -301,10 +301,10 @@ def task_generer_fichier_elus_departementaux():
 def task_generer_fichier_elus_regionaux():
     source_file = PREPARE_DIR / SOURCES.interieur.rne.regionaux.filename
     return {
-        "file_dep": [source_file],
+        "file_dep": [source_file, CTU],
         "targets": [FINAL_ELUS_REGIONAUX],
         "actions": [
-            (generer_fichier_elus_regionaux, (source_file, FINAL_ELUS_REGIONAUX))
+            (generer_fichier_elus_regionaux, (source_file, CTU, FINAL_ELUS_REGIONAUX))
         ],
     }
 
@@ -866,16 +866,27 @@ def generer_fichier_elus_departementaux(source, dest):
             )
 
 
-def generer_fichier_elus_regionaux(source, dest):
-    with id_from_file("regions.csv") as id_region, id_from_file(
-        "elus_regionaux.csv"
-    ) as id_elu, source.open("r") as i, lzma.open(dest, "wt") as d:
+def generer_fichier_elus_regionaux(source, ctu_path, dest):
+    ctu = dict(
+        pd.read_csv(ctu_path, dtype={"code_region": str}).set_index("code_region")[
+            "code"
+        ]
+    )
+
+    with id_from_file("collectivites_regionales.csv") as id_colreg, id_from_file(
+        "collectivites_departementales.csv"
+    ) as id_coldep, id_from_file("elus_regionaux.csv") as id_elu, source.open(
+        "r"
+    ) as i, lzma.open(
+        dest, "wt"
+    ) as d:
         r = csv.DictReader(i)
         w = csv.DictWriter(
             d,
             fieldnames=[
                 "id",
-                "region_id",
+                "collectivite_regionale_id",
+                "collectivite_departementale_id",
                 "nom",
                 "prenom",
                 "sexe",
@@ -890,7 +901,15 @@ def generer_fichier_elus_regionaux(source, dest):
         w.writeheader()
 
         for elu in r:
-            region_id = id_region(code=elu.pop("code"))
+            code_region = elu.pop("code")
+            code_colreg = ctu.get(code_region, f"{code_region}R")
+            colreg_id = id_colreg(code=code_colreg)
+
+            code_dep = elu.pop("code_sec")
+            if code_dep == "75":
+                code_dep = "75C"
+            elif code_dep[-1] not in ("E", "M"):
+                code_dep = f"{code_dep}D"
 
             for f in [
                 "date_debut_fonction",
@@ -904,13 +923,14 @@ def generer_fichier_elus_regionaux(source, dest):
                 {
                     **elu,
                     "id": id_elu(
-                        region_id=region_id,
+                        collectivite_regionale_id=colreg_id,
                         nom=elu["nom"],
                         prenom=elu["prenom"],
                         sexe=elu["sexe"],
                         date_naissance=elu["date_naissance"],
                     ),
-                    "region_id": region_id,
+                    "collectivite_regionale_id": colreg_id,
+                    "collectivite_departementale_id": id_coldep(code=code_dep),
                 }
             )
 

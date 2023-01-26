@@ -889,23 +889,31 @@ class EluDepartemental(IdentiteMixin, MandatLocalMixin):
 
 
 class EluRegional(IdentiteMixin, MandatLocalMixin):
-    region = models.ForeignKey(
-        Region,
+    collectivite_regionale = models.ForeignKey(
+        CollectiviteRegionale,
         related_name="elus",
         related_query_name="elu",
         on_delete=models.CASCADE,
+    )
+
+    collectivite_departementale = models.ForeignKey(
+        CollectiviteDepartementale,
+        related_name="elus_regionaux",
+        related_query_name="elu_regional",
+        on_delete=models.CASCADE,
+        null=True,
     )
 
     search = SearchVectorField(verbose_name="Champ de recherche", null=True)
 
     def __str__(self):
         actif = "A" if self.actif else "T"
-        return f"{self.nom}, {self.prenom}, ({actif}, {self.region})"
+        return f"{self.nom}, {self.prenom}, ({actif}, {self.collectivite_regionale})"
 
     class Meta:
         verbose_name = "Élu‧e régional‧e"
         verbose_name_plural = "Élu‧es régionaux‧ales"
-        ordering = ("region", "nom", "prenom", "date_naissance")
+        ordering = ("collectivite_regionale", "nom", "prenom", "date_naissance")
 
 
 class DeputeEuropeen(IdentiteMixin):
