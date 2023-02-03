@@ -737,6 +737,7 @@ class CirconscriptionConsulaire(models.Model):
         blank=False,
         null=True,
         editable=False,
+        related_name="+",
     )
 
     search = SearchVectorField(verbose_name="Champ de recherche", null=True)
@@ -943,4 +944,5 @@ class DeputeEuropeen(IdentiteMixin):
 
     class Meta:
         verbose_name = "Député‧e européen‧ne"
+        verbose_name_plural = "Député·es européen·nes"
         ordering = ("nom", "prenom", "date_naissance")

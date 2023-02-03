@@ -451,7 +451,6 @@ def generer_fichier_epci(path, lzma_path):
     with open(path, "r") as f, lzma.open(lzma_path, "wt") as l, id_from_file(
         "epci.csv"
     ) as get_id:
-
         r = csv.DictReader(f)
         w = csv.DictWriter(l, fieldnames=["id", *r.fieldnames])
         w.writeheader()
@@ -678,7 +677,14 @@ def generer_fichier_circonscriptions_consulaires(source, dest):
         reader = csv.DictReader(f_in, delimiter=";")
         writer = csv.DictWriter(
             f_out,
-            fieldnames=["id", "nom", "consulats", "nombre_conseillers", "pays"],
+            fieldnames=[
+                "id",
+                "nom",
+                "consulats",
+                "nombre_conseillers",
+                "pays",
+                "circonscription_legislative_id",
+            ],
             extrasaction="ignore",
         )
         writer.writeheader()
@@ -979,7 +985,6 @@ def generer_fichier_deputes(
     with lzma.open(dest, "wt") as f, id_from_file(
         "circonscriptions_legislatives.csv"
     ) as id_circos, id_from_file("deputes.csv") as id_deputes:
-
         spec = {
             "id": Invoke(id_deputes).specs(code=T.code),
             "circonscription_id": Invoke(id_circos).specs(code=T.circonscription),

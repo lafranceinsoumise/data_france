@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("data_france", "0035_changer_lien_conseiller_regionaux"),
     ]
@@ -20,6 +19,7 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.SET_NULL,
                 to="data_france.circonscriptionlegislative",
                 verbose_name="Circonscription législative",
+                related_name="+",
             ),
         ),
     ]
