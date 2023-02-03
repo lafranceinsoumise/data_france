@@ -1,12 +1,11 @@
+import csv
+
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from doit.tools import create_folder, run_once
-from pathlib import Path
 
 from sources import PREPARE_DIR
-import csv
-
 
 __all__ = [
     "task_recuperer_circonscriptions_afe",

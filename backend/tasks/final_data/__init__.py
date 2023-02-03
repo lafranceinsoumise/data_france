@@ -683,11 +683,15 @@ def generer_fichier_circonscriptions_consulaires(source, dest):
         )
         writer.writeheader()
 
-        for circ in reader:
-            cons = ", ".join(f'"{c}"' for c in circ["consulats"].split("/"))
-            circ["consulats"] = f"{{{cons}}}"
+        with id_from_file("circonscriptions_legislatives.csv") as id_circo_leg:
+            for circ in reader:
+                cons = ", ".join(f'"{c}"' for c in circ["consulats"].split("/"))
+                circ["consulats"] = f"{{{cons}}}"
+                circ["circonscription_legislative_id"] = id_circo_leg(
+                    code=circ["circonscription_législative"]
+                )
 
-            writer.writerow(circ)
+                writer.writerow(circ)
 
 
 def geometrie_circonscription(geom):

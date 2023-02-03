@@ -730,6 +730,15 @@ class CirconscriptionConsulaire(models.Model):
         verbose_name="Nombre de conseillers", blank=False, null=False, editable=False
     )
 
+    circonscription_legislative = models.ForeignKey(
+        CirconscriptionLegislative,
+        verbose_name="Circonscription législative",
+        on_delete=models.SET_NULL,
+        blank=False,
+        null=True,
+        editable=False,
+    )
+
     search = SearchVectorField(verbose_name="Champ de recherche", null=True)
 
     def as_dict(self):
@@ -934,5 +943,4 @@ class DeputeEuropeen(IdentiteMixin):
 
     class Meta:
         verbose_name = "Député‧e européen‧ne"
-        verbose_name = "Député‧es européen‧es"
         ordering = ("nom", "prenom", "date_naissance")
