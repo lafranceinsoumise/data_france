@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "data-france"
-version = "0.14.5"
+version = "0.14.6"
 description = "Paquet agrégeant des données administratives publiques pour en rendre l'utilisation facile."
 authors = [
   "Salomé Cheysson <salome@cheysson.fr>",
@@ -48,22 +48,22 @@ doit = "^0.36.0"  # task runner
 PyYAML = "^6.0"  # read YAML configuration
 toml = "^0.10.2"  # read TOML configuration
 pandas = "^1.4.3"  # dataframe library
-pyarrow = "^9.0.0"  # read and write feather files
+pyarrow = "^11.0.0"  # read and write feather files
 xlrd = "^2.0.1"  # read old excel .xls format
-openpyxl = "^3.0.10"  # read now excel .xlsx format 
+openpyxl = "^3.0.10"  # read now excel .xlsx format
 libarchive = "^0.4.7"  # read 7zip archives
 fiona = "^1.8.21"  # open shapefiles
 lxml = "^4.9.1"  # open xml files
 beautifulsoup4 = "^4.11.1"  # parse html
 shapely = "^1.8.4"  # manipulates geometries
 requests = "^2.28.1"  # download
-glom = "^22.1.0"  # express data transformations
+glom = "^23.1.1"  # express data transformations
 
 # developing and testing
-black = "^22.6.0"  # formatting source code
+black = "^23.1.0"  # formatting source code
 django-types = "^0.16.0"
 ipython = "*"
-python-dotenv = "^0.15.0"
+python-dotenv = "^0.21.1"
 dj-database-url = "^1.0.0"
 
 

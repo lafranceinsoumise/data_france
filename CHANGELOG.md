@@ -1,6 +1,14 @@
 data_france
 ===========
 
+Version 0.14.6
+--------------
+
+- Mise à jour du COG
+- meilleure gestion des collectivités locales de niveau départemental et régional
+- ajoute la section départementale d'élection aux élus régionaux
+- ajoute la circonscription législative correspondant à une circonscription consulaire
+
 Version 0.14.5
 --------------
 
