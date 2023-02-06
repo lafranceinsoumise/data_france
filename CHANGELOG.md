@@ -1,6 +1,11 @@
 data_france
 ===========
 
+Version 0.14.7
+--------------
+
+- importe effectivement les liens entre circonscriptions consulaires et législatives
+
 Version 0.14.6
 --------------
 
