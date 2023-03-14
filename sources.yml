@@ -2,7 +2,7 @@ insee:
   cog:
     url: https://www.insee.fr/fr/statistiques/fichier/6051727/cog_ensemble_2022_csv.zip
     date: 01/01/2022
-    hash:  6f3c5da667f1c7643bc50a31d662be09c1dd2d86a7b0e15b8d11e1b9f05f7bb8
+    hash: 6f3c5da667f1c7643bc50a31d662be09c1dd2d86a7b0e15b8d11e1b9f05f7bb8
     extraire:
       - canton_2022.csv
       - commune_2022.csv
@@ -211,9 +211,8 @@ conseil_constitutionnel:
 
 assemblee_nationale:
   deputes:
-    # url: https://data.assemblee-nationale.fr/static/openData/repository/15/amo/tous_acteurs_mandats_organes_xi_legislature/AMO30_tous_acteurs_tous_mandats_tous_organes_historique.json.zip
     url: http://data.assemblee-nationale.fr/static/openData/repository/16/amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes.json.zip
-    hash: 75d92096c0019cb24d6f9ac073d00ccb276f957957aacc28e1e9438dabd7a2b6
+    hash: 1904c89384489c97020494d2576fb6800ceb307553e1d698482e3020086d513a
 
 
 sciences_po:
