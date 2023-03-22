@@ -43,9 +43,9 @@ insee:
 ign:
   admin-express:
     version-cog:
-      url: ftp://Admin_Express_ext:Dahnoh0eigheeFok@ftp3.ign.fr/ADMIN-EXPRESS-COG-CARTO_3-0__SHP__FRA_WM_2021-05-19.7z
-      date: 19/05/2021
-      hash: 4c2c7bfd56650d171aa324e9a2611ce9d60ffa05e8793ebdc1ed96292c791844
+      url: https://wxs.ign.fr/x02uy2aiwjo9bm8ce5plwqmr/telechargement/prepackage/ADMINEXPRESS-COG_SHP_WGS84G_PACK_2022-04-15$ADMIN-EXPRESS-COG_3-1__SHP_WGS84G_FRA_2022-04-15/file/ADMIN-EXPRESS-COG_3-1__SHP_WGS84G_FRA_2022-04-15.7z
+      date: 15/04/2022
+      hash: 1e7d18558a16649cbbb6eef598efbb1d54ecfda05a678a04f22dd56f97b6ca75
       extraire: []
 
 
