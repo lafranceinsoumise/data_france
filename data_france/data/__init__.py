@@ -262,7 +262,9 @@ def agreger_geometries_et_populations(using):
                 """
             )
 
-        with console_message("Calcul des populations et géométries des collectivités départementales"):
+        with console_message(
+            "Calcul des populations et géométries des collectivités départementales"
+        ):
             # les conseils généraux et collectivités départementales qui correspondent à des départements
             # cela inclut tous les conseils départementaux plus certaines collectivités uniques dont Paris (75C),
             # les collectivités uniques d'outremer (972R, 973R, 976D)
@@ -298,7 +300,7 @@ def agreger_geometries_et_populations(using):
                     AND epci.code = %(code_metropole)s
                 ) AS m
                 WHERE code = '69M';
-    
+
                 UPDATE "data_france_collectivitedepartementale"
                 SET
                     population = m.population,
@@ -309,7 +311,7 @@ def agreger_geometries_et_populations(using):
                         ST_Multi(ST_Union(com.geometry :: geometry)) as geometry
                     FROM "data_france_commune" com
                     LEFT JOIN "data_france_epci" epci ON com.epci_id = epci.id
-                    JOIN "data_france_departement" dep ON com.departement_id = dep.id                    
+                    JOIN "data_france_departement" dep ON com.departement_id = dep.id
                     WHERE com.type = 'COM'
                     AND dep.code = %(code_dep)s
                     AND (epci.code IS NULL OR epci.code != %(code_metropole)s)
@@ -343,6 +345,7 @@ def agreger_geometries_et_populations(using):
                     {"code_c": "20R", "codes_d": ("2A", "2B")},
                 ],
             )
+
 
 @console_message("Mise à jour de l'index de recherche")
 def creer_index_recherche(using):
@@ -551,10 +554,10 @@ def import_with_temp_table(csv_file, table, using, marquer_inactif=False):
 
 def import_standard(lzma_file, table, message, marquer_inactif=False, using=None):
     with console_message(message):
-        with open_binary("data_france.data", lzma_file) as _f, lzma.open(
-                    _f, "rt"
-            ) as f:
-                import_with_temp_table(f, table, marquer_inactif=marquer_inactif, using=using)
+        with open_binary("data_france.data", lzma_file) as _f, lzma.open(_f, "rt") as f:
+            import_with_temp_table(
+                f, table, marquer_inactif=marquer_inactif, using=using
+            )
 
 
 def importer_donnees(using=None):
@@ -565,10 +568,7 @@ def importer_donnees(using=None):
     try:
         # à importer avant les communes
         import_standard(
-            "epci.csv.lzma",
-            "data_france_epci",
-            "Chargement des EPCI",
-            using=using
+            "epci.csv.lzma", "data_france_epci", "Chargement des EPCI", using=using
         )
 
         # ces trois tables ont des foreign key croisées
@@ -581,19 +581,19 @@ def importer_donnees(using=None):
                 "regions.csv.lzma",
                 "data_france_region",
                 "Chargement des régions",
-                using=using
+                using=using,
             )
             import_standard(
                 "departements.csv.lzma",
                 "data_france_departement",
                 "Chargement des départements",
-                using=using
+                using=using,
             )
             import_standard(
                 "communes.csv.lzma",
                 "data_france_commune",
                 "Chargement des communes",
-                using=using
+                using=using,
             )
 
         import_standard(
@@ -601,7 +601,7 @@ def importer_donnees(using=None):
             "data_france_collectivitedepartementale",
             "Chargement des collectivités départementales",
             marquer_inactif=True,
-            using=using
+            using=using,
         )
 
         import_standard(
@@ -609,14 +609,14 @@ def importer_donnees(using=None):
             "data_france_collectiviteregionale",
             "Chargement des collectivités régionales",
             marquer_inactif=True,
-            using=using
+            using=using,
         )
 
         import_standard(
             "codes_postaux.csv.lzma",
             "data_france_codepostal",
             "Chargement des codes postaux",
-            using=using
+            using=using,
         )
 
         importer_associations_communes_codes_postaux(using)
@@ -625,21 +625,21 @@ def importer_donnees(using=None):
             "cantons.csv.lzma",
             "data_france_canton",
             "Chargement des cantons",
-            using=using
+            using=using,
         )
 
         import_standard(
             "circonscriptions_consulaires.csv.lzma",
             "data_france_circonscriptionconsulaire",
             "Chargement des circonscriptions consulaires",
-            using=using
+            using=using,
         )
 
         import_standard(
             "circonscriptions_legislatives.csv.lzma",
             "data_france_circonscriptionlegislative",
             "Chargement des circonscriptions législatives",
-            using=using
+            using=using,
         )
 
         import_standard(
@@ -647,7 +647,7 @@ def importer_donnees(using=None):
             "data_france_elumunicipal",
             "Chargement des élus municipaux",
             marquer_inactif=True,
-            using=using
+            using=using,
         )
 
         import_standard(
@@ -655,7 +655,7 @@ def importer_donnees(using=None):
             "data_france_eludepartemental",
             "Chargement des élus départementaux",
             marquer_inactif=True,
-            using=using
+            using=using,
         )
 
         import_standard(
@@ -663,7 +663,7 @@ def importer_donnees(using=None):
             "data_france_eluregional",
             "Chargement des élus régionaux",
             marquer_inactif=True,
-            using=using
+            using=using,
         )
 
         import_standard(
@@ -671,7 +671,7 @@ def importer_donnees(using=None):
             "data_france_depute",
             "Chargement des députés",
             marquer_inactif=True,
-            using=using
+            using=using,
         )
 
         import_standard(
@@ -679,7 +679,7 @@ def importer_donnees(using=None):
             "data_france_deputeeuropeen",
             "Chargement des députés européens",
             marquer_inactif=True,
-            using=using
+            using=using,
         )
 
         agreger_geometries_et_populations(using)

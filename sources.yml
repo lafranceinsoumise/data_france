@@ -1,15 +1,15 @@
 insee:
   cog:
-    url: https://www.insee.fr/fr/statistiques/fichier/6051727/cog_ensemble_2022_csv.zip
-    date: 01/01/2022
-    hash: 6f3c5da667f1c7643bc50a31d662be09c1dd2d86a7b0e15b8d11e1b9f05f7bb8
+    url: https://www.insee.fr/fr/statistiques/fichier/6800675/cog_ensemble_2023_csv.zip
+    date: 17/02/2023
+    hash: ee23de694716c5d38a93c151be335790da6e8590fdff495dfafce5440da55fbd
     extraire:
-      - canton_2022.csv
-      - commune_2022.csv
-      - CTCD_2022.csv
-      - departement_2022.csv
-      - mvtcommune_2022.csv
-      - region_2022.csv
+      - v_canton_2023.csv
+      - v_commune_2023.csv
+      - v_ctcd_2023.csv
+      - v_departement_2023.csv
+      - v_mvtcommune_2023.csv
+      - v_region_2023.csv
 
   iris:
     contours:
@@ -35,17 +35,17 @@ insee:
 
   intercommunalite:
     epci:
-      url: https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2021.zip
-      date: 01/2021
+      url: https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2023.zip
+      date: 01/2023
       hash: 3b9b9c764cab9359f7bca7d05fc0b15e91b205ab837f46e2b03f50a7af367f1d
       extraire: xlsx
 
 ign:
   admin-express:
     version-cog:
-      url: https://wxs.ign.fr/x02uy2aiwjo9bm8ce5plwqmr/telechargement/prepackage/ADMINEXPRESS-COG_SHP_WGS84G_PACK_2022-04-15$ADMIN-EXPRESS-COG_3-1__SHP_WGS84G_FRA_2022-04-15/file/ADMIN-EXPRESS-COG_3-1__SHP_WGS84G_FRA_2022-04-15.7z
-      date: 15/04/2022
-      hash: 1e7d18558a16649cbbb6eef598efbb1d54ecfda05a678a04f22dd56f97b6ca75
+      url: https://wxs.ign.fr/x02uy2aiwjo9bm8ce5plwqmr/telechargement/prepackage/ADMINEXPRESS-COG_SHP_WGS84G_PACK_2023-05-04$ADMIN-EXPRESS-COG_3-2__SHP_WGS84G_FRA_2023-05-03/file/ADMIN-EXPRESS-COG_3-2__SHP_WGS84G_FRA_2023-05-03.7z
+      date: 03/05/2023
+      hash: 614e7e5169e9bd852c2715213ffb7d1ee4b1425b9454aa4d9f6b624252a23d3a
       extraire: []
 
 

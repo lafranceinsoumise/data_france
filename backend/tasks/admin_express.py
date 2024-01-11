@@ -228,15 +228,20 @@ def extraire_geometries_communes(shp_config, dest_metropole, dest_outremer):
         for shp_path, conf in shp_config.items():
             with fiona.open(shp_path) as shp:
                 for com in shp:
-                    com["properties"] = {
+                    props = {
                         "type": conf[0] or com["properties"]["NATURE"].strip(),
                         "code": com["properties"][conf[1]].strip(),
                     }
-                    if com["properties"]["code"][:2] in ["97", "98"]:
+                    feature = {
+                        "type": "Feature",
+                        "geometry": com["geometry"].__geo_interface__,
+                        "properties": props
+                    }
+                    if props["code"][:2] in ["97", "98"]:
                         f = fo
                     else:
                         f = fm
-                    json.dump(com, f, separators=(",", ":"))
+                    json.dump(feature, f, separators=(",", ":"))
                     f.write("\n")
 
 
@@ -246,12 +251,14 @@ def extraire_geometries_cantons(shp_path, dest_metropole, dest_outremer):
     ) as shp:
         for canton in shp:
             p = canton["properties"]
-            canton["properties"] = {"code": f'{p["INSEE_DEP"]}{p["INSEE_CAN"]}'}
+            props = {"code": f'{p["INSEE_DEP"]}{p["INSEE_CAN"]}'}
+            feature = {"geometry": canton.__geo_interface__["geometry"], "properties": props, "type": "Feature"}
+
             if len(p["INSEE_DEP"]) == 3:
                 f = fo
             else:
                 f = fm
-            json.dump(canton, f, separators=(",", ":"))
+            json.dump(feature, f, separators=(",", ":"))
             f.write("\n")
 
 

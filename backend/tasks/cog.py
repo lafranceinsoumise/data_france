@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import List
 
 
-ANNEE_COG = "2022"
+ANNEE_COG = "2023"
 
 COMMUNE_TYPE_ORDERING = ["COM", "ARM", "COMA", "COMD", "SRM", None]
 
@@ -20,12 +20,12 @@ INSEE_DIR = PREPARE_DIR / "insee"
 COG_DIR = INSEE_DIR / "cog"
 
 EPCI_XLS = INSEE_DIR / "intercommunalite" / "epci.xlsx"
-EVENEMENTS_COG = COG_DIR / f"mvtcommune_{ANNEE_COG}.csv"
-COMMUNES_COG = COG_DIR / f"commune_{ANNEE_COG}.csv"
-CANTONS_COG = COG_DIR / f"canton_{ANNEE_COG}.csv"
-DEPARTEMENTS_COG = COG_DIR / f"departement_{ANNEE_COG}.csv"
-REGIONS_COG = COG_DIR / f"region_{ANNEE_COG}.csv"
-COLLECTIVITES_DEPARTEMENTALES_COG = COG_DIR / f"CTCD_{ANNEE_COG}.csv"
+EVENEMENTS_COG = COG_DIR / f"v_mvtcommune_{ANNEE_COG}.csv"
+COMMUNES_COG = COG_DIR / f"v_commune_{ANNEE_COG}.csv"
+CANTONS_COG = COG_DIR / f"v_canton_{ANNEE_COG}.csv"
+DEPARTEMENTS_COG = COG_DIR / f"v_departement_{ANNEE_COG}.csv"
+REGIONS_COG = COG_DIR / f"v_region_{ANNEE_COG}.csv"
+COLLECTIVITES_DEPARTEMENTALES_COG = COG_DIR / f"v_ctcd_{ANNEE_COG}.csv"
 
 EPCI_CSV = INSEE_DIR / "epci.csv"
 COMMUNES_CSV = INSEE_DIR / "communes.csv"
@@ -250,8 +250,24 @@ def traiter_cantons(cantons_cog_path, dest):
     # on nomme nous-mêmes les colonnes parce que leurs noms dans le fichier sont incorrects en 2022
     cantons = pd.read_csv(
         cantons_cog_path,
-        dtype={"code": str, "departement": str, "bureau_centralisateur": str, "composition": pd.UInt32Dtype()},
-        names=["code", "departement", "_region", "composition", "bureau_centralisateur", "type_nom", "_ncc", "nom", "_libelle", "type"],
+        dtype={
+            "code": str,
+            "departement": str,
+            "bureau_centralisateur": str,
+            "composition": pd.UInt32Dtype(),
+        },
+        names=[
+            "code",
+            "departement",
+            "_region",
+            "composition",
+            "bureau_centralisateur",
+            "type_nom",
+            "_ncc",
+            "nom",
+            "_libelle",
+            "type",
+        ],
         header=0,
     )
 
