@@ -43,13 +43,13 @@ def task_decompresser():
                 targets = [dest_prefix.with_suffix(f".{source.extraire}")]
                 actions = [
                     (create_folder, (dest_prefix.parent,)),
-                    (extract_singlefile, (archive_path, targets[0], source.extraire)),
+                    extract_singlefile(archive_path, targets[0], source.extraire),
                 ]
             else:
                 targets = [dest_prefix / p for p in source.extraire]
                 actions = [
                     (create_folder, (dest_prefix,)),
-                    (extract_archive, (archive_path, dest_prefix, source.extraire)),
+                    extract_archive(archive_path, dest_prefix, source.extraire),
                 ]
 
             yield {

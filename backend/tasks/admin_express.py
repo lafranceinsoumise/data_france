@@ -235,7 +235,7 @@ def extraire_geometries_communes(shp_config, dest_metropole, dest_outremer):
                     feature = {
                         "type": "Feature",
                         "geometry": com["geometry"].__geo_interface__,
-                        "properties": props
+                        "properties": props,
                     }
                     if props["code"][:2] in ["97", "98"]:
                         f = fo
@@ -252,7 +252,11 @@ def extraire_geometries_cantons(shp_path, dest_metropole, dest_outremer):
         for canton in shp:
             p = canton["properties"]
             props = {"code": f'{p["INSEE_DEP"]}{p["INSEE_CAN"]}'}
-            feature = {"geometry": canton.__geo_interface__["geometry"], "properties": props, "type": "Feature"}
+            feature = {
+                "geometry": canton.__geo_interface__["geometry"],
+                "properties": props,
+                "type": "Feature",
+            }
 
             if len(p["INSEE_DEP"]) == 3:
                 f = fo
