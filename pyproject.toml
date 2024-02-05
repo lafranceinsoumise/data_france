@@ -51,13 +51,13 @@ pandas = "^2.1.4"  # dataframe library
 pyarrow = "^14.0.2"  # read and write feather files
 xlrd = "^2.0.1"  # read old excel .xls format
 openpyxl = "^3.0.10"  # read now excel .xlsx format
-py7zr = "^0.20.8"  # read 7zip archives
 fiona = "^1.8.21"  # open shapefiles
 lxml = "^4.9.1"  # open xml files
 beautifulsoup4 = "^4.11.1"  # parse html
 shapely = "^2.0.2"  # manipulates geometries
 requests = "^2.28.1"  # download
 glom = "^23.1.1"  # express data transformations
+patool="^2.1.1"  # unpack archive
 
 # developing and testing
 black = "^23.1.0"  # formatting source code

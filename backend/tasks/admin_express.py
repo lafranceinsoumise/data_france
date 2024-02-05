@@ -7,14 +7,15 @@ from functools import reduce
 from itertools import product, groupby
 from operator import itemgetter
 from pathlib import Path, PurePath
+from tempfile import TemporaryDirectory
 
 
 import fiona
 import pandas as pd
 from doit.tools import create_folder
-from libarchive.public import file_reader as archive_reader
 from shapely.geometry import shape, MultiPolygon
 from shapely import wkb
+from py7zr import SevenZipFile
 
 from sources import PREPARE_DIR, SOURCE_DIR, SOURCES
 from .cog import COMMUNE_TYPE_ORDERING
@@ -212,15 +213,13 @@ def task_trier_et_normaliser_geometries():
 
 
 def decompresser_admin_express(archive, dest_dir):
-    with archive_reader(str(archive)) as r:
-        for entry in r:
-            p = PurePath(entry.pathname)
-            if p.stem in EXTRAIRE_GEOMETRIES:
-                dest = dest_dir / p.name
-
-                with dest.open("wb") as f:
-                    for block in entry.get_blocks():
-                        f.write(block)
+    with SevenZipFile(archive) as archive:
+        all_names = [PurePath(f) for f in archive.getnames()]
+        extract = [f for f in all_names if f.stem in EXTRAIRE_GEOMETRIES]
+        with TemporaryDirectory() as d:
+            archive.extract(d, targets=[str(f) for f in extract])
+            for f in extract:
+                (Path(d) / f).rename(dest_dir / f.name)
 
 
 def extraire_geometries_communes(shp_config, dest_metropole, dest_outremer):
@@ -235,7 +234,7 @@ def extraire_geometries_communes(shp_config, dest_metropole, dest_outremer):
                     feature = {
                         "type": "Feature",
                         "geometry": com["geometry"].__geo_interface__,
-                        "properties": props
+                        "properties": props,
                     }
                     if props["code"][:2] in ["97", "98"]:
                         f = fo
@@ -252,7 +251,11 @@ def extraire_geometries_cantons(shp_path, dest_metropole, dest_outremer):
         for canton in shp:
             p = canton["properties"]
             props = {"code": f'{p["INSEE_DEP"]}{p["INSEE_CAN"]}'}
-            feature = {"geometry": canton.__geo_interface__["geometry"], "properties": props, "type": "Feature"}
+            feature = {
+                "geometry": canton.__geo_interface__["geometry"],
+                "properties": props,
+                "type": "Feature",
+            }
 
             if len(p["INSEE_DEP"]) == 3:
                 f = fo

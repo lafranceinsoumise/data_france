@@ -4,7 +4,6 @@ import unicodedata
 from collections import deque
 from pathlib import Path, PurePath
 from zipfile import ZipFile
-from libarchive.public import file_reader as archive_reader
 
 import pandas as pd
 
@@ -45,40 +44,12 @@ class check_hash:
 
 
 def extract_singlefile(archive_path, dest, expected_ext):
-    with archive_reader(str(archive_path)) as r:
-        entry = next(r)
-
-        ext = PurePath(entry.pathname).suffix
-
-        if ext != f".{expected_ext}":
-            raise ValueError(
-                f"Le fichier dans l'archive {archive_path} n'a pas l'extension attendue"
-            )
-
-        with dest.open("wb") as f:
-            for block in entry.get_blocks():
-                f.write(block)
-
-        try:
-            entry = next(r)
-        except StopIteration:
-            pass
-        else:
-            raise ValueError(f"L'archive {archive_path} contient plus d'un fichier !")
+    return f'[ "$(7z l -ba {archive_path} | wc -l)" -eq "1"] ; 7z e -so "{archive_path}" > {dest}'
 
 
 def extract_archive(archive_path, dest_prefix: Path, targets):
-    with archive_reader(str(archive_path)) as r:
-        for entry in r:
-            if entry.filetype.IFREG:
-                name = PurePath(entry.pathname).name
-                if name not in targets:
-                    continue
-                dest = dest_prefix / name
-
-                with dest.open("wb") as f:
-                    for block in entry.get_blocks():
-                        f.write(block)
+    target_args = [f'"{t}"' for t in targets]
+    return f"7z e '-o{dest_prefix}' '{archive_path}' {' '.join(target_args)}"
 
 
 def remove_last(it, n=1):
@@ -98,8 +69,8 @@ def camelcase_to_snakecase(s):
     return s.lower()
 
 
-LETTER_RE = re.compile("\W+")
-SPACE_RE = re.compile("\s+")
+LETTER_RE = re.compile(r"\W+")
+SPACE_RE = re.compile(r"\s+")
 
 
 def normaliser_nom(s):
@@ -125,5 +96,5 @@ def normaliser_colonne(s: pd.Series):
         .str.decode("ascii")
         .str.lower()
         .str.strip()
-        .str.replace("\s*-\s*", " ", regex=True)
+        .str.replace(r"\s*-\s*", " ", regex=True)
     )

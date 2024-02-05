@@ -200,7 +200,7 @@ premier_ministre:
     url: http://lecomarquage.service-public.fr/donnees_locales_v2/all_latest.tar.bz2
     extension: .tar.bz2
     hash: 7e11168e475050537b8847d26f096073558d77835b9e2ee843ac4f7e72b832bc
-    extraire: no
+    extraire: []
 
 
 conseil_constitutionnel:
