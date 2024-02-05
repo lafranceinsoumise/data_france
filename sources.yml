@@ -163,11 +163,11 @@ interieur:
     regionales:
       2021:
         tour1:
-          url: https://static.data.gouv.fr/resources/regionales-2021-resultats-du-1er-tour/20210622-130530/resultats-par-niveau-bv-t1-france-entiere-2021-06-22-11h36.txt
+          url: https://static.data.gouv.fr/resources/elections-regionales-2021-resultats-du-1er-tour-1/20210713-100715/reg-resultats-par-niveau-burvot-t1-france-entiere-2021-07-12-18h44.txt
           date: 22/06/2021
-          hash: 877493d2a80fa6f3b417490f9c069844ca714681e8d57bd0c52ff93d9a47086c
+          hash: 71a3c1e21a99452a7df5b1be6ba2677fae47ead876322a1d613c3e90648199bf
         tour2:
-          url: https://static.data.gouv.fr/resources/elections-regionales-2021-resultats-2eme-tour/20210701-120503/resultats-par-niveau-burvot-t2-france-entiere-2021-06-30-13h33.txt
+          url: https://static.data.gouv.fr/resources/elections-regionales-2021-resultats-du-2eme-tour/20210713-100020/regresultats-par-niveau-burvot-t2-france-entiere-2021-07-12-09h06.txt
           date: 01/07/2021
           hash: 9f7cea21779650c5f788b0fb2a0d439aef5ee3a0c096b99404d923ca88bca594
     departementales:
@@ -177,8 +177,8 @@ interieur:
           hash: 7b135ed4a6500e6aa16e63af3c5076aa8d8159cf1aa90b742a5dc0c12dd1dce5
           date: 22/06/2021
         tour2:
-          url: https://static.data.gouv.fr/resources/elections-departementales-2021-resultats-du-2eme-tour/20210701-120141/resultats-par-niveau-burvot-t2-france-entiere-2021-06-30.txt
-          hash: 4af3b66cf3e81de036954e473baf97f37fb24daa95020224918b4470a4e5fde7
+          url: https://static.data.gouv.fr/resources/elections-departementales-2021-resultats-du-2eme-tour/20210713-101218/dep-resultats-par-niveau-burvot-t2-france-entiere-2021-07-12-09h49.txt
+          hash: 4e0f4f658b5ce04b9c20b4dc38c46eda3fdc74407b0f244f33fae29bc799eac8
           date: 01/07/2021
     referendums:
       2005:
@@ -212,7 +212,7 @@ conseil_constitutionnel:
 assemblee_nationale:
   deputes:
     url: http://data.assemblee-nationale.fr/static/openData/repository/16/amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes.json.zip
-    hash: 1904c89384489c97020494d2576fb6800ceb307553e1d698482e3020086d513a
+    hash: 4ff07e13d627f854574dc086234ff414b1563bc0386f9cc0f5159969c042bf9c
 
 
 sciences_po:
