@@ -277,7 +277,7 @@ def traiter_cantons(cantons_cog_path, dest):
 def importer_evenements_communes(path):
     evenements = pd.read_csv(path)
     date_eff = evenements.DATE_EFF.str.extract(
-        "^(?P<day>\d{2})/(?P<month>\d{2})/(?P<year>\d{2})$"
+        r"^(?P<day>\d{2})/(?P<month>\d{2})/(?P<year>\d{2})$"
     )
     date_eff["year"] = (
         pd.Series("19", index=date_eff.index).where(date_eff.year >= "25", "20")
