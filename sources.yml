@@ -1,15 +1,15 @@
 insee:
   cog:
-    url: https://www.insee.fr/fr/statistiques/fichier/6800675/cog_ensemble_2023_csv.zip
+    url: https://www.insee.fr/fr/statistiques/fichier/7766585/cog_ensemble_2024_csv.zip
     date: 17/02/2023
-    hash: ee23de694716c5d38a93c151be335790da6e8590fdff495dfafce5440da55fbd
+    hash: ee23de694716c5d38a93c151be335790da6e8590fdff495dfafce5440da55fb
     extraire:
-      - v_canton_2023.csv
-      - v_commune_2023.csv
-      - v_ctcd_2023.csv
-      - v_departement_2023.csv
-      - v_mvtcommune_2023.csv
-      - v_region_2023.csv
+      - v_canton_2024.csv
+      - v_commune_2024.csv
+      - v_ctcd_2024.csv
+      - v_departement_2024.csv
+      - v_mvtcommune_2024.csv
+      - v_region_2024.csv
 
   iris:
     contours:
@@ -28,10 +28,10 @@ insee:
 
   elire:
     bureaux_vote:
-      url: https://www.insee.fr/fr/statistiques/fichier/3539086/2022-bureaux_vote.zip
-      date: 30/03/2022
-      hash: af2c598a30306cd84aded1e0618dd6978a0457a00a25542d8875780568d2ec80
-      extraire: csv
+      url: https://www.data.gouv.fr/fr/datasets/r/6faacf36-1897-43f5-bf39-af8b41a15d26
+      date: 27/06/2023
+      hash: 48047ca16b3a539bf600a05b09eb524c183e4acabe4ed8ca476be5a31f1f2106
+      extension: .parquet
 
   intercommunalite:
     epci:
@@ -43,9 +43,9 @@ insee:
 ign:
   admin-express:
     version-cog:
-      url: https://wxs.ign.fr/x02uy2aiwjo9bm8ce5plwqmr/telechargement/prepackage/ADMINEXPRESS-COG_SHP_WGS84G_PACK_2023-05-04$ADMIN-EXPRESS-COG_3-2__SHP_WGS84G_FRA_2023-05-03/file/ADMIN-EXPRESS-COG_3-2__SHP_WGS84G_FRA_2023-05-03.7z
-      date: 03/05/2023
-      hash: 614e7e5169e9bd852c2715213ffb7d1ee4b1425b9454aa4d9f6b624252a23d3a
+      url: https://data.geopf.fr/telechargement/download/ADMIN-EXPRESS-COG/ADMIN-EXPRESS-COG_3-2__SHP_WGS84G_FRA_2024-02-22/ADMIN-EXPRESS-COG_3-2__SHP_WGS84G_FRA_2024-02-22.7z
+      date: 22/02/2024
+      hash:  7ec91626a7c4acda765caa41fe3093bece4d1a03b8e0e6f2d0cdbd3a995ee055
       extraire: []
 
 
