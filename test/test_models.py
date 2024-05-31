@@ -62,7 +62,7 @@ class CommuneTestCase(TestCase):
             .values_list("code", flat=True),
             [
                 "14666",  # Sannerville (fusion puis annulation par le tribunal administratif)
-                "27058"   # Trois-Lacs (fusion et changement de code insee principal 5 ans après)
+                "27058",  # Trois-Lacs (fusion et changement de code insee principal 5 ans après)
             ],
         )
 

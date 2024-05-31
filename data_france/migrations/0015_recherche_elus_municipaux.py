@@ -10,7 +10,6 @@ drop_search_index = "DROP INDEX data_france_elumunicipal_search_index"
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("data_france", "0014_elumunicipal"),
     ]

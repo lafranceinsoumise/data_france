@@ -48,7 +48,13 @@ def extract_singlefile(archive_path, dest, expected_ext):
 
 
 def extract_archive(archive_path, dest_prefix: Path, targets):
+    if archive_path.suffix in [".bz2", ".tar.bz2"]:
+        target_args = [f"'./{t}'" for t in targets]
+
+        return f"tar -xf '{archive_path}' -C '{dest_prefix}' {' '.join(target_args)}"
+
     target_args = [f'"{t}"' for t in targets]
+
     return f"7z e '-o{dest_prefix}' '{archive_path}' {' '.join(target_args)}"
 
 

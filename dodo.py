@@ -10,7 +10,7 @@ BASE_PATH = Path(__file__).parent
 sys.path.insert(0, str(BASE_PATH / "backend"))
 from tasks import *
 
-with (BASE_PATH / "pyproject.toml") as fd:
+with BASE_PATH / "pyproject.toml" as fd:
     pyproject = toml.load(fd)
 
 version = pyproject["tool"]["poetry"]["version"]

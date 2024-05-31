@@ -22,8 +22,8 @@ JOIN data_france_region r on r.id = cr.region_id
 WHERE cr.id = e.collectivite_regionale_id
 """
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
         ("data_france", "0034_depute_actif_deputeeuropeen_actif_and_more"),
     ]

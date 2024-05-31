@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import List
 
 
-ANNEE_COG = "2023"
+ANNEE_COG = "2024"
 
 COMMUNE_TYPE_ORDERING = ["COM", "ARM", "COMA", "COMD", "SRM", None]
 
@@ -20,7 +20,7 @@ INSEE_DIR = PREPARE_DIR / "insee"
 COG_DIR = INSEE_DIR / "cog"
 
 EPCI_XLS = INSEE_DIR / "intercommunalite" / "epci.xlsx"
-EVENEMENTS_COG = COG_DIR / f"v_mvtcommune_{ANNEE_COG}.csv"
+EVENEMENTS_COG = COG_DIR / f"v_mvt_commune_{ANNEE_COG}.csv"
 COMMUNES_COG = COG_DIR / f"v_commune_{ANNEE_COG}.csv"
 CANTONS_COG = COG_DIR / f"v_canton_{ANNEE_COG}.csv"
 DEPARTEMENTS_COG = COG_DIR / f"v_departement_{ANNEE_COG}.csv"

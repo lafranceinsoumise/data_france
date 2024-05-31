@@ -57,7 +57,10 @@ class Migration(migrations.Migration):
                 editable=False, null=True, verbose_name="Champ de recherche"
             ),
         ),
-        migrations.RunSQL(sql=set_up_new_search_index, reverse_sql=reset_search_index,),
+        migrations.RunSQL(
+            sql=set_up_new_search_index,
+            reverse_sql=reset_search_index,
+        ),
         migrations.RunSQL(
             sql=create_tsvector_agg_func, reverse_sql=delete_tsvector_agg_func
         ),

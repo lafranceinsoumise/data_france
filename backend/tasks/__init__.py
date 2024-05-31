@@ -35,7 +35,7 @@ def task_telecharger():
 
 def task_decompresser():
     for source in SOURCES:
-        if source.suffix in [".zip", ".7z"] and source.extraire:
+        if source.suffix in [".zip", ".7z", ".tar.bz2"] and source.extraire:
             archive_path = SOURCE_DIR / source.filename
             dest_prefix = PREPARE_DIR / source.path
 

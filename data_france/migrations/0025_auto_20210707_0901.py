@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("data_france", "0024_circonscriptionlegislative_depute"),
     ]

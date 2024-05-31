@@ -576,11 +576,17 @@ def generer_fichiers_codes_postaux(
         .set_index(["code"])["type"]
     )
 
-    codes_postaux = pd.read_csv(
-        codes_postaux,
-        dtype={"Code_commune_INSEE": str, "Code_postal": str},
-        usecols=["Code_commune_INSEE", "Code_postal"],
-    ).drop_duplicates()
+    codes_postaux = (
+        pd.read_csv(
+            codes_postaux,
+            sep=";",
+            dtype={"#Code_commune_INSEE": str, "Code_postal": str},
+            usecols=["#Code_commune_INSEE", "Code_postal"],
+            encoding="latin1",
+        )
+        .rename(columns={"#Code_commune_INSEE": "Code_commune_INSEE"})
+        .drop_duplicates()
+    )
 
     # La commune Les Trois Lacs a changé de code INSEE au 01/01/2021 et ce n'est
     # pas pris en compte par la poste, donc modification manuelle

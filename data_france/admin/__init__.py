@@ -466,7 +466,12 @@ class EluDepartementalAdmin(RNEAdmin):
 class EluRegionalAdmin(RNEAdmin):
     search_fields = ("nom", "prenom")
 
-    list_display = ("nom_complet", "collectivite_regionale", "libelle_fonction", "actif")
+    list_display = (
+        "nom_complet",
+        "collectivite_regionale",
+        "libelle_fonction",
+        "actif",
+    )
     list_filter = ("actif",)
 
     fieldsets = (

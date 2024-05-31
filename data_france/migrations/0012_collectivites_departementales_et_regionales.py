@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("data_france", "0011_auto_20200416_0413"),
     ]
@@ -108,7 +107,10 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Collectivités à compétences régionales",
             },
         ),
-        migrations.RemoveConstraint(model_name="commune", name="commune_unique_code",),
+        migrations.RemoveConstraint(
+            model_name="commune",
+            name="commune_unique_code",
+        ),
         migrations.AddConstraint(
             model_name="commune",
             constraint=models.CheckConstraint(

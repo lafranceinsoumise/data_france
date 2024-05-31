@@ -5,7 +5,6 @@ import django_countries.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("data_france", "0032_ajouts_csp"),
     ]

@@ -15,7 +15,6 @@ CREATE INDEX data_france_elumunicipal_search_index ON data_france_elumunicipal U
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("data_france", "0021_circonscriptionconsulaire"),
     ]

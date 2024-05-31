@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []
@@ -129,7 +128,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "Commune", "verbose_name_plural": "Communes",},
+            options={
+                "verbose_name": "Commune",
+                "verbose_name_plural": "Communes",
+            },
         ),
         migrations.AddField(
             model_name="commune",

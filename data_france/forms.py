@@ -7,7 +7,8 @@ class CommuneParametresForm(forms.Form):
     q = forms.CharField(required=True)
     geojson = forms.BooleanField(required=False)
     type = forms.MultipleChoiceField(
-        choices=Commune.TypeCommune.choices, required=False,
+        choices=Commune.TypeCommune.choices,
+        required=False,
     )
 
 

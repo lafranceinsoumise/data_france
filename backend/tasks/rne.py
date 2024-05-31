@@ -229,6 +229,8 @@ def parser_dates(df):
                 .str.replace(r"/13(\d{2})$", r"/19\1", regex=True)
                 .str.replace(r"/09(\d{2})$", r"/19\1", regex=True)
                 .str.replace(r"/10(\d{2})$", r"/19\1", regex=True)
+                .str.replace(r"/16(\d{2})$", r"/19\1", regex=True)
+                .str.replace(r"/11(\d{2})$", r"/19\1", regex=True)
             )
             try:
                 df[c] = pd.to_datetime(date_corrigee, format="%d/%m/%Y")
@@ -239,7 +241,7 @@ def parser_dates(df):
 def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, dest):
     mun = pd.read_csv(
         municipaux_path,
-        sep="\t",
+        sep=";",
         encoding="utf8",
         skiprows=1,
         names=MUN_FIELDS,
@@ -276,7 +278,7 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, d
 
     ep = pd.read_csv(
         epci_path,
-        sep="\t",
+        sep=";",
         encoding="utf8",
         skiprows=1,
         names=EPCI_FIELDS,
@@ -333,7 +335,7 @@ def traiter_elus_municipaux_ecpi(municipaux_path, epci_path, parrainages_path, d
 def traiter_elus_departementaux(dep_path, dest):
     dep = pd.read_csv(
         dep_path,
-        sep="\t",
+        sep=";",
         encoding="utf8",
         skiprows=1,
         names=DEP_FIELDS,
@@ -358,7 +360,7 @@ def traiter_elus_departementaux(dep_path, dest):
 def traiter_elus_regionaux(reg_path, dest):
     reg = pd.read_csv(
         reg_path,
-        sep="\t",
+        sep=";",
         encoding="utf8",
         skiprows=1,
         names=REG_FIELDS,
@@ -384,7 +386,7 @@ def traiter_elus_regionaux(reg_path, dest):
 def traiter_deputes_europeens(source, dest):
     eurdep = pd.read_csv(
         source,
-        sep="\t",
+        sep=";",
         encoding="utf8",
         skiprows=1,
         names=EURDEP_FIELDS,

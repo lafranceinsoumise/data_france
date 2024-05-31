@@ -31,8 +31,8 @@ DEFAUT_EDITEUR = (
 )
 
 ANNUAIRE_SOURCE = SOURCES.premier_ministre.annuaire_administration
-ANNUAIRE_ARCHIVE = SOURCE_DIR / ANNUAIRE_SOURCE.filename
 ANNUAIRE_DIR = PREPARE_DIR / ANNUAIRE_SOURCE.path
+ANNUAIRE_FILE = ANNUAIRE_DIR / "2024-05-31_060016-data.gouv_local.json"
 MAIRIES_EXTRAITES = ANNUAIRE_DIR / "mairies.ndjson"
 MAIRIES_TRAITEES = ANNUAIRE_DIR / "mairies.csv"
 CONSEILS_DEPARTEMENTAUX_EXTRAITS = ANNUAIRE_DIR / "conseils_departementaux.ndjson"
@@ -40,25 +40,25 @@ CONSEILS_DEPARTEMENTAUX_EXTRAITS = ANNUAIRE_DIR / "conseils_departementaux.ndjso
 
 def task_extraire_mairies():
     return {
-        "file_dep": [ANNUAIRE_ARCHIVE],
+        "file_dep": [ANNUAIRE_FILE],
         "targets": [MAIRIES_EXTRAITES],
         "actions": [
             (create_folder, [ANNUAIRE_DIR]),
-            (extraire_organismes, (ANNUAIRE_ARCHIVE, MAIRIES_EXTRAITES, MAIRIE_RE)),
+            (extraire_organismes, (ANNUAIRE_FILE, MAIRIES_EXTRAITES, MAIRIE_RE)),
         ],
     }
 
 
 def task_extraire_conseils_departementaux():
     return {
-        "file_dep": [ANNUAIRE_ARCHIVE],
+        "file_dep": [ANNUAIRE_FILE],
         "targets": [CONSEILS_DEPARTEMENTAUX_EXTRAITS],
         "actions": [
             (create_folder, [ANNUAIRE_DIR]),
             (
                 extraire_organismes,
                 (
-                    ANNUAIRE_ARCHIVE,
+                    ANNUAIRE_FILE,
                     CONSEILS_DEPARTEMENTAUX_EXTRAITS,
                     CONSEIL_DEPARTEMENTAL_RE,
                 ),
@@ -80,82 +80,66 @@ def task_post_traitement_mairies():
     }
 
 
-def extraire_organismes(tar_path, dest_path, path_regex):
-    with tarfile.open(tar_path, "r:bz2") as tar, open(dest_path, "w") as dest:
-        while mem := tar.next():
-            if not mem.isfile() or not path_regex.search(mem.name):
+def extraire_organismes(source_path, dest_path, path_regex):
+    with open(source_path, "r") as source, open(dest_path, "w") as dest:
+        data = json.load(source)
+        types = set()
+        for organisme in data["service"]:
+            if not organisme["nom"].startswith("Mairie"):
                 continue
 
-            f = tar.extractfile(mem)
-            tree = etree.parse(f)
-            root = tree.getroot()
-
-            json.dump(organisme_xml_to_json(root), dest, indent=None)
+            types.add(organisme["categorie"])
+            json.dump(extraire_organisme(organisme), dest, indent=None)
             dest.write("\n")
 
 
-def organisme_xml_to_json(tree):
-    res = {"id": tree.attrib["id"], "code": tree.attrib["codeInsee"]}
 
-    for elem in tree:
-        if elem.tag == "Nom":
-            res["Nom"] = elem.text
-        elif elem.tag == "Adresse":
-            res["Adresse"] = extraire_adresse(elem)
-        elif elem.tag == "CoordonnéesNum":
-            res["Contact"] = extraires_contacts(elem)
-        elif elem.tag == "Ouverture":
-            res["Ouvert"] = [
-                [
-                    p.attrib["début"],
-                    p.attrib["fin"],
-                    [[h.attrib["début"], h.attrib["fin"]] for h in p if h.attrib],
-                ]
-                for p in elem
-            ]
-        elif elem.tag == "EditeurSource":
-            if elem.text and elem.text != DEFAUT_EDITEUR:
-                res["Editeur"] = elem.text
-        elif elem.tag in ["Commentaire"]:
-            res[elem.tag] = elem.text
-        else:
-            sys.stderr.write(f"Tag inconnu: {elem.tag} ({tree.attrib['id']})\n")
+
+def extraire_organisme(organisme):
+    res = {
+        "id": organisme["id"],
+        "code": organisme["code_insee_commune"],
+        "Nom": organisme["nom"],
+        "Adresse": extraire_adresse(organisme),
+        "Contact": {
+            "Téléphone": organisme["telephone"],
+            "Email": organisme["adresse_courriel"],
+            "Url": organisme["site_internet"],
+        },
+        "Ouvert": "",
+        "Editeur": "",
+        "Commentaire": "",
+    }
 
     return res
 
 
-def extraires_contacts(contacts_tree):
-    contacts = {}
-    for elem in contacts_tree:
-        contacts[elem.tag] = elem.text if elem.text else elem.attrib["détail"]
-    return contacts
+def extraire_adresse(data):
+    if not data["adresse"]:
+        return None
 
+    adresse = data["adresse"][0]
+    res = {
+        "Lignes": [
+            adresse["numero_voie"],
+            adresse["complement1"],
+            adresse["complement2"],
+        ],
+        "NomCommune": adresse["nom_commune"],
+        "CodePostal": adresse["code_postal"],
+        "Accessibilité": {
+            "type": adresse["accessibilite"],
+            "détail": adresse["accessibilite"],
+        },
+    }
 
-def extraire_adresse(addr_tree):
-    adresse = {"Lignes": []}
+    if adresse["longitude"] and adresse["latitude"]:
+        res["Localisation"] = [
+            adresse["longitude"] and float(adresse["longitude"]),
+            adresse["latitude"] and float(adresse["latitude"]),
+        ]
 
-    for elem in addr_tree:
-        if elem.tag == "Ligne":
-            adresse["Lignes"].append(elem.text)
-        elif elem.tag == "Localisation":
-            parts = {e.tag: e.text for e in elem}
-            try:
-                adresse["Localisation"] = [
-                    float(parts["Longitude"]),
-                    float(parts["Latitude"]),
-                    int(parts["Précision"]),
-                ]
-            except TypeError:
-                # une mairie avec des coordonnées vides
-                pass
-        elif elem.tag == "Accessibilité":
-            adresse["Accessibilité"] = {"type": elem.attrib["type"]}
-            if elem.text:
-                adresse["Accessibilité"]["détail"] = elem.text
-        else:
-            adresse[elem.tag] = elem.text
-
-    return adresse
+    return res
 
 
 # Les cas d'erreurs concernés sont les suivants :

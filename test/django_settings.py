@@ -43,7 +43,9 @@ TEMPLATES = [
     }
 ]
 
-DATABASES = {"default": dj_database_url.config(default="postgis:///data_france")}
+DATABASES = {
+    "default": dj_database_url.config(default="postgis://data_france:data_france@localhost/data_france")
+}
 
 STATIC_URL = "/static/"
 

@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("data_france", "0016_auto_20210122_1031"),
     ]
@@ -29,7 +28,8 @@ class Migration(migrations.Migration):
             model_name="commune",
             name="mairie_accessibilite_details",
             field=models.TextField(
-                blank=True, verbose_name="Accessibilité de la mairie (détails)",
+                blank=True,
+                verbose_name="Accessibilité de la mairie (détails)",
             ),
         ),
         migrations.AddField(

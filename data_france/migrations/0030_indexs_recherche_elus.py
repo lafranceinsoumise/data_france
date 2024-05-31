@@ -5,30 +5,37 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('data_france', '0029_deputes_europeens'),
+        ("data_france", "0029_deputes_europeens"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='depute',
-            name='search',
-            field=django.contrib.postgres.search.SearchVectorField(null=True, verbose_name='Champ de recherche'),
+            model_name="depute",
+            name="search",
+            field=django.contrib.postgres.search.SearchVectorField(
+                null=True, verbose_name="Champ de recherche"
+            ),
         ),
         migrations.AddField(
-            model_name='deputeeuropeen',
-            name='search',
-            field=django.contrib.postgres.search.SearchVectorField(null=True, verbose_name='Champ de recherche'),
+            model_name="deputeeuropeen",
+            name="search",
+            field=django.contrib.postgres.search.SearchVectorField(
+                null=True, verbose_name="Champ de recherche"
+            ),
         ),
         migrations.AddField(
-            model_name='eludepartemental',
-            name='search',
-            field=django.contrib.postgres.search.SearchVectorField(null=True, verbose_name='Champ de recherche'),
+            model_name="eludepartemental",
+            name="search",
+            field=django.contrib.postgres.search.SearchVectorField(
+                null=True, verbose_name="Champ de recherche"
+            ),
         ),
         migrations.AddField(
-            model_name='eluregional',
-            name='search',
-            field=django.contrib.postgres.search.SearchVectorField(null=True, verbose_name='Champ de recherche'),
+            model_name="eluregional",
+            name="search",
+            field=django.contrib.postgres.search.SearchVectorField(
+                null=True, verbose_name="Champ de recherche"
+            ),
         ),
     ]

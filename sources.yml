@@ -1,14 +1,14 @@
 insee:
   cog:
     url: https://www.insee.fr/fr/statistiques/fichier/7766585/cog_ensemble_2024_csv.zip
-    date: 17/02/2023
-    hash: ee23de694716c5d38a93c151be335790da6e8590fdff495dfafce5440da55fb
+    date: 30/05/2024
+    hash: bba4c02678d84aee18bc1e1a8bd5c4e5ef20a18d8e91a55c71221aa229842d31
     extraire:
       - v_canton_2024.csv
       - v_commune_2024.csv
       - v_ctcd_2024.csv
       - v_departement_2024.csv
-      - v_mvtcommune_2024.csv
+      - v_mvt_commune_2024.csv
       - v_region_2024.csv
 
   iris:
@@ -35,9 +35,9 @@ insee:
 
   intercommunalite:
     epci:
-      url: https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2023.zip
-      date: 01/2023
-      hash: 3b9b9c764cab9359f7bca7d05fc0b15e91b205ab837f46e2b03f50a7af367f1d
+      url: https://www.insee.fr/fr/statistiques/fichier/2510634/epci_au_01-01-2024.zip
+      date: 01/2024
+      hash: b6c9dee214175983f45dcb89a16d069e5fa7a0fd3897a4a8da56d67aab90dafb
       extraire: xlsx
 
 ign:
@@ -54,33 +54,33 @@ interieur:
     municipaux:
       url: https://www.data.gouv.fr/fr/datasets/r/d5f400de-ae3f-4966-8cb6-a85c70c6c24a
       extension: .csv
-      date: 16/12/2022
-      hash: 4b1b190dd29fc3c805031855cd770f378fbeb56359ce70c5f2cb3400c586ea50
+      date: 30/05/2024
+      hash: bd4ff96a95cbe88c70b1bc5be4849c171eb43f98b387caa071852f2acd7e94a9
     epci:
       url: https://www.data.gouv.fr/fr/datasets/r/41d95d7d-b172-4636-ac44-32656367cdc7
       extension: .csv
-      date: 16/12/2022
-      hash: 066eebd5973eb5f4322acf054f2628ba75cc329b62e2d9d3ec23166a825c98af
+      date: 30/05/2024
+      hash: c0216dc45d0b2a0a2d04a3ce264fc1f023de3bff9238d10db155fe539799d602
     departementaux:
       url: https://www.data.gouv.fr/fr/datasets/r/601ef073-d986-4582-8e1a-ed14dc857fba
       extension: .csv
-      date: 16/12/2022
-      hash: 23bfee05059ffc1a838bf0419b9e8b0977bd04c1aeb9260b24bc2e6811f43151
+      date: 30/05/2024
+      hash: 287466bdc721aeb2f523675f279ba982b2025f632c323abbf9626435f842920e
     regionaux:
       url: https://www.data.gouv.fr/fr/datasets/r/430e13f9-834b-4411-a1a8-da0b4b6e715c
       extension: .csv
-      date: 16/12/2022
-      hash: eb458022ff2be5ec0b3def38d0cf370223be1f15927fad982e5ab850cfb09348
+      date: 30/05/2024
+      hash: 2a9ecc5ee02fad4d1f7f96f2347c76f9fc4281b23dd8fa7cafa454159d64ba43
     europeens:
       url: https://www.data.gouv.fr/fr/datasets/r/70957bb0-f19f-40c5-b97b-90b3d4d71f9e
       extension: .csv
-      date: 16/12/2022
-      hash: 2d3015946e00dadaf114b03a0444a67a2f703379df5e7e97dbbf5dc6dce1fb2c
+      date: 30/05/2024
+      hash: 2358b0cce1c46dfa4998d538e0746518fc720c1fa97af7be1f731114af10188d
     uniques:
       url: https://www.data.gouv.fr/fr/datasets/r/a595be27-cfab-4810-b9d4-22e193bffe35
       extension: .csv
-      date: 16/12/2022
-      hash: d
+      date: 30/05/2024
+      hash: 946ada2ed9aaa0f8983c2d50f2bb88a33c02d99ea81f9027a6a295efd934c4fa
 
   resultats_electoraux:
     presidentielles:
@@ -190,17 +190,18 @@ interieur:
 
 laposte:
   codes_postaux:
-    url: https://datanova.laposte.fr/explore/dataset/laposte_hexasmal/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%2C
+    url: https://datanova.laposte.fr/data-fair/api/v1/datasets/laposte-hexasmal/data-files/019HexaSmal.csv
     extension: .csv
-    hash: a50eb16c79f0c11b69eb380bb6050c24494a6457065f9b4ea5f6a416bcc311d1
+    hash: c87ee6c2704d47b30202e932938c209dfa47c2540cb3efdc7ff55c2d55559ad0
 
 
 premier_ministre:
   annuaire_administration:
-    url: http://lecomarquage.service-public.fr/donnees_locales_v2/all_latest.tar.bz2
+    url: https://lecomarquage.service-public.fr/donnees_locales_v4/all_latest.tar.bz2
     extension: .tar.bz2
-    hash: 7e11168e475050537b8847d26f096073558d77835b9e2ee843ac4f7e72b832bc
-    extraire: []
+    hash: de55a5429ad5d3f988a49f25a91034300fea29a3a6128db89c848a3a12c787d4
+    extraire:
+      - 2024-05-31_060016-data.gouv_local.json
 
 
 conseil_constitutionnel:
@@ -212,7 +213,7 @@ conseil_constitutionnel:
 assemblee_nationale:
   deputes:
     url: http://data.assemblee-nationale.fr/static/openData/repository/16/amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes.json.zip
-    hash: 4ff07e13d627f854574dc086234ff414b1563bc0386f9cc0f5159969c042bf9c
+    hash: a7a09edcec8091fb9e7a9dd0379466100e8bb9bd9084d77dc28ebf7b8aa97f26
 
 
 sciences_po:

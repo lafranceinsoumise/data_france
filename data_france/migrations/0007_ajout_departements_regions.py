@@ -6,13 +6,15 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("data_france", "0006_search"),
     ]
 
     operations = [
-        migrations.RemoveField(model_name="commune", name="code_departement",),
+        migrations.RemoveField(
+            model_name="commune",
+            name="code_departement",
+        ),
         migrations.AddField(
             model_name="epci",
             name="geometry",
