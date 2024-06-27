@@ -121,6 +121,7 @@ def task_preparer():
                         "src": src,
                         "base_filenames": base_filenames,
                         "delimiter": source.delimiter,
+                        "encoding": source.encoding,
                     },
                 ),
             ],

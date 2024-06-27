@@ -1,13 +1,17 @@
 """
-Ce fichier comprend la routine permettant de nettoyer les fichiers électoraux des scrutins de 2017 et 2021
+Ce fichier comprend la routine permettant de nettoyer les fichiers électoraux des scrutins de 2017 et 2022
 """
 
 import csv
 import pandas as pd
 
 fixed_headers = {
+    "Code localisation": None,
+    "Libellé localisation": None,
     "Code du département": "departement",
+    "Code département": "departement",
     "Libellé du département": None,
+    "Libellé département": None,
     "Libellé de la section électorale": None,
     "Code de la circonscription": "circonscription",
     "Libellé de la circonscription": None,
@@ -15,23 +19,34 @@ fixed_headers = {
     "Libellé du canton": None,
     "Libellé du canton": None,
     "Code de la commune": "commune",
+    "Code commune": "code_commune",
     "Libellé de la commune": None,
+    "Libellé commune": None,
     "Code du b.vote": "bureau",
     "Code B.Vote": "bureau",
+    "Code BV": "bureau",
     "Inscrits": "inscrits",
     "Abstentions": None,
     "% Abs/Ins": None,
+    "% Abstentions": None,
     "Votants": "votants",
     "% Vot/Ins": None,
+    "% Votants": None,
     "Blancs": "blancs",
     "% Blancs/Ins": None,
+    "% Blancs/inscrits": None,
     "% Blancs/Vot": None,
+    "% Blancs/votants": None,
     "Nuls": None,
     "% Nuls/Ins": None,
+    "% Nuls/inscrits": None,
     "% Nuls/Vot": None,
+    "% Nuls/votants": None,
     "Exprimés": "exprimes",
     "% Exp/Ins": None,
     "% Exp/Vot": None,
+    "% Exprimés/inscrits": None,
+    "% Exprimés/votants": None,
     "Etat saisie": None,
 }
 """
@@ -41,7 +56,8 @@ Comment renommer les entêtes ?
 repeated_headers = {
     "N°Panneau": "numero_panneau",
     "N.Pan.": "numero_panneau",
-    "N°Liste": "numero_panneau",  # N°Liste
+    "N°Liste": "numero_panneau",
+    "Numéro de panneau": "numero_panneau",
     "Binôme": "binome",
     "Sexe": "sexe",
     "Nom": "nom",
@@ -49,16 +65,22 @@ repeated_headers = {
     "Nuance": "nuance",
     "Code Nuance": "nuance",
     "Nuance Liste": "nuance",
-    "Libellé Abrégé Liste": "liste_court",  # Libellé Abrégé Liste
-    "Libellé Etendu Liste": "liste_long",  # Libellé Etendu Liste
+    "Nuance liste": "nuance",
+    "Libellé Abrégé Liste": "liste_court",
+    "Libellé abrégé de liste": "liste_court",
+    "Libellé Etendu Liste": "liste_long",
+    "Libellé de liste": "liste_long",
     "Liste": "liste_long",
-    "Nom Tête de Liste": "tete_liste",  # Nom Tête de Liste
+    "Nom Tête de Liste": "tete_liste",
     "Voix": "voix",
+    "% Voix/inscrits": None,
+    "% Voix/exprimés": None,
     "% Voix/Ins": None,
     "% Voix/Exp": None,
     "Sièges / Elu": None,
     "Sièges Secteur": None,
     "Sièges CC": None,
+    "Sièges": None,
 }
 
 
@@ -80,7 +102,6 @@ transforms = {
     "tete_liste": "category",
 }
 
-identifiants = ["departement", "commune", "bureau"]
 population = ["inscrits", "votants", "exprimes", "circonscription"]
 par_candidat = [
     "numero_panneau",
@@ -94,15 +115,12 @@ par_candidat = [
 ]
 
 
-def read_file(src, delimiter=";"):
-    with open(src, "r", encoding="latin1", newline="") as in_file:
+def read_file(src, delimiter=";", encoding="utf-8"):
+    with open(src, "r", encoding=encoding, newline="") as in_file:
         r = csv.reader(in_file, delimiter=delimiter)
 
         headers = next(r)
-
-        for h in headers:
-            if h not in fixed_headers and h not in repeated_headers:
-                raise RuntimeError(f"Champ '{h}' inconnu dans {src}")
+        headers = [h.rstrip(" 0123456789") for h in headers]
 
         common_fields = [h for h in headers if h in fixed_headers]
 
@@ -111,6 +129,12 @@ def read_file(src, delimiter=";"):
         for h in headers:
             if h in repeated_headers and h not in candidate_specific_fields:
                 candidate_specific_fields.append(h)
+
+        unknown_fields = set(headers).difference(
+            common_fields + candidate_specific_fields
+        )
+        if unknown_fields:
+            raise ValueError(f"Champs inconnus : {', '.join(unknown_fields)}")
 
         fields = [
             fixed_headers[field]
@@ -159,17 +183,20 @@ def read_file(src, delimiter=";"):
     return df
 
 
-def clean_results(src, base_filenames, delimiter=";"):
+def clean_results(src, base_filenames, delimiter=";", encoding="utf-8"):
     base_filename = base_filenames[0]
 
     df = read_file(src, delimiter)
 
-    df["code"] = (
-        df["departement"].str.zfill(2)
-        + df["commune"].str.zfill(3)
-        + "-"
-        + df["bureau"].str.zfill(4)
-    )
+    if "code_commune" in df.columns:
+        df["code"] = df["code_commune"].str.zfill(5) + "-" + df["bureau"].str.zfill(4)
+    else:
+        df["code"] = (
+            df["departement"].str.zfill(2)
+            + df["commune"].str.zfill(3)
+            + "-"
+            + df["bureau"].str.zfill(4)
+        )
 
     df.groupby(["code"]).agg(
         {f: "first" for f in population if f in df.columns}

@@ -89,6 +89,7 @@ class Source:
     date: Date = None
     extension: str = None
     delimiter: str = ";"
+    encoding: str = "utf-8"
     corrected: str = None
     extraire: Union[str, List[str]] = None
 

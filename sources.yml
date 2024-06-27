@@ -89,61 +89,77 @@ interieur:
         date: 09/2015
         extension: .txt
         hash: baf999ed0d5aee3cfa3192e152f34db4b0e77af72bad18af4853c4b7b958448e
+        encoding: latin1
       2017:
         tour1:
           url: https://www.data.gouv.fr/s/resources/election-presidentielle-des-23-avril-et-7-mai-2017-resultats-definitifs-du-1er-tour-par-bureaux-de-vote/20170427-100955/PR17_BVot_T1_FE.txt
           date: 04/2017
           hash: 1eb1e4358a8af59ebc86ff7e0e4a2ee175f6cf516e4598cd955193064fc91e6a
+          encoding: latin1
         tour2:
           url: https://www.data.gouv.fr/s/resources/election-presidentielle-des-23-avril-et-7-mai-2017-resultats-definitifs-du-2nd-tour-par-bureaux-de-vote/20170511-093541/PR17_BVot_T2_FE.txt
           date: 05/2017
           hash: 2b6137b64957b9bfff24436cf859aad15e8b155b837b182eebff71c21fc82798
+          encoding: latin1
       2022:
         tour1:
           url: https://www.data.gouv.fr/fr/datasets/r/79b5cac4-4957-486b-bbda-322d80868224
           extension: .txt
           date: 04/2022
           hash: d878f33c4c1488188af0ca0eee9ff5a3116ea88c44979a1538ff43c663831624
+          encoding: latin1
         tour2:
           url: https://www.data.gouv.fr/fr/datasets/r/4dfd05a9-094e-4043-8a19-43b6b6bbe086
           extension: .txt
           date: 04/2022
           hash: c2ead8aaa3501db95bc887ef949504c914b66d81b2d46313bbfcc5fdeea0bff3
+          encoding: latin1
     legislatives:
       2012:
           url: https://www.data.gouv.fr/fr/datasets/r/32981cf5-2560-48c7-a355-1acdf33bd504
           date: 09/2015
           extension: .txt
           hash: 12dc6f0b56ea1cbe799b6ca5c01cbd028d7820b8ed64c7c29347cd11a6fca60f
+          encoding: latin1
       2017:
         tour1:
           url: https://www.data.gouv.fr/s/resources/elections-legislatives-des-11-et-18-juin-2017-resultats-par-bureaux-de-vote-du-1er-tour/20170613-100441/Leg_2017_Resultats_BVT_T1_c.txt
           date: 06/2017
           hash: f0e0d5149af2a52b843712329889f607efd589dd4836f0ec1334eb8b164e5fdb
+          encoding: latin1
         tour2:
           url: https://www.data.gouv.fr/s/resources/elections-legislatives-des-11-et-18-juin-2017-resultats-du-2nd-tour-par-bureaux-de-vote/20170620-094954/Leg_2017_Resultats_BVT_T2_c.txt
           date: 06/2017
           hash: 2d898b6bebcc401b79fe3ebbc0deb37d5dcc32c11ac3f5e8be0b0f006ee9eb8e
+          encoding: latin1
       2022:
         tour1:
           url: https://www.data.gouv.fr/fr/datasets/r/2632e5e7-8deb-49f7-bebf-e6ea0ec3d253
           date: 13/06/2022
           extension: .txt
           hash: 237c89b199d04137350358a6fd0ce81d8189e10ff1ce5c7e1616eef78266b84f
+          encoding: latin1
         tour2:
           url: https://www.data.gouv.fr/fr/datasets/r/cada247a-6528-44e7-8308-30c0c335a4b2
           date: 20/06/2022
           extension: .txt
           hash: 6fea869e277c871fa862428fc718c8b2dc8f08c96a3db1b7d28074c064271993
+          encoding: latin1
     europeennes:
+      2024:
+        url: https://static.data.gouv.fr/resources/resultats-des-elections-europeennes-du-9-juin-2024/20240613-154804/resultats-definitifs-par-bureau-de-vote.csv
+        date: 13/06/2024
+        hash: 89e879541dcb7e77f79c38b2e1976ba401f7b9891dd98f2569e53d06245c8510
       2019:
         url: https://static.data.gouv.fr/resources/resultats-des-elections-europeennes-2019/20190531-144007/resultats-definitifs-par-bureau-de-vote.txt
         date: 31/05/2019
         hash: a54a77872089f893145b9bad4d3d8479220bf60efa0fc3d0a81f54ede4d12208
+        encoding: latin1
       2014:
         url: https://www.data.gouv.fr/s/resources/elections-europeennes-2014-resultats-par-bureaux-de-vote/20150925-112120/ER14_BVOT.txt
         date: 25/09/2015
         hash: af1840b437db8a154f5b286c18a45d7534238ab8b9e73b7e843d8655d1b22e32
+        encoding: latin1
     municipales:
       2020:
         tour1:
@@ -152,34 +168,41 @@ interieur:
           hash: ab2c17eccd3fc0358db8007a7faceb3697e51af847c2aada8018669a4e167071
           delimiter: "\t"
           corrected: ".csv"
+          encoding: latin1
         tour2:
           url: https://static.data.gouv.fr/resources/municipales-2020-resultats-2nd-tour/20200629-192438/resultats-par-niveau-burvot-t2-france-entiere.txt
           date: 30/06/2020
           hash: 07e1c3e1a547094e16250d3b659a2de19ea57e377ef0b586d6dbc6df27609c45
+          encoding: latin1
       2014:
         url: https://www.data.gouv.fr/s/resources/elections-municipales-2014-resultats-par-bureaux-de-vote/20150925-122128/MN14_Bvot_T1T2.txt
         date: 25/09/2015
         hash: fe8ae42befb8e006dce1d959bee237449c9f39506c940e68c9b49a20f4363570
+        encoding: latin1
     regionales:
       2021:
         tour1:
           url: https://static.data.gouv.fr/resources/elections-regionales-2021-resultats-du-1er-tour-1/20210713-100715/reg-resultats-par-niveau-burvot-t1-france-entiere-2021-07-12-18h44.txt
           date: 22/06/2021
           hash: 71a3c1e21a99452a7df5b1be6ba2677fae47ead876322a1d613c3e90648199bf
+          encoding: latin1
         tour2:
           url: https://static.data.gouv.fr/resources/elections-regionales-2021-resultats-du-2eme-tour/20210713-100020/regresultats-par-niveau-burvot-t2-france-entiere-2021-07-12-09h06.txt
           date: 01/07/2021
           hash: 9f7cea21779650c5f788b0fb2a0d439aef5ee3a0c096b99404d923ca88bca594
+          encoding: latin1
     departementales:
       2021:
         tour1:
           url: https://static.data.gouv.fr/resources/elections-departementales-2021-resultats-du-1er-tour/20210622-165822/resultats-par-niveau-burvot-t1-france-entiere.txt
           hash: 7b135ed4a6500e6aa16e63af3c5076aa8d8159cf1aa90b742a5dc0c12dd1dce5
           date: 22/06/2021
+          encoding: latin1
         tour2:
           url: https://static.data.gouv.fr/resources/elections-departementales-2021-resultats-du-2eme-tour/20210713-101218/dep-resultats-par-niveau-burvot-t2-france-entiere-2021-07-12-09h49.txt
           hash: 4e0f4f658b5ce04b9c20b4dc38c46eda3fdc74407b0f244f33fae29bc799eac8
           date: 01/07/2021
+          encoding: latin1
     referendums:
       2005:
         url: https://www.data.gouv.fr/fr/datasets/r/8b1f3e0e-001f-414c-9bf0-7b5a9219e26a
@@ -187,12 +210,13 @@ interieur:
         hash: c93bb1e0711db91d0d1e25322912ba6c7eb3df32d11bc4df63e6ac3cf1727911
         extension: .txt
         corrected: .csv
+        encoding: latin1
 
 laposte:
   codes_postaux:
-    url: https://datanova.laposte.fr/explore/dataset/laposte_hexasmal/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%2C
+    url: https://datanova.laposte.fr/data-fair/api/v1/datasets/laposte-hexasmal/data-files/019HexaSmal.csv
     extension: .csv
-    hash: a50eb16c79f0c11b69eb380bb6050c24494a6457065f9b4ea5f6a416bcc311d1
+    hash: c87ee6c2704d47b30202e932938c209dfa47c2540cb3efdc7ff55c2d55559ad0
 
 
 premier_ministre:
