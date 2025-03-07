@@ -629,16 +629,16 @@ def importer_donnees(using=None):
         )
 
         import_standard(
-            "circonscriptions_consulaires.csv.lzma",
-            "data_france_circonscriptionconsulaire",
-            "Chargement des circonscriptions consulaires",
+            "circonscriptions_legislatives.csv.lzma",
+            "data_france_circonscriptionlegislative",
+            "Chargement des circonscriptions législatives",
             using=using,
         )
 
         import_standard(
-            "circonscriptions_legislatives.csv.lzma",
-            "data_france_circonscriptionlegislative",
-            "Chargement des circonscriptions législatives",
+            "circonscriptions_consulaires.csv.lzma",
+            "data_france_circonscriptionconsulaire",
+            "Chargement des circonscriptions consulaires",
             using=using,
         )
 
