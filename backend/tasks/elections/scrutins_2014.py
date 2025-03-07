@@ -50,12 +50,13 @@ def clean_results(
     src,
     base_filenames,
     delimiter,
+    encoding="latin1"
 ):
     if isinstance(base_filenames, (str, Path)):
         base_filenames = [base_filenames]
 
     # trouver la première ligne
-    with open(src, "r", encoding="latin1") as f:
+    with open(src, "r", encoding=encoding) as f:
         for i, line in enumerate(f):
             if delimiter in line:
                 nb_champs = len(line.split(delimiter))

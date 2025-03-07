@@ -2,7 +2,7 @@ insee:
   cog:
     url: https://www.insee.fr/fr/statistiques/fichier/7766585/cog_ensemble_2024_csv.zip
     date: 17/02/2023
-    hash: ee23de694716c5d38a93c151be335790da6e8590fdff495dfafce5440da55fb
+    hash: 9842beab5eeb292febd4ad0dc46a3dd05b929794a42357447426511739e9abff
     extraire:
       - v_canton_2024.csv
       - v_commune_2024.csv
@@ -13,7 +13,7 @@ insee:
 
   iris:
     contours:
-      url: ftp://Contours_IRIS_ext:ao6Phu5ohJ4jaeji@ftp3.ign.fr/CONTOURS-IRIS_2-1__SHP__FRA_2021-01-01.7z
+      url: https://data.geopf.fr/telechargement/download/CONTOURS-IRIS/CONTOURS-IRIS_2-1__SHP__FRA_2021-01-01/CONTOURS-IRIS_2-1__SHP__FRA_2021-01-01.7z
       date: 01/01/2021
       hash: f0bf22ce2335f83fcf2ad4692087ccda5a57db41d2c33f61fba7928087fcfb49
       extraire: []
@@ -37,7 +37,7 @@ insee:
     epci:
       url: https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2023.zip
       date: 01/2023
-      hash: 3b9b9c764cab9359f7bca7d05fc0b15e91b205ab837f46e2b03f50a7af367f1d
+      hash: 65e228464d18b45249f642690848b687a1bbc2b5399e18475b938275b475d868
       extraire: xlsx
 
 ign:
@@ -55,32 +55,32 @@ interieur:
       url: https://www.data.gouv.fr/fr/datasets/r/d5f400de-ae3f-4966-8cb6-a85c70c6c24a
       extension: .csv
       date: 16/12/2022
-      hash: 4b1b190dd29fc3c805031855cd770f378fbeb56359ce70c5f2cb3400c586ea50
+      hash: 985f347f2b780cb9d75be898bccbe51d06d8ba8be1c78786946fad1c085c0532
     epci:
       url: https://www.data.gouv.fr/fr/datasets/r/41d95d7d-b172-4636-ac44-32656367cdc7
       extension: .csv
       date: 16/12/2022
-      hash: 066eebd5973eb5f4322acf054f2628ba75cc329b62e2d9d3ec23166a825c98af
+      hash: d9681ed31dcd4c4087565a0019d70cf09e8cfb51dcda986d7c365f9c994cb195
     departementaux:
       url: https://www.data.gouv.fr/fr/datasets/r/601ef073-d986-4582-8e1a-ed14dc857fba
       extension: .csv
       date: 16/12/2022
-      hash: 23bfee05059ffc1a838bf0419b9e8b0977bd04c1aeb9260b24bc2e6811f43151
+      hash: de28682d0232a9b23255e7f9f4188289be22a06a672e06a496745033ae45f5b5
     regionaux:
       url: https://www.data.gouv.fr/fr/datasets/r/430e13f9-834b-4411-a1a8-da0b4b6e715c
       extension: .csv
       date: 16/12/2022
-      hash: eb458022ff2be5ec0b3def38d0cf370223be1f15927fad982e5ab850cfb09348
+      hash: 11d7b97a012cec7400a7d50e854eea3af2b0e9ad3981087b31c7c6cab96dda80
     europeens:
       url: https://www.data.gouv.fr/fr/datasets/r/70957bb0-f19f-40c5-b97b-90b3d4d71f9e
       extension: .csv
       date: 16/12/2022
-      hash: 2d3015946e00dadaf114b03a0444a67a2f703379df5e7e97dbbf5dc6dce1fb2c
+      hash: 94945bc85d8d2defebe305e0586e3ab35d1f2601ffdf6885688f9325981d0d77
     uniques:
       url: https://www.data.gouv.fr/fr/datasets/r/a595be27-cfab-4810-b9d4-22e193bffe35
       extension: .csv
       date: 16/12/2022
-      hash: d
+      hash: 617c90adec800c0446060d57871e5e9f1a3d44a074506497c2f78cde838c286b
 
   resultats_electoraux:
     presidentielles:
@@ -216,14 +216,14 @@ laposte:
   codes_postaux:
     url: https://datanova.laposte.fr/data-fair/api/v1/datasets/laposte-hexasmal/data-files/019HexaSmal.csv
     extension: .csv
-    hash: c87ee6c2704d47b30202e932938c209dfa47c2540cb3efdc7ff55c2d55559ad0
+    hash: 68744d7153dd14b21441845b1af3c0997806d3a8e74ebcee3604cf3016050b10
 
 
 premier_ministre:
   annuaire_administration:
     url: http://lecomarquage.service-public.fr/donnees_locales_v2/all_latest.tar.bz2
     extension: .tar.bz2
-    hash: 7e11168e475050537b8847d26f096073558d77835b9e2ee843ac4f7e72b832bc
+    hash: 55f7d9e99b8e2d4e0e193b2f0275501e6d9c1ebd29cadbea6a0da48a8587e3e0
     extraire: []
 
 
@@ -236,7 +236,7 @@ conseil_constitutionnel:
 assemblee_nationale:
   deputes:
     url: http://data.assemblee-nationale.fr/static/openData/repository/16/amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes.json.zip
-    hash: 4ff07e13d627f854574dc086234ff414b1563bc0386f9cc0f5159969c042bf9c
+    hash: 0a01f560df6ef4c83da76e5d76f0e1ed6a5b17d73bcad93656310a7d7669875d
 
 
 sciences_po:

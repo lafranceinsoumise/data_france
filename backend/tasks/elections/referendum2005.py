@@ -22,9 +22,9 @@ champs = {
 population = ["inscrits", "votants", "exprimes"]
 
 
-def clean_results(src, base_filenames, delimiter):
+def clean_results(src, base_filenames, delimiter, encoding="utf-8"):
     base_filename = base_filenames[0]
-    with open(src, "r", encoding="latin1") as f:
+    with open(src, "r", encoding=encoding) as f:
         for i, line in enumerate(f):
             if delimiter in line:
                 break

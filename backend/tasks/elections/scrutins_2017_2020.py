@@ -186,7 +186,7 @@ def read_file(src, delimiter=";", encoding="utf-8"):
 def clean_results(src, base_filenames, delimiter=";", encoding="utf-8"):
     base_filename = base_filenames[0]
 
-    df = read_file(src, delimiter)
+    df = read_file(src, delimiter, encoding)
 
     if "code_commune" in df.columns:
         df["code"] = df["code_commune"].str.zfill(5) + "-" + df["bureau"].str.zfill(4)
