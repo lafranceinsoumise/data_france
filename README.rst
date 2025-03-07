@@ -126,3 +126,9 @@ Autres remarques
 
 **ATTENTION** : Ce paquet ne fonctionne que si votre projet Django utilise
 **PostGIS** car il utilise certaines fonctionnalités propres à PostgreSQL.
+
+
+Dev
+~~~
+Installer le projet `poetry install`
+Télécharger les sources `poetry run doit preparer`
