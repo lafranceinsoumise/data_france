@@ -49,7 +49,7 @@ def extract_singlefile(archive_path, dest, expected_ext):
 
 def extract_archive(archive_path, dest_prefix: Path, targets):
     target_args = [f'"{t}"' for t in targets]
-    return f"7z e '-o{dest_prefix}' '{archive_path}' {' '.join(target_args)}"
+    return f"7z e -y '-o{dest_prefix}' '{archive_path}' {' '.join(target_args)}"
 
 
 def remove_last(it, n=1):

@@ -8,7 +8,7 @@ insee:
       - v_commune_2024.csv
       - v_ctcd_2024.csv
       - v_departement_2024.csv
-      - v_mvtcommune_2024.csv
+      - v_mvt_commune_2024.csv
       - v_region_2024.csv
 
   iris:
@@ -221,9 +221,9 @@ laposte:
 
 premier_ministre:
   annuaire_administration:
-    url: http://lecomarquage.service-public.fr/donnees_locales_v2/all_latest.tar.bz2
+    url: https://www.data.gouv.fr/fr/datasets/r/73302880-e4df-4d4c-8676-1a61bb997f3d
     extension: .tar.bz2
-    hash: 55f7d9e99b8e2d4e0e193b2f0275501e6d9c1ebd29cadbea6a0da48a8587e3e0
+    hash: 634bea48b226a910f58324980e1ef2ecc76eeeddd78751b68ca2f746738bfa10
     extraire: []
 
 

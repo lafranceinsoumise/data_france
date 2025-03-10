@@ -578,9 +578,12 @@ def generer_fichiers_codes_postaux(
 
     codes_postaux = pd.read_csv(
         codes_postaux,
-        dtype={"Code_commune_INSEE": str, "Code_postal": str},
-        usecols=["Code_commune_INSEE", "Code_postal"],
+        dtype={"#Code_commune_INSEE": str, "Code_postal": str},
+        usecols=["#Code_commune_INSEE", "Code_postal"],
+        encoding="latin1",
+        sep=";"
     ).drop_duplicates()
+    codes_postaux = codes_postaux.rename(columns={"#Code_commune_INSEE": "Code_commune_INSEE"})
 
     # La commune Les Trois Lacs a changé de code INSEE au 01/01/2021 et ce n'est
     # pas pris en compte par la poste, donc modification manuelle
@@ -918,7 +921,7 @@ def generer_fichier_elus_regionaux(source, ctu_path, dest):
             code_dep = elu.pop("code_sec")
             if code_dep == "75":
                 code_dep = "75C"
-            elif code_dep[-1] not in ("E", "M"):
+            elif code_dep and code_dep[-1] not in ("E", "M"):
                 code_dep = f"{code_dep}D"
 
             for f in [
