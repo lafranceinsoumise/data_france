@@ -1,6 +1,7 @@
 import os
 import json
 import csv
+import shutil
 import subprocess
 import tempfile
 from functools import reduce
@@ -219,7 +220,7 @@ def decompresser_admin_express(archive, dest_dir):
         with TemporaryDirectory() as d:
             archive.extract(d, targets=[str(f) for f in extract])
             for f in extract:
-                (Path(d) / f).rename(dest_dir / f.name)
+                shutil.move(Path(d) / f, dest_dir / f.name)
 
 
 def extraire_geometries_communes(shp_config, dest_metropole, dest_outremer):
