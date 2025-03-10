@@ -41,6 +41,7 @@ python = ">=3.10,<4.0"
 django = "^4.2"
 django-countries = ">=7.3.1"
 psycopg2 = ">=2.9.5"
+openpyxl = "^3.1.5"
 
 [tool.poetry.group.dev.dependencies]
 dotenv = "^0.9.9"
@@ -50,7 +51,6 @@ toml = "^0.10.2"  # read TOML configuration
 pandas = "^2.2.3"  # dataframe library
 pyarrow = "^15.0.2"  # read and write feather files
 xlrd = "^2.0.1"  # read old excel .xls format
-openpyxl = "^3.0.10"  # read now excel .xlsx format
 fiona = "^1.8.21"  # open shapefiles
 lxml = "^4.9.1"  # open xml files
 beautifulsoup4 = "^4.11.1"  # parse html

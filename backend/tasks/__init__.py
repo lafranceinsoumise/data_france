@@ -12,6 +12,19 @@ from .parrainages import *
 from .consulaires import *
 from .assemblee_nationale import *
 
+# Patch RGB color because openpyxl does not support old XLS file with color
+from openpyxl.styles.colors import WHITE, RGB
+__old_rgb_set__ = RGB.__set__
+
+def __rgb_set_fixed__(self, instance, value):
+    try:
+        __old_rgb_set__(self, instance, value)
+    except ValueError as e:
+        if e.args[0] == 'Colors must be aRGB hex values':
+            __old_rgb_set__(self, instance, WHITE)  # Change color here
+
+RGB.__set__ = __rgb_set_fixed__
+
 
 def task_telecharger():
     for source in SOURCES:
@@ -51,7 +64,6 @@ def task_decompresser():
                     (create_folder, (dest_prefix,)),
                     extract_archive(archive_path, dest_prefix, source.extraire),
                 ]
-
             yield {
                 "name": source.path,
                 "file_dep": [archive_path],
