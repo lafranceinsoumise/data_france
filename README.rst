@@ -130,5 +130,10 @@ Autres remarques
 
 Dev
 ~~~
+
+* Vous devez avoir `geo2topo, toposimplify, topo2geo` d'installer sur votre machine
+https://github.com/topojson/topojson
+
+
 Installer le projet `poetry install`
 Télécharger les sources `poetry run doit preparer`

@@ -3,11 +3,12 @@ import json
 import re
 import sys
 import tarfile
+from email.policy import default
 
 import pandas as pd
 from doit.tools import create_folder
-from lxml import etree
 from shapely.geometry import Point
+from glom import glom, Coalesce, T
 
 from data_france.data import VILLES_PLM
 from data_france.utils import TypeNom
@@ -83,79 +84,72 @@ def task_post_traitement_mairies():
 def extraire_organismes(tar_path, dest_path, path_regex):
     with tarfile.open(tar_path, "r:bz2") as tar, open(dest_path, "w") as dest:
         while mem := tar.next():
-            if not mem.isfile() or not path_regex.search(mem.name):
-                continue
-
-            f = tar.extractfile(mem)
-            tree = etree.parse(f)
-            root = tree.getroot()
-
-            json.dump(organisme_xml_to_json(root), dest, indent=None)
-            dest.write("\n")
-
-
-def organisme_xml_to_json(tree):
-    res = {"id": tree.attrib["id"], "code": tree.attrib["codeInsee"]}
-
-    for elem in tree:
-        if elem.tag == "Nom":
-            res["Nom"] = elem.text
-        elif elem.tag == "Adresse":
-            res["Adresse"] = extraire_adresse(elem)
-        elif elem.tag == "CoordonnéesNum":
-            res["Contact"] = extraires_contacts(elem)
-        elif elem.tag == "Ouverture":
-            res["Ouvert"] = [
-                [
-                    p.attrib["début"],
-                    p.attrib["fin"],
-                    [[h.attrib["début"], h.attrib["fin"]] for h in p if h.attrib],
-                ]
-                for p in elem
-            ]
-        elif elem.tag == "EditeurSource":
-            if elem.text and elem.text != DEFAUT_EDITEUR:
-                res["Editeur"] = elem.text
-        elif elem.tag in ["Commentaire"]:
-            res[elem.tag] = elem.text
-        else:
-            sys.stderr.write(f"Tag inconnu: {elem.tag} ({tree.attrib['id']})\n")
-
-    return res
+            if mem.isfile() and mem.name.endswith("gouv_local.json"):
+                file = tar.extractfile(mem)
+                gouv_local = json.load(file)
+                services = gouv_local["service"]
+                for service in services:
+                    pivot = glom(service, 'pivot.0.type_service_local', default='')
+                    if pivot == "mairie":
+                        json.dump(annuaire_service_to_local_service(service), dest, indent=None)
+                        dest.write("\n")
 
 
-def extraires_contacts(contacts_tree):
-    contacts = {}
-    for elem in contacts_tree:
-        contacts[elem.tag] = elem.text if elem.text else elem.attrib["détail"]
-    return contacts
+def annuaire_service_to_local_service(service):
+    local_service = {}
+
+    local_service["id"] = service["ancien_code_pivot"]
+    local_service["code"] = glom(service, Coalesce("code_insee_commune", "pivot.0.code_insee_commune.0", skip="", default=""))
+    local_service["Nom"] = service["nom"]
+    local_service["Adresse"] = service_extraire_adresse(service)
+    local_service["Contact"] = service_extraire_contact(service)
+    local_service["Ouvert"] = service_extraire_plage_ouvert(service)
+
+    return local_service
 
 
-def extraire_adresse(addr_tree):
-    adresse = {"Lignes": []}
+def service_extraire_plage_ouvert(service):
+    return [
+        [day["nom_jour_debut"], day["nom_jour_fin"], [
+            [day[f"valeur_heure_debut_{i}"],day[f"valeur_heure_fin_{i}"]
+        ] for i in range(1, 3)]]
+        for day in service["plage_ouverture"]
+    ]
 
-    for elem in addr_tree:
-        if elem.tag == "Ligne":
-            adresse["Lignes"].append(elem.text)
-        elif elem.tag == "Localisation":
-            parts = {e.tag: e.text for e in elem}
-            try:
-                adresse["Localisation"] = [
-                    float(parts["Longitude"]),
-                    float(parts["Latitude"]),
-                    int(parts["Précision"]),
-                ]
-            except TypeError:
-                # une mairie avec des coordonnées vides
-                pass
-        elif elem.tag == "Accessibilité":
-            adresse["Accessibilité"] = {"type": elem.attrib["type"]}
-            if elem.text:
-                adresse["Accessibilité"]["détail"] = elem.text
-        else:
-            adresse[elem.tag] = elem.text
+def service_extraire_contact(service):
+    spec = {
+        "Téléphone": (Coalesce("telephone.0.valeur", default="")),
+        "Email": (Coalesce("adresse_courriel.0", default="")),
+        "Url": (Coalesce("site_internet.0.valeur", default=""))
+    }
 
-    return adresse
+    return glom(service, spec)
+
+def service_extraire_adresse(service):
+
+    latitude = glom(service, (
+        Coalesce("adresse.0.latitude", skip="", default=0.0),
+        float
+    ))
+    longitude = glom(service, (
+        Coalesce("adresse.0.longitude", skip="", default=0.0),
+        float
+    ))
+    spec = {
+        "Lignes": "adresse.0.numero_voie",
+        "CodePostal": "adresse.0.code_postal",
+        "NomCommune": "adresse.0.nom_commune",
+        "Accessibilité": ("adresse.0", lambda a: {"type": a["accessibilite"], "détail": a["note_accessibilite"]})
+    }
+    localisation = []
+    if latitude != 0 and longitude != 0:
+        localisation = [longitude, latitude]
+
+    return {
+        **glom(service, spec, default={}),
+        "Localisation": localisation
+    }
+
 
 
 # Les cas d'erreurs concernés sont les suivants :
@@ -370,16 +364,20 @@ def post_traitement_mairies(source, corr_sous_communes, dest):
         for ligne in f:
             mairie = json.loads(ligne)
 
-            adresse = (
-                "\n".join(
-                    [
-                        *mairie["Adresse"]["Lignes"],
-                        f"{mairie['Adresse']['CodePostal']} {mairie['Adresse']['NomCommune']}",
-                    ]
+            try:
+                adresse = (
+                    "\n".join(
+                        [
+                            mairie["Adresse"]["Lignes"],
+                            f"{mairie['Adresse']['CodePostal']} {mairie['Adresse']['NomCommune']}",
+                        ]
+                    )
+                    if mairie["Adresse"]
+                    else ""
                 )
-                if mairie["Adresse"]
-                else ""
-            )
+            except KeyError:
+                print("KEYERROR+=====================++++++++++")
+                print(mairie)
 
             matches = commune_matcher(mairie)
 

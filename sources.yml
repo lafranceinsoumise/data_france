@@ -216,14 +216,14 @@ laposte:
   codes_postaux:
     url: https://datanova.laposte.fr/data-fair/api/v1/datasets/laposte-hexasmal/data-files/019HexaSmal.csv
     extension: .csv
-    hash: 68744d7153dd14b21441845b1af3c0997806d3a8e74ebcee3604cf3016050b10
+    hash: 2f46857353904e4e6091a121abbe54dbbf1eaf502f7e691c34e33a0e16e3306b
 
 
 premier_ministre:
   annuaire_administration:
     url: https://www.data.gouv.fr/fr/datasets/r/73302880-e4df-4d4c-8676-1a61bb997f3d
     extension: .tar.bz2
-    hash: 634bea48b226a910f58324980e1ef2ecc76eeeddd78751b68ca2f746738bfa10
+    hash: ef4e0f1a805d11a6d0cb0a679c1aff5007f3c5357a1e5920a6aaea1de79751d8
     extraire: []
 
 
