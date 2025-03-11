@@ -110,9 +110,9 @@ def annuaire_service_to_local_service(service):
 
 def service_extraire_plage_ouvert(service):
     return [
-        [day["nom_jour_debut"], day["nom_jour_fin"], [
+        [day["nom_jour_debut"].lower(), day["nom_jour_fin"].lower(), [
             [day[f"valeur_heure_debut_{i}"],day[f"valeur_heure_fin_{i}"]
-        ] for i in range(1, 3)]]
+        ] for i in range(1, 3) if day[f"valeur_heure_debut_{i}"] != ""]]
         for day in service["plage_ouverture"]
     ]
 
@@ -356,6 +356,19 @@ def obtenir_commune_matcher(corr_sous_communes):
     return commune_matcher
 
 
+MISSING_ADRESSE = {
+    "mairie-72304-02": {
+        "Lignes": "5 rue Mairie 72120 Sainte Osmane",
+        "CodePostal": "72120",
+        "NomCommune": "Sainte-Osmane",
+    }
+}
+
+def fill_missing_adresse(mairie):
+    if "Lignes" not in mairie["Adresse"] or "NomCommune" not in mairie["Adresse"]:
+        mairie["Adresse"] = MISSING_ADRESSE[mairie["id"]]
+
+
 def post_traitement_mairies(source, corr_sous_communes, dest):
     mairies = []
     commune_matcher = obtenir_commune_matcher(corr_sous_communes)
@@ -363,21 +376,18 @@ def post_traitement_mairies(source, corr_sous_communes, dest):
     with open(source, "r") as f:
         for ligne in f:
             mairie = json.loads(ligne)
+            fill_missing_adresse(mairie)
 
-            try:
-                adresse = (
-                    "\n".join(
-                        [
-                            mairie["Adresse"]["Lignes"],
-                            f"{mairie['Adresse']['CodePostal']} {mairie['Adresse']['NomCommune']}",
-                        ]
-                    )
-                    if mairie["Adresse"]
-                    else ""
+            adresse = (
+                "\n".join(
+                    [
+                        mairie["Adresse"]["Lignes"],
+                        f"{mairie['Adresse']['CodePostal']} {mairie['Adresse']['NomCommune']}",
+                    ]
                 )
-            except KeyError:
-                print("KEYERROR+=====================++++++++++")
-                print(mairie)
+                if mairie["Adresse"]
+                else ""
+            )
 
             matches = commune_matcher(mairie)
 
