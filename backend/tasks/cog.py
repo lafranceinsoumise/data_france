@@ -85,8 +85,10 @@ def task_traiter_cantons():
     }
 
 
+def format_epci_type(type):
+    return type[:2]
+
 def traiter_epci(epci_xls, dest):
-    print(f"EPCI EXCEL {epci_xls}")
     epci = (
         pd.read_excel(
             epci_xls,
@@ -98,6 +100,8 @@ def traiter_epci(epci_xls, dest):
         .rename(columns={"EPCI": "code", "LIBEPCI": "nom", "NATURE_EPCI": "type"})
         .iloc[:-1]  # éliminer le faux EPCI pas d'EPCI
     )
+
+    epci["type"] = epci["type"].apply(format_epci_type)
 
     with open(dest, "w") as f:
         epci.to_csv(f, index=False)

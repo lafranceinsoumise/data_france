@@ -35,9 +35,9 @@ insee:
 
   intercommunalite:
     epci:
-      url: https://www.insee.fr/fr/statistiques/fichier/2510634/Intercommunalite_Metropole_au_01-01-2023.zip
-      date: 01/2023
-      hash: 65e228464d18b45249f642690848b687a1bbc2b5399e18475b938275b475d868
+      url: https://www.insee.fr/fr/statistiques/fichier/2510634/epci_au_01-01-2024.zip
+      date: 01/2024
+      hash: b6c9dee214175983f45dcb89a16d069e5fa7a0fd3897a4a8da56d67aab90dafb
       extraire: xlsx
 
 ign:
