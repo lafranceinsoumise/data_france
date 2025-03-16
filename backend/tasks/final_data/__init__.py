@@ -446,7 +446,6 @@ def generer_fichier_collectivites_regionales(reg_path, ctu_path, lzma_path):
     with lzma.open(lzma_path, "wb") as l:
         colreg.to_csv(l, index=False)
 
-
 def generer_fichier_epci(path, lzma_path):
     with open(path, "r") as f, lzma.open(lzma_path, "wt") as l, id_from_file(
         "epci.csv"
@@ -829,6 +828,14 @@ def generer_fichier_elus_municipaux(elus_municipaux, communes, final_elus):
 
             w.writerow({k: v for k, v in l.items() if not k[0] == "_"})
 
+def get_elu_key(elu):
+    return elu["prenom"] + elu["nom"] + elu["date_naissance"]
+
+# KEY is prenom + nom + date_naissance
+# value is code dep missing in source file
+MISSING_ELU_CODE_DEP = {
+    "PericoLEGASSE1959-03-21": "45"
+}
 
 def generer_fichier_elus_departementaux(source, dest):
     with id_from_file("cantons.csv") as id_canton, id_from_file(
@@ -893,7 +900,7 @@ def generer_fichier_elus_regionaux(source, ctu_path, dest):
     ) as i, lzma.open(
         dest, "wt"
     ) as d:
-        r = csv.DictReader(i)
+        r = csv.DictReader(i, delimiter=',')
         w = csv.DictWriter(
             d,
             fieldnames=[
@@ -919,10 +926,20 @@ def generer_fichier_elus_regionaux(source, ctu_path, dest):
             colreg_id = id_colreg(code=code_colreg)
 
             code_dep = elu.pop("code_sec")
+
+            if code_dep is None or code_dep == '':
+                elu_key = get_elu_key(elu)
+                if elu_key in MISSING_ELU_CODE_DEP:
+                    code_dep = MISSING_ELU_CODE_DEP[elu_key]
+                else:
+                    raise RuntimeError(f"Elu code_dep error {elu}")
+
             if code_dep == "75":
                 code_dep = "75C"
             elif code_dep and code_dep[-1] not in ("E", "M"):
                 code_dep = f"{code_dep}D"
+
+            code_dep = code_dep.zfill(3)
 
             for f in [
                 "date_debut_fonction",
