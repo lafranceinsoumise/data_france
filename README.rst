@@ -131,9 +131,10 @@ Autres remarques
 Dev
 ~~~
 
-* Vous devez avoir `geo2topo, toposimplify, topo2geo` d'installer sur votre machine
-https://github.com/topojson/topojson
-
+* Vous devez avoir `geo2topo, toposimplify, topo2geo` d'installer sur votre machine - https://github.com/topojson/topojson
 
 Installer le projet `poetry install`
-Télécharger les sources `poetry run doit preparer`
+Télécharger les sources et build le projet : `poetry run doit build`
+Monter de version avant de publier : `poetry version patch/minor/major` - https://python-poetry.org/docs/cli#version
+Build le package : `poetry build`
+Publier le package sur Python Package Index : `poetry publish`
