@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "data-france"
-version = "0.14.7"
+version = "0.15.0a1"
 description = "Paquet agrégeant des données administratives publiques pour en rendre l'utilisation facile."
 authors = [
   "Salomé Cheysson <salome@cheysson.fr>",
@@ -11,7 +11,9 @@ license = "GNU-GPL 3.0"
 packages = [
   { include = "data_france" },
 ]
-include = ["data_france/data/*.csv.lzma"]
+include = [
+    { path = "data_france/data/*.csv.lzma", format = ["sdist", "wheel"] }
+]
 
 readme = "README.rst"
 homepage = "https://github.com/aktiur/data-france"
