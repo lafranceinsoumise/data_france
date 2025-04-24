@@ -8,8 +8,7 @@ from typing import Tuple
 
 from django.db import transaction
 from django.db.transaction import get_connection
-from psycopg2.sql import SQL, Identifier
-
+from psycopg.sql import SQL, Identifier
 from data_france.utils import TypeNom
 
 COPY_SQL = SQL(
@@ -147,7 +146,7 @@ def temporary_table(cursor, temp_table, reference_table, columns):
             temp_table=temp_table,
             reference_table=reference_table,
             columns=columns,
-        )
+        ).as_string(cursor)
     )
 
     try:
@@ -167,21 +166,19 @@ def importer_associations_communes_codes_postaux(using):
             cursor.execute(
                 SQL("TRUNCATE TABLE {table};").format(table=Identifier(table))
             )
-            cursor.copy_expert(
-                COPY_SQL.format(
+
+            with cursor.copy(COPY_SQL.format(
                     table=Identifier(table),
                     columns=SQL(",").join(Identifier(c) for c in columns),
-                ),
-                f,
-            )
-
+            )) as copy:
+                copy.write(f.read())
 
 def agreger_geometries_et_populations(using):
     with get_connection(using).cursor() as cursor:
 
         param_list = [
             {
-                "arrondissements": secteur.arrondissements,
+                "arrondissements": list(secteur.arrondissements),
                 "secteur": secteur.code,
             }
             for ville in VILLES_PLM
@@ -196,7 +193,7 @@ def agreger_geometries_et_populations(using):
                     geometry = (
                         SELECT ST_Multi(ST_Union(geometry :: geometry))
                         FROM "data_france_commune"
-                        WHERE code IN %(arrondissements)s
+                        WHERE code = ANY(%(arrondissements)s::text[])
                     )
                 WHERE code = %(secteur)s;
                 """,
@@ -336,13 +333,13 @@ def agreger_geometries_et_populations(using):
                        SUM(population) AS population,
                        ST_Multi(ST_Union(geometry :: geometry)) as geometry
                     FROM "data_france_departement"
-                    WHERE code IN %(codes_d)s
+                    WHERE code = ANY(%(codes_d)s::text[])
                 ) m
                 WHERE code = %(code_c)s;
                 """,
                 [
-                    {"code_c": "6AE", "codes_d": ("67", "68")},
-                    {"code_c": "20R", "codes_d": ("2A", "2B")},
+                    {"code_c": "6AE", "codes_d": ["67", "68"]},
+                    {"code_c": "20R", "codes_d": ["2A", "2B"]},
                 ],
             )
 
@@ -513,14 +510,11 @@ def import_with_temp_table(csv_file, table, using, marquer_inactif=False):
     with get_connection(using).cursor() as cursor, temporary_table(
         cursor, temp_table, table, columns
     ):
-
-        cursor.copy_expert(
-            COPY_SQL.format(
+        with cursor.copy(COPY_SQL.format(
                 table=Identifier(temp_table),
                 columns=SQL(",").join(Identifier(c) for c in columns),
-            ),
-            csv_file,
-        )
+        )) as copy:
+            copy.write(csv_file.read())
 
         setters = [
             Identifier(c) + SQL(" = ") + Identifier("excluded", c) for c in columns[1:]
