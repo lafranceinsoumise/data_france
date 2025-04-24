@@ -1,6 +1,17 @@
 data_france
 ===========
 
+Version 0.15.0
+--------------
+
+- mise à jour des sources
+- correction des codes EPCI
+- correction des colonnes d'horaire pour les mairies
+- ajout de codes départementaux manquants pour les élus
+- ajout de documentation pour build et publier le projet
+- mise à jour de psycopg vers la version 3
+
+
 Version 0.14.7
 --------------
 
