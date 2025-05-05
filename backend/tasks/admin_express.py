@@ -376,7 +376,6 @@ def trier_et_normaliser_geometries(obj, cle, inpaths, outpath):
     ]
 
     with outpath.open("w", newline="") as f:
-        print(f"file : {f}")
         w = csv.DictWriter(f, fieldnames=data[0].keys())
         w.writeheader()
         w.writerows(data)
