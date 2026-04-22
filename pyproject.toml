@@ -39,7 +39,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<4.0"
+python = ">=3.11,<4.0"
 django = "^5.0"
 django-countries = "^8.2.0"
 openpyxl = "^3.1.5"
@@ -48,22 +48,22 @@ setuptools = "^82.0.1"
 
 [tool.poetry.group.dev.dependencies]
 dotenv = "^0.9.9"
-doit = "^0.36.0"  # task runner
+doit = "^0.37.0"  # task runner
 PyYAML = "^6.0"  # read YAML configuration
 toml = "^0.10.2"  # read TOML configuration
-pandas = "^2.2.3"  # dataframe library
-pyarrow = "^15.0.2"  # read and write feather files
+pandas = "^3.0"  # dataframe library
+pyarrow = "^24.0.0"  # read and write feather files
 xlrd = "^2.0.1"  # read old excel .xls format
 fiona = "^1.8.21"  # open shapefiles
-lxml = "^4.9.1"  # open xml files
+lxml = "^6.1.0"  # open xml files
 beautifulsoup4 = "^4.11.1"  # parse html
 shapely = "^2.0.2"  # manipulates geometries
 requests = "^2.28.1"  # download
-glom = "^23.1.1"  # express data transformations
-patool="^2.1.1"  # unpack archive
+glom = "^25.0.0"  # express data transformations
+patool="^4.0.0"  # unpack archive
 
 # developing and testing
-black = "^23.1.0"  # formatting source code
+black = "^26.0.0"  # formatting source code
 django-types = "^0.16.0"
 ipython = "*"
 python-dotenv = "^0.21.1"
