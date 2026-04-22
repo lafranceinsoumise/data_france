@@ -1,7 +1,7 @@
 from functools import partial
 
 from django.contrib.admin import ModelAdmin
-from django.contrib.gis.admin import GeoModelAdmin, OSMGeoAdmin
+from django.contrib.gis.admin import GISModelAdmin
 from django.contrib.gis.db.models import GeometryField
 from django.db.models import (
     ForeignObjectRel,
@@ -25,7 +25,7 @@ def list_of_links(qs, view_name):
     )
 
 
-class ReadOnlyGeometryMixin(GeoModelAdmin):
+class ReadOnlyGeometryMixin(GISModelAdmin):
     def __init__(self, model, admin_site):
         super().__init__(model, admin_site)
 
@@ -127,7 +127,7 @@ class AddRelatedLinkMixin(ModelAdmin):
         return list_of_links(qs, view_name)
 
 
-class ImmutableModelAdmin(AddRelatedLinkMixin, ReadOnlyGeometryMixin, OSMGeoAdmin):
+class ImmutableModelAdmin(AddRelatedLinkMixin, ReadOnlyGeometryMixin, GISModelAdmin):
     def has_add_permission(self, request, obj=None):
         return False
 

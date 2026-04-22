@@ -40,10 +40,11 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
-django = "^4.2"
-django-countries = ">=7.3.1"
+django = "^5.0"
+django-countries = "^8.2.0"
 openpyxl = "^3.1.5"
 psycopg = {extras = ["binary"], version = "^3.2.6"}
+setuptools = "^82.0.1"
 
 [tool.poetry.group.dev.dependencies]
 dotenv = "^0.9.9"
