@@ -139,7 +139,6 @@ def service_extraire_adresse(service):
         "Lignes": "adresse.0.numero_voie",
         "CodePostal": "adresse.0.code_postal",
         "NomCommune": "adresse.0.nom_commune",
-        "Accessibilité": ("adresse.0", lambda a: {"type": a["accessibilite"], "détail": a["note_accessibilite"]})
     }
     localisation = []
     if latitude != 0 and longitude != 0:
