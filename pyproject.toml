@@ -68,7 +68,7 @@ django-types = "^0.16.0"
 ipython = "*"
 python-dotenv = "^0.21.1"
 dj-database-url = "^1.0.0"
-py7zr = "^0.22.0"
+py7zr = ">=0.22,<1.2"
 
 
 [build-system]
