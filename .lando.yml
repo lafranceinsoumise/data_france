@@ -1,0 +1,55 @@
+name: df
+
+env_file:
+  - .lando.env
+
+proxy:
+  django:
+    - data-france.lfi.site
+
+services:
+  django:
+    type: python:3.12
+    ssl: true
+    build_as_root:
+      - apt-get update && apt-get install -y python3-venv gdal-bin libgdal-dev libgeos-dev libproj-dev libgdal36 python3-dev p7zip-full curl
+      - curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && apt-get install -y nodejs
+      - mkdir -p /var/www/.npm-global
+      - export PATH="/var/www/.npm-global/bin:$PATH"
+      - npm config set prefix '/var/www/.npm-global'
+      - npm install -g topojson
+    build:
+      - mkdir -p /var/www/virtualenvs
+      - pip install --user pipx
+      - export PATH="/var/www/.local/bin:$PATH"
+      - rm -rf /var/www/.local/share/pipx/venvs/poetry
+      - pipx install poetry
+      - pipx install python-dotenv[cli]
+      - poetry config virtualenvs.in-project true
+    command: poetry run dotenv run ./manage.py runserver 0.0.0.0:80
+    overrides:
+      ports:
+        - "5778:5778"
+      environment:
+        PATH: "/var/www/.local/bin:/var/www/.npm-global/bin:$PATH"
+        GDAL_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu/libgdal.so
+        GEOS_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu/libgeos_c.so
+  database:
+    type: postgres:15
+    portforward: 5432
+    creds:
+      database: data_france
+      user: postgres
+      password: postgres
+
+events:
+  pre-start:
+    - django: poetry install --sync
+
+tooling:
+  manage:
+    service: django
+    cmd: /var/www/.local/bin/poetry run ./manage.py
+  poetry:
+    service: django
+    cmd: /var/www/.local/bin/poetry

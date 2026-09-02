@@ -131,7 +131,11 @@ Autres remarques
 Dev
 ~~~
 
-* Vous devez avoir `geo2topo, toposimplify, topo2geo` d'installer sur votre machine - https://github.com/topojson/topojson
+Data france peut être lancé localement avec Lando https://www.lando.dev via `lando start`, cette commande va lancer 2 conteneurs
+un conteneur pour le projet et un deuxieme pour la base de données postgresql.
+
+Pour lancer les téléchargement des fichiers en open data : `lando run doit build`
+Pour importer les données dans postgresql `lando manage update_data_france`
 
 Installer le projet `poetry install`
 Télécharger les sources et build le projet : `poetry run doit build`
