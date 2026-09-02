@@ -233,7 +233,7 @@ def parser_dates(df):
                 .str.replace(r"/16(\d{2})$", r"/19\1", regex=True)
             )
             try:
-                df[c] = pd.to_datetime(date_corrigee, format="%d/%m/%Y")
+                df[c] = pd.to_datetime(date_corrigee, format='mixed', dayfirst=True)
             except OutOfBoundsDatetime:
                 raise ValueError(f"Colonne {c}")
 

@@ -35,9 +35,9 @@ insee:
 
   intercommunalite:
     epci:
-      url: https://www.insee.fr/fr/statistiques/fichier/2510634/epci_au_01-01-2024.zip
-      date: 01/2024
-      hash: b6c9dee214175983f45dcb89a16d069e5fa7a0fd3897a4a8da56d67aab90dafb
+      url: https://www.insee.fr/fr/statistiques/fichier/2510634/epci_au_01-01-2026.zip
+      date: 01/2026
+      hash: 14f8236d99904c7781eee8e293c0f1a6c428c2e35e047d57ac90a356319dfe32
       extraire: xlsx
 
 ign:
@@ -54,28 +54,28 @@ interieur:
     municipaux:
       url: https://www.data.gouv.fr/fr/datasets/r/d5f400de-ae3f-4966-8cb6-a85c70c6c24a
       extension: .csv
-      date: 22/04/2026
-      hash: 9c1417683205729fa14068d5385aca866d205f8846ca9c6b7cd919885dd3ca93
+      date: 05/08/2026
+      hash: 4f789c80187fe14aa1e557b0c5c65b1891d0d67f586835693dd5d709d0ee9f2d
     epci:
       url: https://www.data.gouv.fr/fr/datasets/r/41d95d7d-b172-4636-ac44-32656367cdc7
       extension: .csv
-      date: 22/04/2026
-      hash: e1c0ec07e8506d4a1c991d29f42b4698bc39819e84553b54d57279ba20ac5335
+      date: 11/08/2026
+      hash: a17640b8944f30197c4f9c1dcd56c9c459b4aff2415d9df0419b935136353472
     departementaux:
       url: https://www.data.gouv.fr/fr/datasets/r/601ef073-d986-4582-8e1a-ed14dc857fba
       extension: .csv
-      date: 22/04/2026
-      hash: 335763a5af9474b2a6d4b0f2d6ce6616cefd0c1c1466bba5dc0ed0d2f1182f35
+      date: 05/08/2026
+      hash: 7af7a47ebab9c1512c5365f54760310c3d7740602edaed864021fa3bd6f1a121
     regionaux:
       url: https://www.data.gouv.fr/fr/datasets/r/430e13f9-834b-4411-a1a8-da0b4b6e715c
       extension: .csv
-      date: 22/04/2026
-      hash: b4ed64676602f530a5d4838f451e4ab27ad52f94f4f92f0593e00ea5473f5a91
+      date: 05/08/2026
+      hash: 110224814286d3f75418aecd15b6d819685103c74c697a5268a5743bac1c49b1
     europeens:
       url: https://www.data.gouv.fr/fr/datasets/r/70957bb0-f19f-40c5-b97b-90b3d4d71f9e
       extension: .csv
-      date: 22/04/2026
-      hash: f773ef9bd828fb08e0773402809ea667de3d28773a713bf02794ca5c6da9a85f
+      date: 05/08/2026
+      hash: 5cd51d9489dc8a1385bc762556f0967540873da0a7520aa6bcd05c2c2422d07e
     uniques:
       url: https://www.data.gouv.fr/fr/datasets/r/a595be27-cfab-4810-b9d4-22e193bffe35
       extension: .csv
@@ -221,9 +221,9 @@ laposte:
 
 premier_ministre:
   annuaire_administration:
-    url: https://www.data.gouv.fr/fr/datasets/r/73302880-e4df-4d4c-8676-1a61bb997f3d
+    url: https://www.data.gouv.fr/api/1/datasets/r/73302880-e4df-4d4c-8676-1a61bb997f3d
     extension: .tar.bz2
-    hash: ec3fe01518399d8c05ac9415c26e1b59ab5b243a27c4542ebae78b6b690c7836
+    hash: 24db4ed6fc5024fe3e0f48ac2e796eb5e44cc115c7021206d46847d3b51c4c6c
     extraire: []
 
 
@@ -236,7 +236,7 @@ conseil_constitutionnel:
 assemblee_nationale:
   deputes:
     url: https://data.assemblee-nationale.fr/static/openData/repository/17/amo/deputes_actifs_mandats_actifs_organes_divises/AMO40_deputes_actifs_mandats_actifs_organes_divises.json.zip
-    hash: c871e33c940ba9e6f39df114f4e41de8f102e5be99beae78ac65bdf88cbcf3c1
+    hash: b8b4e0f87eb3b33ead53ebeb5dfba46dc005e9c47bf1f4e74d3d243638abd0ab
 
 
 sciences_po:
