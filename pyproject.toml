@@ -52,7 +52,7 @@ doit = "^0.37.0"  # task runner
 PyYAML = "^6.0"  # read YAML configuration
 toml = "^0.10.2"  # read TOML configuration
 pandas = "^3.0"  # dataframe library
-pyarrow = "^24.0.0"  # read and write feather files
+pyarrow = ">=24,<26"  # read and write feather files
 xlrd = "^2.0.1"  # read old excel .xls format
 fiona = "^1.8.21"  # open shapefiles
 lxml = "^6.1.0"  # open xml files
