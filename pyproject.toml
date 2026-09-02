@@ -44,7 +44,7 @@ django = "^5.0"
 django-countries = "^8.2.0"
 openpyxl = "^3.1.5"
 psycopg = {extras = ["binary"], version = "^3.2.6"}
-setuptools = "^82.0.1"
+setuptools = ">=82.0.1,<84.0.0"
 
 [tool.poetry.group.dev.dependencies]
 dotenv = "^0.9.9"
@@ -66,9 +66,9 @@ patool="^4.0.0"  # unpack archive
 black = "^26.0.0"  # formatting source code
 django-types = "^0.16.0"
 ipython = "*"
-python-dotenv = "^0.21.1"
+python-dotenv = ">=0.21.1,<1.3.0"
 dj-database-url = "^1.0.0"
-py7zr = "^0.22.0"
+py7zr = ">=0.22,<1.2"
 
 
 [build-system]
