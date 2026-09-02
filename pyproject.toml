@@ -67,7 +67,7 @@ black = "^26.0.0"  # formatting source code
 django-types = ">=0.16,<0.25"
 ipython = "*"
 python-dotenv = ">=0.21.1,<1.3.0"
-dj-database-url = "^1.0.0"
+dj-database-url = ">=1,<4"
 py7zr = ">=0.22,<1.2"
 
 
