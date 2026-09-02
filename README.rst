@@ -134,8 +134,14 @@ Dev
 Data france peut être lancé localement avec Lando https://www.lando.dev via `lando start`, cette commande va lancer 2 conteneurs
 un conteneur pour le projet et un deuxieme pour la base de données postgresql.
 
-Pour lancer les téléchargement des fichiers en open data : `lando run doit build`
+Il faut ensuite lancer des migrations : `lando manage migrate`
+Pour lancer les téléchargement des fichiers en open data : `lando poetry run doit build  `
 Pour importer les données dans postgresql `lando manage update_data_france`
+
+Pour créer un superutilisateur : `lando manage createsuperuser`
+
+Build le paquet
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Installer le projet `poetry install`
 Télécharger les sources et build le projet : `poetry run doit build`

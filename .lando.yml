@@ -44,7 +44,7 @@ services:
 
 events:
   pre-start:
-    - django: poetry install --sync
+    - django: poetry sync
 
 tooling:
   manage:
