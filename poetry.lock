@@ -762,14 +762,14 @@ bcrypt = ["bcrypt"]
 
 [[package]]
 name = "django-countries"
-version = "8.2.0"
+version = "9.0.0"
 description = "Provides a country field for Django models."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "django_countries-8.2.0-py3-none-any.whl", hash = "sha256:2b2617bec7c15dc735bdec38ae89f0058e38fddfffdb19a7f6b75ef1e3d5380f"},
-    {file = "django_countries-8.2.0.tar.gz", hash = "sha256:6df3883180599052c7dfa9a8be0601792441cfb248935dc229ad1ac92e9e39e3"},
+    {file = "django_countries-9.0.0-py3-none-any.whl", hash = "sha256:21fce461733c856355c487d1f24b71338599482505004a0c2e521fd574a59fb1"},
+    {file = "django_countries-9.0.0.tar.gz", hash = "sha256:a993416af08a8a4e6e866d56b71c7ce92351c81a2543da213cd7899917567a42"},
 ]
 
 [package.dependencies]
@@ -2521,4 +2521,4 @@ test = ["pytest", "pytest-cov"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4.0"
-content-hash = "8e32ef9aa4184f3b3b0e07765b6d745aa0e8e6b1679a14517641c64d83327e66"
+content-hash = "b075e79dd118ee33859526bb3704bc936e9c75fa660cc893a2cfeeb7d54c6a42"
