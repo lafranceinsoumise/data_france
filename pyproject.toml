@@ -41,10 +41,10 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
 django = "^5.0"
-django-countries = "^8.2.0"
+django-countries = ">=8.2,<10.0"
 openpyxl = "^3.1.5"
 psycopg = {extras = ["binary"], version = "^3.2.6"}
-setuptools = "^82.0.1"
+setuptools = ">=82.0.1,<84.0.0"
 
 [tool.poetry.group.dev.dependencies]
 dotenv = "^0.9.9"
@@ -52,7 +52,7 @@ doit = "^0.37.0"  # task runner
 PyYAML = "^6.0"  # read YAML configuration
 toml = "^0.10.2"  # read TOML configuration
 pandas = "^3.0"  # dataframe library
-pyarrow = "^24.0.0"  # read and write feather files
+pyarrow = ">=24,<26"  # read and write feather files
 xlrd = "^2.0.1"  # read old excel .xls format
 fiona = "^1.8.21"  # open shapefiles
 lxml = "^6.1.0"  # open xml files
@@ -64,11 +64,11 @@ patool="^4.0.0"  # unpack archive
 
 # developing and testing
 black = "^26.0.0"  # formatting source code
-django-types = "^0.16.0"
+django-types = ">=0.16,<0.25"
 ipython = "*"
-python-dotenv = "^0.21.1"
-dj-database-url = "^1.0.0"
-py7zr = "^0.22.0"
+python-dotenv = ">=0.21.1,<1.3.0"
+dj-database-url = ">=1,<4"
+py7zr = ">=0.22,<1.2"
 
 
 [build-system]
