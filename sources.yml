@@ -223,7 +223,7 @@ premier_ministre:
   annuaire_administration:
     url: https://www.data.gouv.fr/api/1/datasets/r/73302880-e4df-4d4c-8676-1a61bb997f3d
     extension: .tar.bz2
-    hash: 24db4ed6fc5024fe3e0f48ac2e796eb5e44cc115c7021206d46847d3b51c4c6c
+    hash: 67134d6edc5abd6efe6894d47e36bf1a3ce22a7b66fdb8bdc096367db5673e85
     extraire: []
 
 
@@ -235,8 +235,8 @@ conseil_constitutionnel:
 
 assemblee_nationale:
   deputes:
-    url: https://data.assemblee-nationale.fr/static/openData/repository/17/amo/deputes_actifs_mandats_actifs_organes_divises/AMO40_deputes_actifs_mandats_actifs_organes_divises.json.zip
-    hash: b8b4e0f87eb3b33ead53ebeb5dfba46dc005e9c47bf1f4e74d3d243638abd0ab
+    url: https://data.assemblee-nationale.fr/static/openData/repository/17/amo/deputes_actifs_mandats_actifs_organes_divises/AMO40_deputes_actifs_mandats_actifs_organes_divises.json.zipdeputes_actifs_mandats_actifs_organes_divises/AMO40_deputes_actifs_mandats_actifs_organes_divises.json.zip
+    hash: add3863963583496f1076fb2e4d8a8b43c6cb33094708fe99e960a488b10113a
 
 
 sciences_po:
