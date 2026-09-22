@@ -1,6 +1,25 @@
 data_france
 ===========
 
+À publier
+---------
+
+- corrige l'index de recherche des communes, dont la moitié n'était plus trouvable
+
+Version 1.0.1
+-------------
+
+- mise à jour des sources (septembre 2026)
+- élargit les versions acceptées de django-countries (jusqu'à la 9) et setuptools
+- ajout d'un environnement de développement Lando et de sa documentation
+
+Version 1.0.0
+-------------
+
+- passage à Django 5 (Django 4 n'est plus supporté) et Python 3.11 minimum
+- remplace `GeoModelAdmin` et `OSMGeoAdmin`, supprimés dans Django 5, par `GISModelAdmin` dans l'admin
+- mise à jour des données de mandats (députés, élus municipaux, départementaux et régionaux)
+
 Version 0.15.0
 --------------
 
