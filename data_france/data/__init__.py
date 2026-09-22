@@ -366,17 +366,17 @@ def creer_index_recherche(using):
                 WHERE dfcc.commune_id IS NULL
             ),
             deps AS (
-                SELECT dfc.id AS commune_id, dfd.nom AS nom, dfd.code AS code FROM data_france_commune dfc
-                LEFT JOIN data_france_departement dfd
-                ON dfc.departement_id = dfd.id
-
-                UNION
-
-                SELECT dfc.id AS commune_id, dfd.nom AS nom, dfd.code AS code FROM data_france_commune dfc
+                SELECT
+                    dfc.id AS commune_id,
+                    COALESCE(dep_propre.nom, dep_parent.nom) AS nom,
+                    COALESCE(dep_propre.code, dep_parent.code) AS code
+                FROM data_france_commune dfc
+                LEFT JOIN data_france_departement dep_propre
+                ON dfc.departement_id = dep_propre.id
                 LEFT JOIN data_france_commune dfp
                 ON dfc.commune_parent_id = dfp.id
-                LEFT JOIN data_france_departement dfd
-                ON dfp.departement_id = dfd.id
+                LEFT JOIN data_france_departement dep_parent
+                ON dfp.departement_id = dep_parent.id
             )
 
             UPDATE data_france_commune AS dfc

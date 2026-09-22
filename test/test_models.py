@@ -60,6 +60,20 @@ class CommuneTestCase(TestCase):
             ],
         )
 
+    def test_index_recherche(self):
+        """Toutes les communes sont trouvables par leur nom et leur département, y compris sans département propre"""
+        self.assertFalse(Commune.objects.filter(search__isnull=True).exists())
+
+        for recherche, type_commune, code in [
+            ("Abergement-Clémenciat Ain", Commune.TypeCommune.COMMUNE, "01001"),
+            ("Tourlaville Manche", Commune.TypeCommune.COMMUNE_DELEGUEE, "50602"),
+        ]:
+            with self.subTest(recherche=recherche):
+                self.assertIn(
+                    (type_commune, code),
+                    Commune.objects.search(recherche).values_list("type", "code"),
+                )
+
     def test_avec_population(self):
         """Les communes ont leur population"""
 
