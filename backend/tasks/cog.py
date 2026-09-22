@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import List
 
 
-ANNEE_COG = "2024"
+ANNEE_COG = "2026"
 
 COMMUNE_TYPE_ORDERING = ["COM", "ARM", "COMA", "COMD", "SRM", None]
 
@@ -280,14 +280,7 @@ def traiter_cantons(cantons_cog_path, dest):
 
 def importer_evenements_communes(path):
     evenements = pd.read_csv(path)
-    date_eff = evenements.DATE_EFF.str.extract(
-        r"^(?P<day>\d{2})/(?P<month>\d{2})/(?P<year>\d{2})$"
-    )
-    date_eff["year"] = (
-        pd.Series("19", index=date_eff.index).where(date_eff.year >= "25", "20")
-        + date_eff.year
-    )
-    evenements["DATE_EFF"] = pd.to_datetime(date_eff)
+    evenements["DATE_EFF"] = pd.to_datetime(evenements.DATE_EFF)
     return evenements[evenements.DATE_EFF > SOURCES.insee.population.date]
 
 
@@ -422,6 +415,7 @@ class ActionFusion:
             for (date, com_ap), groupe in evenements[
                 evenements.MOD.isin(m.value for m in cls.mods)
                 & (evenements.TYPECOM_AP == "COM")
+                & (evenements.TYPECOM_AV == "COM")
             ].groupby(["DATE_EFF", "COM_AP"])
         ]
 

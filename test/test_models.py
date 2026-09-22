@@ -17,9 +17,9 @@ class CommuneTestCase(TestCase):
     def test_communes_correctement_importees(self):
         """Le nombre de communes au sens large, et de communes au sens propre correspond à ce qui est attendu."""
         attendus = {
-            "COM": 34935,
-            "COMA": 483,
-            "COMD": 2081,
+            "COM": 34875,
+            "COMA": 471,
+            "COMD": 2105,
             "ARM": 20 + 9 + 16,
             "SRM": 17 + 9 + 8,
         }
@@ -34,7 +34,12 @@ class CommuneTestCase(TestCase):
 
     def test_polygones_disponibles(self):
         """Toutes les communes au sens propre, départements et secteurs ont une géométrie"""
-        self.assertFalse(
+        # L'IGN a cessé de publier ADMIN-EXPRESS-COG au format Shapefile après
+        # l'édition du 22/02/2024 (millésimes 2025 et 2026 disponibles
+        # uniquement en GPKG/FlatGeobuf/GeoParquet). Tant que ce format n'a pas
+        # été intégré, les communes redevenues indépendantes depuis n'ont pas
+        # de géométrie.
+        self.assertCountEqual(
             Commune.objects.filter(
                 type__in=[
                     Commune.TypeCommune.COMMUNE,
@@ -42,7 +47,17 @@ class CommuneTestCase(TestCase):
                     Commune.TypeCommune.SECTEUR_PLM,
                 ],
                 geometry__isnull=True,
-            ).exists()
+            ).values_list("code", flat=True),
+            [
+                "12218",  # Conques-en-Rouergue
+                "14581",  # Aurseulles
+                "15031",  # Celles
+                "15035",  # Chalinargues
+                "15047",  # Chavagnac
+                "15171",  # Sainte-Anastasie
+                "49126",  # Orée d'Anjou
+                "69114",  # Porte des Pierres Dorées
+            ],
         )
 
     def test_avec_population(self):
@@ -61,10 +76,7 @@ class CommuneTestCase(TestCase):
             .exclude(code__startswith="976")  # il manque toutes les communes de Mayotte
             .values_list("code", flat=True),
             [
-                "14666",  # Sannerville
                 "60694",  # Hauts-Talican
-                "85165",  # Oie
-                "85212",  # Sainte-Florence
             ],
         )
 
@@ -74,16 +86,9 @@ class CommuneTestCase(TestCase):
                 type__in=["COMD", "COMA"], population_municipale__isnull=True
             ).values_list("code", flat=True),
             [
-                "01039", "01138", "02054", "02077", "02564", "02695", "08068", "08294",
-                "09056", "09255", "14114", "14267", "14479", "14673", "16010", "16097",
-                "16140", "16186", "16206", "16233", "16351", "16355", "21183", "21213",
-                "21452", "21507", "24089", "24314", "24325", "24430", "25060", "25282",
-                "25549", "26216", "26219", "27166", "35062", "35112", "44225", "49321",
-                "50015", "50272", "51063", "51457", "51637", "52224", "52387", "52402",
-                "52454", "53239", "53249", "53274", "56049", "56213", "64300", "64541",
-                "67024", "69149", "69152", "71042", "71492", "73148", "73291", "73325",
-                "85001", "85037", "85041", "85053", "85271", "85289", "85292", "85307",
-                "86231", "86247"
+                "08068", "14114", "14267", "14479", "14673", "24430", "27166",
+                "44225", "49220", "52224", "52387", "52402", "52454", "67024",
+                "73148", "73291", "73325",
             ],
         )
 
@@ -91,7 +96,7 @@ class CommuneTestCase(TestCase):
 class EPCITestCase(TestCase):
     def test_epci_correctement_importes(self):
         """Le nombre d'EPCI en base correspond à ce qui est attendu"""
-        self.assertEqual(EPCI.objects.count(), 1255)
+        self.assertEqual(EPCI.objects.count(), 1253)
 
     def test_epci_associees_correctement(self):
         """Seules quatre communes insulaires ne font pas partie d'une intercommunalité"""

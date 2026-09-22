@@ -1,15 +1,15 @@
 insee:
   cog:
-    url: https://www.insee.fr/fr/statistiques/fichier/7766585/cog_ensemble_2024_csv.zip
-    date: 17/02/2023
-    hash: 9842beab5eeb292febd4ad0dc46a3dd05b929794a42357447426511739e9abff
+    url: https://www.insee.fr/fr/statistiques/fichier/8740222/cog_ensemble_2026_csv.zip
+    date: 24/02/2026
+    hash: 5c037e2977c9d476cfe2e7b7f923bbe09a87cbe448c59e492a71ef6a917aa53f
     extraire:
-      - v_canton_2024.csv
-      - v_commune_2024.csv
-      - v_ctcd_2024.csv
-      - v_departement_2024.csv
-      - v_mvt_commune_2024.csv
-      - v_region_2024.csv
+      - v_canton_2026.csv
+      - v_commune_2026.csv
+      - v_ctcd_2026.csv
+      - v_departement_2026.csv
+      - v_mvt_commune_2026.csv
+      - v_region_2026.csv
 
   iris:
     contours:
