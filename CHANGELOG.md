@@ -5,6 +5,7 @@ data_france
 ---------
 
 - corrige l'index de recherche des communes, dont la moitié n'était plus trouvable
+- ajout des sénateurs (modèle `Senateur`), à partir de l'open data du Sénat
 
 Version 1.0.1
 -------------

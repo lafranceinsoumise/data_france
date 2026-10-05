@@ -80,6 +80,11 @@ disponibles sous forme de modèle Django :
 
 * Les députés
 
+* Les sénateurs, depuis l'open data du Sénat (le champ `circonscription`
+  contient le code du département ou de la collectivité d'outremer, ou `99`
+  pour les Français établis hors de France ; le lien vers `Departement` est
+  vide dans ces deux derniers cas)
+
 
 Vues JSON
 ----------
