@@ -10,6 +10,7 @@ from data_france.models import (
     CollectiviteRegionale,
     CirconscriptionConsulaire,
     CirconscriptionLegislative,
+    Senateur,
 )
 
 
@@ -230,3 +231,59 @@ class CirconscriptionConsulaireTest(TestCase):
 class CirconscriptionLegislativeTest(TestCase):
     def test_import_correct(self):
         self.assertEqual(CirconscriptionLegislative.objects.count(), 577)
+
+
+class SenateurTest(TestCase):
+    # codes des circonscriptions sénatoriales qui ne correspondent pas à un
+    # département : collectivités d'outremer et Français établis hors de France
+    CIRCONSCRIPTIONS_SANS_DEPARTEMENT = {"975", "977", "978", "986", "987", "988", "99"}
+
+    def test_import_correct(self):
+        # 348 sièges, dont certains peuvent être temporairement vacants (en
+        # attendant une élection partielle)
+        self.assertLessEqual(Senateur.objects.count(), 348)
+        self.assertGreaterEqual(Senateur.objects.count(), 340)
+        self.assertEqual(
+            Senateur.objects.values("code").distinct().count(),
+            Senateur.objects.count(),
+        )
+
+    def test_departements_attribues(self):
+        self.assertFalse(
+            Senateur.objects.filter(departement__isnull=True)
+            .exclude(circonscription__in=self.CIRCONSCRIPTIONS_SANS_DEPARTEMENT)
+            .exists()
+        )
+        self.assertFalse(
+            Senateur.objects.filter(
+                departement__isnull=False,
+                circonscription__in=self.CIRCONSCRIPTIONS_SANS_DEPARTEMENT,
+            ).exists()
+        )
+        self.assertIn(
+            Senateur.objects.filter(circonscription="99").count(), range(1, 13)
+        )
+
+        for s in Senateur.objects.filter(departement__isnull=False):
+            self.assertEqual(s.departement.code, s.circonscription)
+
+    def test_nom_circonscription(self):
+        for s in Senateur.objects.select_related("departement"):
+            self.assertTrue(s.nom_circonscription)
+            self.assertTrue(str(s))
+
+        s = Senateur.objects.filter(circonscription="99").first()
+        self.assertEqual(s.nom_circonscription, "Français établis hors de France")
+
+    def test_profession_renseignee(self):
+        self.assertFalse(Senateur.objects.filter(profession__isnull=True).exists())
+
+    def test_relation_seulement_avec_groupe(self):
+        self.assertFalse(Senateur.objects.filter(groupe="").exclude(relation="").exists())
+        self.assertFalse(Senateur.objects.exclude(groupe="").filter(relation="").exists())
+
+    def test_index_recherche(self):
+        s = Senateur.objects.exclude(departement=None).order_by("?").first()
+
+        self.assertIn(s, Senateur.objects.search(s.nom))
+        self.assertIn(s, Senateur.objects.search(s.departement.nom))

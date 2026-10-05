@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.test import TestCase
 from django.urls import reverse
 
@@ -9,6 +10,7 @@ from data_france.models import (
     Region,
     CollectiviteDepartementale,
     CollectiviteRegionale,
+    Senateur,
 )
 
 
@@ -80,3 +82,45 @@ class AdminTestCase(TestCase):
             reverse("admin:data_france_collectiviteregionale_change", args=(c.id,))
         )
         self.assertEqual(200, res.status_code)
+
+    def test_admin_senateur(self):
+        res = self.client.get(reverse("admin:data_france_senateur_changelist"))
+        self.assertEqual(200, res.status_code)
+
+        # avec et sans département
+        for s in [
+            Senateur.objects.exclude(departement=None).order_by("?").first(),
+            Senateur.objects.filter(departement=None).order_by("?").first(),
+        ]:
+            res = self.client.get(
+                reverse("admin:data_france_senateur_change", args=(s.id,))
+            )
+            self.assertEqual(200, res.status_code)
+
+    def test_admin_senateur_filtre_groupe(self):
+        url = reverse("admin:data_france_senateur_changelist")
+
+        res = self.client.get(url, {"groupe": "NI"})
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(
+            res.context["cl"].result_count,
+            Senateur.objects.filter(
+                Q(groupe="") | Q(groupe__endswith="(NI)")
+            ).count(),
+        )
+
+        s = (
+            Senateur.objects.exclude(groupe="")
+            .exclude(groupe__endswith="(NI)")
+            .order_by("?")
+            .first()
+        )
+        if s is None:
+            self.skipTest("Aucun sénateur membre d'un groupe")
+
+        res = self.client.get(url, {"groupe": s.groupe})
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(
+            res.context["cl"].result_count,
+            Senateur.objects.filter(groupe=s.groupe).count(),
+        )
