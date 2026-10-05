@@ -239,6 +239,19 @@ assemblee_nationale:
     hash: a6188f40a445a79124e67039a76834a4e0f97acd6eab40115563b5f1777145af
 
 
+senat:
+  senateurs:
+    url: https://data.senat.fr/data/senateurs/ODSEN_GENERAL.csv
+    date: 05/10/2026
+    hash: 052dd4750dbbbfc12bb3d5adf0a35190dcb9c4942d579e85e640a8b5bed0fa23
+    encoding: latin1
+  groupes:
+    url: https://data.senat.fr/data/senateurs/ODSEN_HISTOGROUPES.csv
+    date: 05/10/2026
+    hash: 1433f258b4367500c92bfc6e2383fcabb9a01186364b508dfab3706afeaee625
+    encoding: latin1
+
+
 sciences_po:
   contours_circonscriptions_legislatives:
     url: https://static.data.gouv.fr/resources/carte-des-circonscriptions-legislatives-2012-et-2017/20170721-135742/france-circonscriptions-legislatives-2012.json

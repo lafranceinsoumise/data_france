@@ -11,6 +11,7 @@ from .rne import *
 from .parrainages import *
 from .consulaires import *
 from .assemblee_nationale import *
+from .senat import *
 
 # Patch RGB color because openpyxl does not support old XLS file with color
 from openpyxl.styles.colors import WHITE, RGB

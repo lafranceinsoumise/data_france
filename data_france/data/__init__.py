@@ -502,6 +502,29 @@ def creer_index_recherche(using):
         """
         )
 
+        # l'index des sénateurs
+        # Les sénateurs des collectivités d'outremer et des Français de
+        # l'étranger n'ont pas de département, d'où la jointure à gauche
+        cursor.execute(
+            """
+        WITH s AS (
+          SELECT
+            e.id AS id,
+            setweight(to_tsvector('data_france_search', COALESCE(e."nom", '')), 'A')
+         || setweight(to_tsvector('data_france_search', COALESCE(e."prenom", '')), 'A')
+         || setweight(to_tsvector('data_france_search', COALESCE(e."circonscription", '')), 'C')
+         || setweight(to_tsvector('data_france_search', COALESCE(d."nom", '')), 'C')
+            AS search
+          FROM data_france_senateur e
+          LEFT JOIN data_france_departement d ON e.departement_id = d.id
+        )
+        UPDATE data_france_senateur e
+        SET search = s.search
+        FROM s
+        WHERE s.id = e.id
+        """
+        )
+
 
 def import_with_temp_table(csv_file, table, using, marquer_inactif=False):
     temp_table = f"{table}_temp"
@@ -672,6 +695,14 @@ def importer_donnees(using=None):
             "deputes_europeens.csv.lzma",
             "data_france_deputeeuropeen",
             "Chargement des députés européens",
+            marquer_inactif=True,
+            using=using,
+        )
+
+        import_standard(
+            "senateurs.csv.lzma",
+            "data_france_senateur",
+            "Chargement des sénateurs",
             marquer_inactif=True,
             using=using,
         )

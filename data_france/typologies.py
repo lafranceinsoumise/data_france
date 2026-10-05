@@ -21,6 +21,7 @@ class RelationGroupe(TextChoices):
     PRESIDENT = "P", "Président⋅e de groupe"
     MEMBRE = "M", "Membre"
     APPARENTE = "A", "Membre apparenté au groupe"
+    RATTACHE = "R", "Rattaché⋅e administrativement au groupe"
 
 
 class CSP(IntegerChoices):
