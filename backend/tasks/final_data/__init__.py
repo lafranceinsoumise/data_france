@@ -16,6 +16,7 @@ from sources import BASE_DIR, SOURCE_DIR, PREPARE_DIR, SOURCES
 from tasks.admin_express import COMMUNES_GEOMETRY, CANTONS_GEOMETRY
 from tasks.annuaire_administratif import MAIRIES_TRAITEES
 from tasks.assemblee_nationale import ASSEMBLEE_NATIONALE_DIR
+from tasks.senat import SENATEURS
 from tasks.cog import (
     DEPARTEMENTS_COG,
     REGIONS_COG,
@@ -50,6 +51,7 @@ FINAL_COLLECTIVITES_DEPARTEMENTALES = (
 FINAL_COLLECTIVITES_REGIONALES = DATA_DIR / "collectivites_regionales.csv.lzma"
 FINAL_DEPUTES = DATA_DIR / "deputes.csv.lzma"
 FINAL_DEPUTES_EUROPEENS = DATA_DIR / "deputes_europeens.csv.lzma"
+FINAL_SENATEURS = DATA_DIR / "senateurs.csv.lzma"
 FINAL_ELUS_MUNICIPAUX = DATA_DIR / "elus_municipaux.csv.lzma"
 FINAL_ELUS_DEPARTEMENTAUX = DATA_DIR / "elus_departementaux.csv.lzma"
 FINAL_ELUS_REGIONAUX = DATA_DIR / "elus_regionaux.csv.lzma"
@@ -70,6 +72,9 @@ INTERIEUR_VERS_DEPARTEMENT = {
 }
 
 NON_DEPARTEMENT = re.compile(r"^9(?:7[57]|8\d)$")
+# circonscriptions sénatoriales sans département : collectivités d'outremer et
+# Français établis hors de France (99)
+SENAT_SANS_DEPARTEMENT = re.compile(r"^9(?:7[578]|8\d|9)$")
 
 
 def code_circonscription(prop):
@@ -94,6 +99,7 @@ __all__ = [
     "task_generer_fichier_elus_regionaux",
     "task_generer_fichier_deputes",
     "task_generer_fichier_deputes_europeens",
+    "task_generer_fichier_senateurs",
 ]
 
 
@@ -338,6 +344,15 @@ def task_generer_fichier_deputes_europeens():
         "actions": [
             (generer_fichiers_deputes_europeens, (source, FINAL_DEPUTES_EUROPEENS))
         ],
+    }
+
+
+def task_generer_fichier_senateurs():
+    return {
+        "file_dep": [SENATEURS],
+        "task_dep": ["generer_fichier_departements"],
+        "targets": [FINAL_SENATEURS],
+        "actions": [(generer_fichier_senateurs, (SENATEURS, FINAL_SENATEURS))],
     }
 
 
@@ -1065,5 +1080,50 @@ def generer_fichiers_deputes_europeens(source, dest):
                         sexe=e["sexe"],
                     ),
                     **e,
+                }
+            )
+
+
+def generer_fichier_senateurs(source, dest):
+    with open(source) as s_fd, lzma.open(dest, "wt") as d_fd, id_from_file(
+        "departements.csv", True
+    ) as id_departement, id_from_file("senateurs.csv") as id:
+        r = csv.DictReader(s_fd)
+        w = csv.DictWriter(
+            d_fd,
+            fieldnames=[
+                "id",
+                "code",
+                "nom",
+                "prenom",
+                "sexe",
+                "date_naissance",
+                "profession",
+                "circonscription",
+                "departement_id",
+                "groupe",
+                "relation",
+                "email",
+                "description_profession",
+                "date_debut_mandat",
+            ],
+        )
+
+        w.writeheader()
+
+        for e in r:
+            # les collectivités d'outremer et les Français de l'étranger n'ont
+            # pas de département correspondant
+            if SENAT_SANS_DEPARTEMENT.match(e["circonscription"]):
+                departement_id = NULL
+            else:
+                departement_id = id_departement(code=e["circonscription"])
+
+            w.writerow(
+                {
+                    **e,
+                    "id": id(code=e["code"]),
+                    "departement_id": departement_id,
+                    "date_debut_mandat": NULL,
                 }
             )

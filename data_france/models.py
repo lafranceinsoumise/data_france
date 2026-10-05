@@ -27,6 +27,7 @@ __all__ = [
     "EluDepartemental",
     "EluRegional",
     "DeputeEuropeen",
+    "Senateur",
 ]
 
 
@@ -789,7 +790,7 @@ class Depute(IdentiteMixin, models.Model):
     )
 
     relation = models.CharField(
-        verbose_name="Type de relation au groupe",
+        verbose_name="Appartenance au groupe",
         max_length=1,
         choices=RelationGroupe.choices,
         blank=True,
@@ -946,3 +947,84 @@ class DeputeEuropeen(IdentiteMixin):
         verbose_name = "Député‧e européen‧ne"
         verbose_name_plural = "Député·es européen·nes"
         ordering = ("nom", "prenom", "date_naissance")
+
+
+class Senateur(IdentiteMixin):
+    objects = SearchQueryset.as_manager()
+
+    code = models.CharField(
+        verbose_name="Matricule Sénat",
+        max_length=10,
+        editable=False,
+    )
+
+    circonscription = models.CharField(
+        verbose_name="Code de la circonscription",
+        help_text="Code du département ou de la collectivité d'outremer, 99 pour "
+        "les Français établis hors de France",
+        max_length=3,
+        editable=False,
+    )
+
+    departement = models.ForeignKey(
+        Departement,
+        verbose_name="Département",
+        on_delete=models.CASCADE,
+        related_name="senateurs",
+        related_query_name="senateur",
+        null=True,
+        editable=False,
+    )
+
+    actif = models.BooleanField(
+        verbose_name="Mandat en cours", editable=False, default=True
+    )
+
+    groupe = models.CharField(
+        verbose_name="Groupe politique",
+        max_length=200,
+        blank=True,
+        editable=False,
+    )
+
+    relation = models.CharField(
+        verbose_name="Appartenance au groupe",
+        max_length=1,
+        choices=RelationGroupe.choices,
+        blank=True,
+        editable=False,
+    )
+
+    email = models.EmailField(
+        verbose_name="Adresse email", blank=True, editable=False
+    )
+
+    description_profession = models.CharField(
+        verbose_name="Description de la profession",
+        max_length=500,
+        blank=True,
+        editable=False,
+    )
+
+    date_debut_mandat = models.DateField(
+        verbose_name="Date de début du mandat", editable=False, null=True
+    )
+
+    search = SearchVectorField(verbose_name="Champ de recherche", null=True)
+
+    @property
+    def nom_circonscription(self):
+        if self.departement:
+            return self.departement.nom
+        elif self.circonscription == "99":
+            return "Français établis hors de France"
+        return NOMS_COM[self.circonscription].nom
+
+    def __str__(self):
+        return f"{self.nom}, {self.prenom} ({self.nom_circonscription})"
+
+    class Meta:
+        verbose_name = "Sénateur‧ice"
+        verbose_name_plural = "Sénateur‧ices"
+        ordering = ("nom", "prenom", "date_naissance")
+        indexes = (GinIndex(fields=["search"]),)
